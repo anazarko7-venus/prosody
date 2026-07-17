@@ -240,7 +240,7 @@
 
 .on .voltaNote {
   display: block;
-  margin: 0.3em 0 0.15em;
+  margin: 0.3em 0 0.9em; /* clear the stress marks of the line below */
   max-width: 34em;
 }
 
