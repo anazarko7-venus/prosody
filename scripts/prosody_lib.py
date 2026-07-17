@@ -5,8 +5,12 @@ non-deterministic annotation (volta, themes) lives in annotate.py's
 Claude pass. CMU dict via `pronouncing`.
 
 Stress code per syllable:
-  '1' stressed, '0' unstressed, 'x' flexible (monosyllables, secondary
-  stress, and words missing from the CMU dict — they fit any template).
+  '1' stressed / '0' unstressed — from CMU, polysyllabic words only;
+      these are the syllables that can contradict a metrical template.
+  'w' weak monosyllable (function words) — unstressed by nature but
+      promotable to a strong position, so never a deviation.
+  'x' flexible — stressed monosyllables, secondary stress, unknown
+      words. Fits any position.
 """
 import re
 
@@ -59,7 +63,7 @@ def word_stress(word):
         return "x" * _fallback_syllables(word)
     raw = pronouncing.stresses(phones[0])
     if len(raw) == 1:
-        return "0" if w in LIGHT_WORDS else "x"
+        return "w" if w in LIGHT_WORDS else "x"
     return raw.replace("2", "x")
 
 
@@ -78,8 +82,11 @@ METERS = {
     "iambic_pentameter": ("01", 10),
     "iambic_tetrameter": ("01", 8),
     "iambic_trimeter": ("01", 6),
+    "iambic_hexameter": ("01", 12),
     "trochaic_tetrameter": ("10", 8),
-    "trochaic_pentameter": ("10", 10),
+    "trochaic_octameter": ("10", 16),
+    "anapestic_tetrameter": ("001", 12),
+    "anapestic_trimeter": ("001", 9),
 }
 
 
@@ -103,17 +110,21 @@ def line_fit(stress, meter):
     template = template_for(meter, n)
     devs = []
     for i, s in enumerate(stress):
-        if s == "x":
-            continue
+        if s in "xw":
+            continue  # flexible; weak monosyllables promote freely
         if s != template[i]:
             # feminine ending: extra unstressed syllable past the expected length
             if i >= length and s == "0":
                 continue
             devs.append(i)
-    # length penalty: how far off the canonical syllable count
-    len_penalty = min(abs(n - length), 4) * 0.08
+    # length penalty: how far off the canonical syllable count.
+    # catalexis (one syllable short, e.g. trochaic 7s) is cheap.
+    diff = abs(n - length)
+    len_penalty = min(diff * 0.12, 0.6)
+    if diff == 1:
+        len_penalty = 0.04
     # a feminine ending is free
-    if n == length + 1 and stress[-1] in "0x":
+    if n == length + 1 and stress[-1] in "0wx":
         len_penalty = 0.0
     score = max(0.0, 1.0 - len(devs) / max(n, 1) * 2.0 - len_penalty)
     return score, devs
@@ -179,25 +190,33 @@ def rhyming_part(word):
     return "~" + re.sub(r"[^a-z]", "", w)[-3:]
 
 
+def line_endings(lines):
+    return [rhyming_part(words_of(l)[-1]) if words_of(l) else None for l in lines]
+
+
 def rhyme_scheme(lines):
     """Uppercase letters per non-blank line; '-' for blank lines.
 
-    Letters are assigned in order of first appearance. Lines whose
-    ending rhymes with no other line get their own letter.
+    Letters are assigned in order of first appearance; after Z the
+    second cycle is lowercase. Rhyme groups only merge when they recur
+    within a 6-line window, so a chance repeat 40 lines later doesn't
+    get the same letter.
     """
-    endings = []
-    for line in lines:
-        ws = words_of(line)
-        endings.append(rhyming_part(ws[-1]) if ws else None)
-    letters = {}
+    endings = line_endings(lines)
     scheme = []
-    for e in endings:
+    last_seen = {}  # rhyming part -> (letter, line index of last use)
+    n_letters = 0
+    for i, e in enumerate(endings):
         if e is None:
             scheme.append("-")
             continue
-        if e not in letters:
-            letters[e] = _letter(len(letters))
-        scheme.append(letters[e])
+        if e in last_seen and i - last_seen[e][1] <= 6:
+            letter = last_seen[e][0]
+        else:
+            letter = _letter(n_letters)
+            n_letters += 1
+        last_seen[e] = (letter, i)
+        scheme.append(letter)
     return "".join(scheme)
 
 
@@ -206,15 +225,17 @@ def _letter(i):
     return alpha[i % 26] if i < 26 else alpha[i % 26].lower()
 
 
-def is_rhymed(scheme):
-    """True if a meaningful share of lines participate in a rhyme pair."""
-    letters = [c for c in scheme if c != "-"]
-    if len(letters) < 2:
+def is_rhymed(lines):
+    """True if a meaningful share of lines rhyme with a nearby line."""
+    endings = [e for e in line_endings(lines) if e is not None]
+    if len(endings) < 2:
         return False
-    from collections import Counter
-    counts = Counter(letters)
-    paired = sum(v for v in counts.values() if v > 1)
-    return paired / len(letters) >= 0.5
+    rhymed = 0
+    for i, e in enumerate(endings):
+        lo, hi = max(0, i - 4), min(len(endings), i + 5)
+        if any(endings[j] == e for j in range(lo, hi) if j != i):
+            rhymed += 1
+    return rhymed / len(endings) >= 0.4
 
 
 # -------------------------------------------------------------------- form
@@ -233,19 +254,19 @@ def classify_form(lines, scheme, meter):
             return "sonnet_other"
     if n == 5 and _matches(s, "AABBA", tolerance=0):
         return "limerick"
-    if n == 19 and _has_refrain_lines(nonblank):
+    if n == 19 and find_refrain(lines):
         return "villanelle"
     if meter == "common_meter":
         return "common_meter_stanzas"
     if _couplet_share(s) >= 0.7:
         return "couplets"
-    if meter == "iambic_pentameter" and not is_rhymed(s):
+    if meter == "iambic_pentameter" and not is_rhymed(lines):
         return "blank_verse"
     if _quatrain_like(lines, s):
         return "quatrains"
-    if meter == "free_verse" and not is_rhymed(s):
+    if meter == "free_verse" and not is_rhymed(lines):
         return "free_verse"
-    if is_rhymed(s):
+    if is_rhymed(lines):
         return "rhymed_stanzas"
     return "irregular"
 

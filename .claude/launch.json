@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "prosody",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/amelionazarko/Documents/Claude-Workspace/projects/prosody && exec npm run dev"
+      ],
+      "port": 3000,
+      "autoPort": true,
+      "cwd": "/Users/amelionazarko/Documents/Claude-Workspace/projects/prosody"
+    }
+  ]
+}
