@@ -12,7 +12,7 @@
 }
 
 .crumbs a:hover {
-  color: var(--ink);
+  color: var(--color-text);
 }
 
 /* ------------------------------- toggle ------------------------------- */
@@ -21,16 +21,16 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--ink-60);
+  color: var(--color-text-secondary);
   transition: color 160ms ease;
 }
 
 .toggle:hover {
-  color: var(--ink);
+  color: var(--color-text);
 }
 
 .toggle[aria-pressed="true"] {
-  color: var(--accent);
+  color: var(--color-accent);
 }
 
 .switch {
@@ -66,10 +66,10 @@
 .kbd {
   font-family: var(--mono);
   font-size: var(--text-2xs);
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--color-border);
   padding: 0 var(--space-1);
   border-radius: 2px;
-  color: var(--ink-25);
+  color: var(--color-text-tertiary);
 }
 
 /* -------------------------------- head -------------------------------- */
@@ -89,7 +89,7 @@
 .byline {
   font-family: var(--serif);
   font-style: italic;
-  color: var(--ink-60);
+  color: var(--color-text-secondary);
   margin-top: var(--space-2);
   font-size: var(--text-lg);
 }
@@ -100,7 +100,7 @@
 
 .fit,
 .scheme {
-  color: var(--ink-40);
+  color: var(--color-text-tertiary);
 }
 
 /* -------------------------------- body -------------------------------- */
@@ -153,7 +153,7 @@
   font-family: var(--mono);
   font-size: var(--annot-sm);
   line-height: 1;
-  color: var(--ink-60);
+  color: var(--color-text-secondary);
   user-select: none;
   pointer-events: none;
   opacity: 0;
@@ -173,31 +173,31 @@
 }
 
 .soft {
-  opacity: 0.38;
+  color: var(--color-text-tertiary);
 }
 
 .dev {
-  color: var(--accent);
+  color: var(--color-accent);
   font-weight: var(--weight-marks);
 }
 
 /* ------------------------------- devices ------------------------------- */
 
 .echo {
-  border-bottom: 1px dotted var(--ink-25);
+  border-bottom: 1px dotted var(--color-border-strong);
 }
 
 .caesura {
   font-family: var(--mono);
   font-size: var(--annot-md);
-  color: var(--ink-40);
+  color: var(--color-text-tertiary);
   padding: 0 0.25em;
 }
 
 .enj {
   font-family: var(--mono);
   font-size: var(--annot-md);
-  color: var(--ink-40);
+  color: var(--color-text-tertiary);
   margin-left: 0.25em;
   user-select: none;
 }
@@ -208,7 +208,7 @@
   top: 0.25em;
   font-family: var(--mono);
   font-size: var(--annot-sm);
-  color: var(--ink-40);
+  color: var(--color-text-secondary);
   text-indent: 0;
   transition: top 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -218,7 +218,7 @@
 }
 
 .rhymeLone {
-  color: var(--ink-25);
+  color: var(--color-text-tertiary);
 }
 
 /* -------------------------------- volta -------------------------------- */
@@ -234,7 +234,7 @@
 }
 
 .on .voltaLine::before {
-  border-color: var(--accent);
+  border-color: var(--color-border-accent);
 }
 
 .voltaNote {
@@ -243,7 +243,7 @@
   font-style: italic;
   font-size: var(--annot-md);
   line-height: var(--leading-ui);
-  color: var(--accent);
+  color: var(--color-accent);
   text-indent: 0;
 }
 
@@ -267,26 +267,22 @@
 .legend {
   margin-top: var(--space-12);
   padding-top: var(--space-4);
-  border-top: 1px solid var(--hairline-soft);
+  border-top: 1px solid var(--color-border-soft);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.legend .tag {
-  color: var(--ink-40);
-}
-
 .legendSoft {
-  opacity: 0.65;
+  color: var(--color-text-tertiary);
 }
 
 .legendDev {
-  color: var(--accent);
+  color: var(--color-accent);
 }
 
 .themes {
-  color: var(--ink-40);
+  color: var(--color-text-tertiary);
 }
 
 /* ------------------------------ responsive ----------------------------- */

@@ -121,7 +121,8 @@
   --color-accent-bg: var(--rust-alpha-09);
   --color-border: var(--ink-alpha-14);
   --color-border-soft: var(--ink-alpha-07);
-  --color-border-input: var(--ink-400); /* 3.2:1 ≥ 3:1 non-text */
+  --color-border-strong: var(--ink-400); /* 3.2:1 ≥ 3:1 non-text */
+  --color-border-input: var(--ink-400);
   --color-border-hover: var(--ink-400);
   --color-border-accent: var(--rust-600);
   --color-border-disabled: var(--ink-250);
