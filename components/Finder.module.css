@@ -289,10 +289,8 @@
   color: var(--color-text-placeholder);
 }
 
-.keyword:focus {
-  outline: none;
+.keyword:focus-visible {
   border-bottom-color: var(--color-border-accent);
-  box-shadow: none;
 }
 
 /* --------------------------- sentence + footer --------------------------- */
@@ -383,6 +381,7 @@
     translate var(--dur-fast) var(--ease-std),
     opacity var(--dur-base) var(--ease-std);
   white-space: nowrap;
+  min-height: var(--target-min);
 }
 
 .stamp:hover:not(:disabled) {
@@ -706,5 +705,34 @@
 
   .allMeta {
     display: none;
+  }
+}
+
+/* --------------------------- interactive targets ------------------------ */
+/* Fine pointers: nothing below --target-dense (controls here sit at
+   27–44px). Coarse pointers: everything reaches --target-min. */
+
+.pill,
+.opt,
+.allBtn {
+  min-height: var(--target-dense);
+}
+
+@media (pointer: coarse) {
+  .pill,
+  .opt,
+  .slotBtn,
+  .allBtn {
+    min-height: var(--target-min);
+    align-items: center;
+  }
+
+  .keyword,
+  .allRow {
+    min-height: var(--target-min);
+  }
+
+  .relaxChip {
+    padding-block: var(--space-2);
   }
 }

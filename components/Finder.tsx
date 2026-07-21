@@ -126,6 +126,13 @@ function Slot({
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape" && ref.current?.open) {
+      ref.current.open = false;
+      ref.current.querySelector("summary")?.focus();
+    }
+  };
+
   useEffect(() => {
     const close = (e: PointerEvent) => {
       const el = ref.current;
@@ -136,7 +143,7 @@ function Slot({
   }, []);
 
   return (
-    <details className={styles.slot} ref={ref}>
+    <details className={styles.slot} ref={ref} onKeyDown={onKeyDown}>
       <summary
         className={`${styles.slotBtn} ${display ? styles.slotFilled : ""}`}
       >
@@ -145,12 +152,11 @@ function Slot({
           ▾
         </span>
       </summary>
-      <div className={styles.menu} role="listbox" aria-multiselectable={multi}>
+      <div className={styles.menu}>
         {options.map((o) => (
           <button
             key={o.v}
-            role="option"
-            aria-selected={o.on}
+            aria-pressed={o.on}
             disabled={o.n === 0 && !o.on}
             className={`${styles.opt} ${o.on ? styles.optOn : ""} ${
               o.n === 0 && !o.on ? styles.optZero : ""
@@ -175,6 +181,9 @@ function Slot({
 /* -------------------------------- finder -------------------------------- */
 
 type Phase = "idle" | "drawing" | "revealed";
+
+/* keep in sync with --dur-deal in app/tokens.css */
+const DEAL_MS = 640;
 
 export default function Finder({ index }: { index: PoemMeta[] }) {
   const router = useRouter();
@@ -307,7 +316,7 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
         setDrawnId(pick.id);
         setPhase("revealed");
       },
-      reduced ? 0 : 620
+      reduced ? 0 : DEAL_MS
     );
   }, [results, phase, drawnId]);
 
@@ -351,6 +360,7 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
   return (
     <main className={styles.desk}>
       <div className={styles.stage}>
+        <h1 className={styles.srOnly}>Find a poem by how it&rsquo;s made</h1>
         {/* ------------------------- the request slip ------------------------- */}
         <section className={styles.slip} aria-label="Compose a request">
           <header className={styles.slipHead}>
@@ -434,12 +444,14 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
             </div>
 
             <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>words</span>
+              <label htmlFor="keyword" className={`${styles.rowLabel} tag`}>
+                words
+              </label>
               <input
+                id="keyword"
                 type="search"
                 className={styles.keyword}
                 placeholder="a title, an author…"
-                aria-label="Filter by title or author"
                 value={filters.q ?? ""}
                 onChange={(e) => setParam("q", e.target.value || null)}
                 onKeyDown={(e) => {
@@ -520,7 +532,7 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
               <p className={styles.cardBy}>
                 {drawn.author} · {label(drawn.era)}
               </p>
-              <div className={styles.cardLines} aria-hidden>
+              <div className={styles.cardLines}>
                 {drawn.opening.map((l, i) => (
                   <p key={i}>{l}</p>
                 ))}

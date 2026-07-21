@@ -148,7 +148,7 @@ export default function Reader({ poem }: { poem: Poem }) {
             const segments = segmentLine(line, poem.scansion[i] ?? []);
             const devs = new Set(poem.deviations[i] ?? []);
             const anaphSpan = anaphora.get(n);
-            const stagger = Math.min(visIdx++, 24);
+            const stagger = Math.min(visIdx++, 24); // steps of --stagger-xs (tokens.css)
             const letter = poem.rhyme_scheme[i];
 
             return (
