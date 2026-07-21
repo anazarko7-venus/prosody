@@ -24,11 +24,11 @@
   position: relative;
   width: 100%;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--stroke-hairline) solid var(--color-border);
   box-shadow: var(--shadow-sheet);
   padding: var(--space-6) var(--space-8);
-  rotate: -0.35deg;
-  animation: slipIn 640ms var(--ease-out) backwards;
+  rotate: calc(-1 * var(--tilt-1) * var(--tilt-factor));
+  animation: slipIn var(--dur-deal) var(--ease-out) backwards;
 }
 
 /* stray sheets under the slip */
@@ -38,16 +38,17 @@
   position: absolute;
   inset: 0;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  z-index: -1;
+  border: var(--stroke-hairline) solid var(--color-border-soft);
+  z-index: var(--z-behind);
 }
 
 .slip::before {
-  transform: rotate(0.8deg) translate(var(--space-1), var(--space-1));
+  transform: rotate(calc(var(--tilt-2) * var(--tilt-factor)))
+    translate(var(--space-1), var(--space-1));
 }
 
 .slip::after {
-  transform: rotate(-1.1deg)
+  transform: rotate(calc(-1 * var(--tilt-2) * var(--tilt-factor)))
     translate(calc(-1 * var(--space-2)), var(--space-2));
   background: var(--color-bg-recessed);
 }
@@ -55,8 +56,8 @@
 @keyframes slipIn {
   from {
     opacity: 0;
-    translate: 0 14px;
-    rotate: 0.6deg;
+    translate: 0 var(--space-4);
+    rotate: var(--tilt-2);
   }
 }
 
@@ -74,7 +75,7 @@
 
 .rule {
   flex: 1;
-  border-top: 1px solid var(--color-border-soft);
+  border-top: var(--stroke-hairline) solid var(--color-border-soft);
 }
 
 /* -------------------------------- rows --------------------------------- */
@@ -90,7 +91,7 @@
   gap: var(--space-4);
   align-items: baseline;
   padding: var(--space-3) 0;
-  border-bottom: 1px dashed var(--color-border-soft);
+  border-bottom: var(--stroke-hairline) dashed var(--color-border-soft);
 }
 
 .rowLabel {
@@ -112,14 +113,16 @@
   gap: var(--space-1);
   font-size: var(--text-xs);
   padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border: var(--stroke-hairline) solid var(--color-border);
+  border-radius: var(--radius-full);
   color: var(--color-text-secondary);
   background-image: linear-gradient(var(--color-accent-bg), var(--color-accent-bg));
   background-repeat: no-repeat;
   background-size: 0% 100%;
-  transition: background-size 300ms var(--ease-out), color 160ms ease,
-    border-color 160ms ease, opacity 160ms ease;
+  transition: background-size var(--dur-gentle) var(--ease-out),
+    color var(--dur-quick) var(--ease-std),
+    border-color var(--dur-quick) var(--ease-std),
+    opacity var(--dur-quick) var(--ease-std);
   user-select: none;
 }
 
@@ -136,7 +139,7 @@
 }
 
 .pill:disabled {
-  opacity: 0.32;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 
@@ -171,10 +174,11 @@
   font-style: italic;
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
-  border-bottom: 1px solid var(--color-border-input);
+  border-bottom: var(--stroke-hairline) solid var(--color-border-input);
   padding: 0 0 var(--space-1);
   cursor: pointer;
-  transition: color 160ms ease, border-color 160ms ease;
+  transition: color var(--dur-quick) var(--ease-std),
+    border-color var(--dur-quick) var(--ease-std);
   user-select: none;
 }
 
@@ -195,7 +199,7 @@
 .slotCaret {
   font-size: var(--annot-sm);
   color: var(--color-text-tertiary);
-  transition: rotate 240ms var(--ease-out);
+  transition: rotate var(--dur-base) var(--ease-out);
 }
 
 .slot[open] .slotCaret {
@@ -204,23 +208,23 @@
 
 .menu {
   position: absolute;
-  z-index: 40;
+  z-index: var(--z-popover);
   top: calc(100% + var(--space-2));
   left: calc(-1 * var(--space-3));
   min-width: var(--menu-w);
   max-height: var(--menu-max-h);
   overflow-y: auto;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--stroke-hairline) solid var(--color-border);
   box-shadow: var(--shadow-sheet);
   padding: var(--space-1);
-  animation: menuIn 220ms var(--ease-out);
+  animation: menuIn var(--dur-base) var(--ease-out);
 }
 
 @keyframes menuIn {
   from {
     opacity: 0;
-    translate: 0 -5px;
+    translate: 0 calc(-1 * var(--space-1));
   }
 }
 
@@ -234,7 +238,8 @@
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
   text-align: left;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background var(--dur-fast) var(--ease-std),
+    color var(--dur-fast) var(--ease-std);
 }
 
 .opt:hover:not(:disabled) {
@@ -248,7 +253,7 @@
 }
 
 .optZero {
-  opacity: 0.35;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 
@@ -274,7 +279,7 @@
   color: var(--color-text);
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-border-input);
+  border-bottom: var(--stroke-hairline) solid var(--color-border-input);
   padding: 0 0 var(--space-1);
   width: 100%;
   max-width: var(--keyword-max-w);
@@ -307,7 +312,7 @@
   font: inherit;
   color: var(--color-accent);
   text-decoration: line-through;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--stroke-hairline);
 }
 
 .relaxChip:hover {
@@ -321,7 +326,7 @@
   gap: var(--space-4);
   margin-top: var(--space-4);
   padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
+  border-top: var(--stroke-hairline) solid var(--color-border);
 }
 
 .tally {
@@ -355,7 +360,7 @@
 .odoReel {
   display: flex;
   flex-direction: column;
-  transition: transform 560ms var(--ease-out);
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 
 .odoReel > span {
@@ -369,12 +374,14 @@
   letter-spacing: var(--tracking-caps-wide);
   text-transform: uppercase;
   color: var(--color-accent);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: 999px;
+  border: var(--stroke-emphasis) solid var(--color-border-accent);
+  border-radius: var(--radius-full);
   padding: var(--space-2) var(--space-5);
-  rotate: -1.6deg;
-  transition: rotate 240ms var(--ease-out), background-color 200ms ease,
-    translate 100ms ease, opacity 200ms ease;
+  rotate: calc(-1 * var(--tilt-3) * var(--tilt-factor));
+  transition: rotate var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-std),
+    translate var(--dur-fast) var(--ease-std),
+    opacity var(--dur-base) var(--ease-std);
   white-space: nowrap;
 }
 
@@ -384,7 +391,7 @@
 }
 
 .stamp:active:not(:disabled) {
-  translate: 0 1.5px;
+  translate: 0 var(--press-depth);
 }
 
 .stamp:disabled {
@@ -392,7 +399,7 @@
   border-color: var(--color-border-disabled);
   rotate: 0deg;
   cursor: default;
-  opacity: 0.7;
+  opacity: var(--opacity-muted);
 }
 
 /* ------------------------------- the table ------------------------------ */
@@ -421,22 +428,23 @@
   right: 0;
   height: var(--deck-sheet-h);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--stroke-hairline) solid var(--color-border);
   box-shadow: var(--shadow-paper);
   bottom: calc(var(--si) * var(--space-1));
-  rotate: calc((var(--si) - 1) * 0.7deg);
-  transition: bottom 400ms var(--ease-out), rotate 400ms var(--ease-out);
+  rotate: calc((var(--si) - 1) * var(--tilt-2));
+  transition: bottom var(--dur-gentle) var(--ease-out),
+    rotate var(--dur-gentle) var(--ease-out);
 }
 
 .tableDrawing .sheet {
-  animation: riffle 480ms var(--ease-out);
-  animation-delay: calc(var(--si) * 60ms);
+  animation: riffle var(--dur-slow) var(--ease-out);
+  animation-delay: calc(var(--si) * var(--stagger-sm));
 }
 
 @keyframes riffle {
   35% {
-    translate: 0 -12px;
-    rotate: -2.4deg;
+    translate: 0 calc(-1 * var(--space-3));
+    rotate: calc(-1 * (var(--tilt-3) + var(--tilt-2)));
   }
 }
 
@@ -455,22 +463,22 @@
 
 .card {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-raised);
   width: min(100%, var(--container-sheet));
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--stroke-hairline) solid var(--color-border);
   box-shadow: var(--shadow-sheet);
   padding: var(--space-6) var(--space-8);
-  rotate: 0.4deg;
+  rotate: calc(var(--tilt-1) * var(--tilt-factor));
   transform-origin: bottom center;
-  animation: dealt 620ms var(--ease-out);
+  animation: dealt var(--dur-deal) var(--ease-out);
 }
 
 @keyframes dealt {
   from {
     opacity: 0;
-    translate: 0 5.5rem;
-    rotate: 4deg;
+    translate: 0 var(--space-24);
+    rotate: var(--tilt-4);
     scale: 0.92;
   }
   55% {
@@ -486,12 +494,12 @@
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-caps);
   color: var(--color-accent);
-  border: 1.5px solid currentColor;
-  border-radius: 3px;
+  border: var(--stroke-emphasis) solid currentColor;
+  border-radius: var(--radius-xs);
   padding: var(--space-1) var(--space-2);
-  rotate: 5deg;
-  opacity: 0.85;
-  animation: thump 380ms var(--ease-out) 340ms backwards;
+  rotate: calc(var(--tilt-4) + var(--tilt-2));
+  opacity: var(--opacity-strong);
+  animation: thump var(--dur-gentle) var(--ease-out) calc(4 * var(--stagger-md)) backwards;
 }
 
 .cardNoSup {
@@ -503,11 +511,11 @@
 @keyframes thump {
   from {
     scale: 1.9;
-    rotate: -7deg;
+    rotate: calc(-1 * (var(--tilt-4) + var(--tilt-3)));
     opacity: 0;
   }
   70% {
-    opacity: 0.95;
+    opacity: 1;
   }
 }
 
@@ -518,7 +526,7 @@
   letter-spacing: var(--tracking-display);
   line-height: var(--leading-display);
   padding-right: var(--space-16);
-  animation: rise 460ms var(--ease-out) 140ms backwards;
+  animation: rise var(--dur-slow) var(--ease-out) calc(2 * var(--stagger-md)) backwards;
 }
 
 .cardBy {
@@ -527,7 +535,7 @@
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
   margin-top: var(--space-1);
-  animation: rise 460ms var(--ease-out) 210ms backwards;
+  animation: rise var(--dur-slow) var(--ease-out) calc(3 * var(--stagger-md)) backwards;
 }
 
 .cardLines {
@@ -538,19 +546,19 @@
   margin-top: var(--space-4);
   white-space: pre-wrap;
   mask-image: linear-gradient(180deg, currentColor 40%, transparent 100%);
-  animation: rise 460ms var(--ease-out) 290ms backwards;
+  animation: rise var(--dur-slow) var(--ease-out) calc(4 * var(--stagger-md)) backwards;
 }
 
 .cardMeta {
   color: var(--color-text-tertiary);
   margin-top: var(--space-3);
-  animation: rise 460ms var(--ease-out) 360ms backwards;
+  animation: rise var(--dur-slow) var(--ease-out) calc(5 * var(--stagger-md)) backwards;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    translate: 0 9px;
+    translate: 0 var(--space-2);
   }
 }
 
@@ -561,8 +569,8 @@
   gap: var(--space-5);
   margin-top: var(--space-4);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-soft);
-  animation: rise 460ms var(--ease-out) 430ms backwards;
+  border-top: var(--stroke-hairline) solid var(--color-border-soft);
+  animation: rise var(--dur-slow) var(--ease-out) calc(6 * var(--stagger-md)) backwards;
 }
 
 .readLink {
@@ -575,12 +583,12 @@
 .readLink:hover {
   text-decoration: underline;
   text-underline-offset: var(--space-1);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--stroke-hairline);
 }
 
 .arrow {
   display: inline-block;
-  transition: translate 220ms var(--ease-out);
+  transition: translate var(--dur-base) var(--ease-out);
 }
 
 .readLink:hover .arrow {
@@ -589,7 +597,7 @@
 
 .allBtn {
   color: var(--color-text-tertiary);
-  transition: color 140ms ease;
+  transition: color var(--dur-quick) var(--ease-std);
 }
 
 .allBtn:hover {
@@ -602,7 +610,7 @@
   list-style: none;
   width: min(100%, var(--container-sheet));
   margin: var(--space-6) 0 var(--space-2);
-  animation: rise 400ms var(--ease-out) backwards;
+  animation: rise var(--dur-gentle) var(--ease-out) backwards;
 }
 
 .allRow {
@@ -611,8 +619,8 @@
   gap: var(--space-3);
   align-items: baseline;
   padding: var(--space-2) var(--space-2) var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border-soft);
-  transition: background 140ms ease;
+  border-bottom: var(--stroke-hairline) solid var(--color-border-soft);
+  transition: background var(--dur-quick) var(--ease-std);
 }
 
 .allRow:hover {
@@ -666,16 +674,6 @@
 
   .slip {
     padding: var(--space-5);
-    rotate: -0.15deg;
-  }
-
-  .slip::before {
-    transform: rotate(0.4deg) translate(var(--space-1), var(--space-1));
-  }
-
-  .slip::after {
-    transform: rotate(-0.5deg)
-      translate(calc(-1 * var(--space-1)), var(--space-1));
   }
 
   .row {
