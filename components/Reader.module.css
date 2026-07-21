@@ -65,7 +65,7 @@
 
 .kbd {
   font-family: var(--mono);
-  font-size: 0.625rem;
+  font-size: var(--text-2xs);
   border: 1px solid var(--hairline);
   padding: 0 var(--space-1);
   border-radius: 2px;
@@ -80,10 +80,10 @@
 
 .title {
   font-family: var(--serif);
-  font-size: clamp(1.75rem, 4.8vw, 2.3rem);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-size: clamp(var(--text-2xl), 4.8vw, var(--text-3xl));
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
 }
 
 .byline {
@@ -91,7 +91,7 @@
   font-style: italic;
   color: var(--ink-60);
   margin-top: var(--space-2);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
 }
 
 .meta {
@@ -110,9 +110,9 @@
 
 .body {
   font-family: var(--serif);
-  font-size: 1.28rem;
-  font-weight: 420;
-  line-height: 1.75;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-verse);
+  line-height: var(--leading-verse);
 }
 
 .stanzaBreak {
@@ -151,7 +151,7 @@
   display: flex;
   justify-content: space-around;
   font-family: var(--mono);
-  font-size: 0.58em;
+  font-size: var(--annot-sm);
   line-height: 1;
   color: var(--ink-60);
   user-select: none;
@@ -178,7 +178,7 @@
 
 .dev {
   color: var(--accent);
-  font-weight: 700;
+  font-weight: var(--weight-marks);
 }
 
 /* ------------------------------- devices ------------------------------- */
@@ -189,14 +189,14 @@
 
 .caesura {
   font-family: var(--mono);
-  font-size: 0.7em;
+  font-size: var(--annot-md);
   color: var(--ink-40);
   padding: 0 0.25em;
 }
 
 .enj {
   font-family: var(--mono);
-  font-size: 0.66em;
+  font-size: var(--annot-md);
   color: var(--ink-40);
   margin-left: 0.25em;
   user-select: none;
@@ -207,7 +207,7 @@
   right: calc(-1 * var(--space-10));
   top: 0.25em;
   font-family: var(--mono);
-  font-size: 0.6em;
+  font-size: var(--annot-sm);
   color: var(--ink-40);
   text-indent: 0;
   transition: top 320ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -241,8 +241,8 @@
   display: none;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 0.72em;
-  line-height: 1.45;
+  font-size: var(--annot-md);
+  line-height: var(--leading-ui);
   color: var(--accent);
   text-indent: 0;
 }
@@ -256,9 +256,9 @@
 .voltaWord {
   font-family: var(--mono);
   font-style: normal;
-  font-size: 0.82em;
+  font-size: var(--annot-lg);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: var(--tracking-caps);
   margin-right: 0.5em;
 }
 
@@ -296,9 +296,6 @@
     padding: var(--space-4) var(--gutter) var(--space-16);
   }
 
-  .body {
-    font-size: 1.15rem;
-  }
 
   .rhyme {
     right: calc(-1 * var(--space-5));
