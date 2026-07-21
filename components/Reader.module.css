@@ -11,6 +11,17 @@
   padding: var(--space-1) 0 var(--space-10);
 }
 
+.crumbs a {
+  padding-block: var(--space-2);
+}
+
+@media (pointer: coarse) {
+  .toggle,
+  .crumbs a {
+    min-height: var(--target-min);
+  }
+}
+
 .crumbs a:hover {
   color: var(--color-text);
 }
@@ -21,6 +32,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  padding-block: var(--space-2);
+  min-height: var(--target-dense);
   color: var(--color-text-secondary);
   transition: color var(--dur-quick) var(--ease-std);
 }
