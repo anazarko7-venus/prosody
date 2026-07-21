@@ -6,13 +6,13 @@
     var(--paper) 45%,
     var(--paper-deep) 100%
   );
-  min-height: calc(100dvh - 4.3rem);
+  flex: 1;
 }
 
 .stage {
-  max-width: 46rem;
+  max-width: var(--container-stage);
   margin: 0 auto;
-  padding: 3rem 2rem 4rem;
+  padding: var(--space-12) var(--gutter) var(--space-16);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,7 +26,7 @@
   background: var(--paper-card);
   border: 1px solid var(--hairline);
   box-shadow: var(--sheet-shadow);
-  padding: 1.7rem 2.2rem 1.5rem;
+  padding: var(--space-6) var(--space-8);
   rotate: -0.35deg;
   animation: slipIn 640ms var(--ease-out) backwards;
 }
@@ -43,11 +43,12 @@
 }
 
 .slip::before {
-  transform: rotate(0.8deg) translate(5px, 4px);
+  transform: rotate(0.8deg) translate(var(--space-1), var(--space-1));
 }
 
 .slip::after {
-  transform: rotate(-1.1deg) translate(-6px, 7px);
+  transform: rotate(-1.1deg)
+    translate(calc(-1 * var(--space-2)), var(--space-2));
   background: var(--paper-deep);
 }
 
@@ -62,8 +63,8 @@
 .slipHead {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  margin-bottom: 0.9rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .slipHead .tag {
@@ -85,10 +86,10 @@
 
 .row {
   display: grid;
-  grid-template-columns: 4.2rem minmax(0, 1fr);
-  gap: 1.1rem;
+  grid-template-columns: var(--label-col-w) minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: baseline;
-  padding: 0.62rem 0;
+  padding: var(--space-3) 0;
   border-bottom: 1px dashed var(--hairline-soft);
 }
 
@@ -102,15 +103,15 @@
 .pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem 0.45rem;
+  gap: var(--space-2);
 }
 
 .pill {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.38em;
+  gap: var(--space-1);
   font-size: 0.8125rem;
-  padding: 0.16rem 0.62rem 0.2rem;
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--hairline);
   border-radius: 999px;
   color: var(--ink-60);
@@ -165,13 +166,13 @@
   list-style: none;
   display: inline-flex;
   align-items: baseline;
-  gap: 0.45em;
+  gap: var(--space-2);
   font-family: var(--serif);
   font-style: italic;
   font-size: 1.1rem;
   color: var(--ink-60);
   border-bottom: 1px solid var(--hairline);
-  padding: 0 0.1rem 0.08rem;
+  padding: 0 0 var(--space-1);
   cursor: pointer;
   transition: color 160ms ease, border-color 160ms ease;
   user-select: none;
@@ -204,15 +205,15 @@
 .menu {
   position: absolute;
   z-index: 40;
-  top: calc(100% + 0.45rem);
-  left: -0.4rem;
-  min-width: 16rem;
-  max-height: 15rem;
+  top: calc(100% + var(--space-2));
+  left: calc(-1 * var(--space-3));
+  min-width: var(--menu-w);
+  max-height: var(--menu-max-h);
   overflow-y: auto;
   background: var(--paper-card);
   border: 1px solid var(--hairline);
   box-shadow: var(--sheet-shadow);
-  padding: 0.35rem;
+  padding: var(--space-1);
   animation: menuIn 220ms var(--ease-out);
 }
 
@@ -227,9 +228,9 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 1.2rem;
+  gap: var(--space-4);
   width: 100%;
-  padding: 0.32rem 0.55rem;
+  padding: var(--space-2);
   font-size: 0.84rem;
   color: var(--ink-60);
   text-align: left;
@@ -274,9 +275,9 @@
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--hairline);
-  padding: 0 0.1rem 0.08rem;
+  padding: 0 0 var(--space-1);
   width: 100%;
-  max-width: 18rem;
+  max-width: var(--keyword-max-w);
 }
 
 .keyword::placeholder {
@@ -297,8 +298,8 @@
   font-size: 1.16rem;
   line-height: 1.5;
   color: var(--ink-60);
-  margin-top: 1.15rem;
-  min-height: 2.2em;
+  margin-top: var(--space-4);
+  min-height: var(--incant-reserve);
   text-wrap: balance;
 }
 
@@ -317,9 +318,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1.05rem;
-  padding-top: 1rem;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--hairline);
 }
 
@@ -327,7 +328,7 @@
   color: var(--ink-40);
   display: inline-flex;
   align-items: baseline;
-  gap: 0.1em;
+  gap: 0.25em;
 }
 
 .srOnly {
@@ -370,7 +371,7 @@
   color: var(--accent);
   border: 1.5px solid var(--accent);
   border-radius: 999px;
-  padding: 0.55rem 1.25rem 0.5rem;
+  padding: var(--space-2) var(--space-5);
   rotate: -1.6deg;
   transition: rotate 240ms var(--ease-out), background-color 200ms ease,
     translate 100ms ease, opacity 200ms ease;
@@ -399,7 +400,7 @@
 .table {
   position: relative;
   width: 100%;
-  margin-top: 2.6rem;
+  margin-top: var(--space-10);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -409,20 +410,20 @@
 
 .deck {
   position: relative;
-  width: 12.5rem;
-  height: 4.6rem;
-  margin-top: 1.9rem;
+  width: var(--deck-w);
+  height: var(--deck-h);
+  margin-top: var(--space-8);
 }
 
 .sheet {
   position: absolute;
   left: 0;
   right: 0;
-  height: 3.3rem;
+  height: var(--deck-sheet-h);
   background: var(--paper-card);
   border: 1px solid var(--hairline);
   box-shadow: 0 1px 2px rgba(33, 30, 26, 0.06);
-  bottom: calc(var(--si) * 4px);
+  bottom: calc(var(--si) * var(--space-1));
   rotate: calc((var(--si) - 1) * 0.7deg);
   transition: bottom 400ms var(--ease-out), rotate 400ms var(--ease-out);
 }
@@ -443,7 +444,7 @@
   position: absolute;
   inset: 0;
   bottom: auto;
-  top: calc(100% - 3.3rem + 1.05rem);
+  top: calc(100% - var(--deck-sheet-h) + var(--space-4));
   text-align: center;
   color: var(--ink-40);
   letter-spacing: 0.14em;
@@ -455,11 +456,11 @@
 .card {
   position: relative;
   z-index: 2;
-  width: min(100%, 34rem);
+  width: min(100%, var(--container-sheet));
   background: var(--paper-card);
   border: 1px solid var(--hairline);
   box-shadow: var(--sheet-shadow);
-  padding: 1.9rem 2.2rem 1.4rem;
+  padding: var(--space-6) var(--space-8);
   rotate: 0.4deg;
   transform-origin: bottom center;
   animation: dealt 620ms var(--ease-out);
@@ -479,15 +480,15 @@
 
 .cardNo {
   position: absolute;
-  top: 1.15rem;
-  right: 1.25rem;
+  top: var(--space-4);
+  right: var(--space-5);
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: var(--accent);
   border: 1.5px solid currentColor;
   border-radius: 3px;
-  padding: 0.22rem 0.45rem 0.18rem;
+  padding: var(--space-1) var(--space-2);
   rotate: 5deg;
   opacity: 0.85;
   animation: thump 380ms var(--ease-out) 340ms backwards;
@@ -516,7 +517,7 @@
   font-weight: 540;
   letter-spacing: -0.01em;
   line-height: 1.2;
-  padding-right: 4rem;
+  padding-right: var(--space-16);
   animation: rise 460ms var(--ease-out) 140ms backwards;
 }
 
@@ -525,7 +526,7 @@
   font-style: italic;
   font-size: 1.08rem;
   color: var(--ink-60);
-  margin-top: 0.3rem;
+  margin-top: var(--space-1);
   animation: rise 460ms var(--ease-out) 210ms backwards;
 }
 
@@ -534,7 +535,7 @@
   font-size: 1.12rem;
   line-height: 1.6;
   color: var(--ink-60);
-  margin-top: 1.05rem;
+  margin-top: var(--space-4);
   white-space: pre-wrap;
   mask-image: linear-gradient(180deg, #000 40%, transparent 100%);
   animation: rise 460ms var(--ease-out) 290ms backwards;
@@ -542,7 +543,7 @@
 
 .cardMeta {
   color: var(--ink-40);
-  margin-top: 0.7rem;
+  margin-top: var(--space-3);
   animation: rise 460ms var(--ease-out) 360ms backwards;
 }
 
@@ -557,9 +558,9 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 1.3rem;
-  margin-top: 1.15rem;
-  padding-top: 0.9rem;
+  gap: var(--space-5);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--hairline-soft);
   animation: rise 460ms var(--ease-out) 430ms backwards;
 }
@@ -573,7 +574,7 @@
 
 .readLink:hover {
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: var(--space-1);
   text-decoration-thickness: 1px;
 }
 
@@ -583,7 +584,7 @@
 }
 
 .readLink:hover .arrow {
-  translate: 4px 0;
+  translate: var(--space-1) 0;
 }
 
 .allBtn {
@@ -599,17 +600,17 @@
 
 .all {
   list-style: none;
-  width: min(100%, 34rem);
-  margin: 1.4rem 0 0.6rem;
+  width: min(100%, var(--container-sheet));
+  margin: var(--space-6) 0 var(--space-2);
   animation: rise 400ms var(--ease-out) backwards;
 }
 
 .allRow {
   display: grid;
-  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
-  gap: 0.9rem;
+  grid-template-columns: var(--num-col-w) minmax(0, 1fr) auto;
+  gap: var(--space-3);
   align-items: baseline;
-  padding: 0.5rem 0.4rem 0.5rem 0;
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
   border-bottom: 1px solid var(--hairline-soft);
   transition: background 140ms ease;
 }
@@ -633,7 +634,7 @@
 .allMain {
   display: flex;
   align-items: baseline;
-  gap: 0.7rem;
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -660,26 +661,27 @@
 
 @media (max-width: 640px) {
   .stage {
-    padding: 1.6rem 1.1rem 3rem;
+    padding: var(--space-6) var(--gutter) var(--space-12);
   }
 
   .slip {
-    padding: 1.3rem 1.2rem 1.15rem;
+    padding: var(--space-5);
     rotate: -0.15deg;
   }
 
   .slip::before {
-    transform: rotate(0.4deg) translate(3px, 3px);
+    transform: rotate(0.4deg) translate(var(--space-1), var(--space-1));
   }
 
   .slip::after {
-    transform: rotate(-0.5deg) translate(-3px, 5px);
+    transform: rotate(-0.5deg)
+      translate(calc(-1 * var(--space-1)), var(--space-1));
   }
 
   .row {
     grid-template-columns: 1fr;
-    gap: 0.3rem;
-    padding: 0.55rem 0;
+    gap: var(--space-1);
+    padding: var(--space-2) 0;
   }
 
   .rowLabel {
@@ -692,20 +694,16 @@
     text-align: center;
   }
 
-  .stamp {
-    padding: 0.7rem 1.25rem 0.65rem;
-  }
-
   .menu {
-    min-width: 13rem;
+    min-width: var(--menu-w-compact);
   }
 
   .card {
-    padding: 1.4rem 1.3rem 1.1rem;
+    padding: var(--space-5);
   }
 
   .cardTitle {
-    padding-right: 3rem;
+    padding-right: var(--space-12);
     font-size: 1.4rem;
   }
 
