@@ -69,7 +69,7 @@
 
 .slipHead .tag {
   color: var(--ink-40);
-  letter-spacing: 0.22em;
+  letter-spacing: var(--tracking-caps-wide);
 }
 
 .rule {
@@ -110,7 +110,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: var(--space-1);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--hairline);
   border-radius: 999px;
@@ -142,7 +142,7 @@
 
 .pillN {
   font-family: var(--mono);
-  font-size: 0.59rem;
+  font-size: var(--text-2xs);
   color: var(--ink-40);
   font-variant-numeric: tabular-nums;
 }
@@ -169,7 +169,7 @@
   gap: var(--space-2);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--ink-60);
   border-bottom: 1px solid var(--hairline);
   padding: 0 0 var(--space-1);
@@ -193,7 +193,7 @@
 }
 
 .slotCaret {
-  font-size: 0.62em;
+  font-size: var(--annot-sm);
   color: var(--ink-25);
   transition: rotate 240ms var(--ease-out);
 }
@@ -231,7 +231,7 @@
   gap: var(--space-4);
   width: 100%;
   padding: var(--space-2);
-  font-size: 0.84rem;
+  font-size: var(--text-xs);
   color: var(--ink-60);
   text-align: left;
   transition: background 120ms ease, color 120ms ease;
@@ -254,12 +254,12 @@
 
 .tick {
   font-family: var(--mono);
-  font-size: 0.72em;
+  font-size: var(--annot-md);
 }
 
 .optN {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   color: var(--ink-40);
   font-variant-numeric: tabular-nums;
 }
@@ -270,7 +270,7 @@
   font: inherit;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--ink);
   background: transparent;
   border: none;
@@ -295,8 +295,8 @@
 .incant {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.16rem;
-  line-height: 1.5;
+  font-size: var(--text-lg);
+  line-height: var(--leading-ui);
   color: var(--ink-60);
   margin-top: var(--space-4);
   min-height: var(--incant-reserve);
@@ -365,8 +365,8 @@
 /* the find button, a rubber stamp */
 .stamp {
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-caps-wide);
   text-transform: uppercase;
   color: var(--accent);
   border: 1.5px solid var(--accent);
@@ -447,7 +447,7 @@
   top: calc(100% - var(--deck-sheet-h) + var(--space-4));
   text-align: center;
   color: var(--ink-40);
-  letter-spacing: 0.14em;
+  letter-spacing: var(--tracking-caps-wide);
   pointer-events: none;
 }
 
@@ -483,8 +483,8 @@
   top: var(--space-4);
   right: var(--space-5);
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-caps);
   color: var(--accent);
   border: 1.5px solid currentColor;
   border-radius: 3px;
@@ -495,7 +495,7 @@
 }
 
 .cardNoSup {
-  font-size: 0.72em;
+  font-size: var(--annot-md);
   vertical-align: super;
   text-decoration: underline;
 }
@@ -513,10 +513,10 @@
 
 .cardTitle {
   font-family: var(--serif);
-  font-size: 1.6rem;
-  font-weight: 540;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-heading);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
   padding-right: var(--space-16);
   animation: rise 460ms var(--ease-out) 140ms backwards;
 }
@@ -524,7 +524,7 @@
 .cardBy {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.08rem;
+  font-size: var(--text-lg);
   color: var(--ink-60);
   margin-top: var(--space-1);
   animation: rise 460ms var(--ease-out) 210ms backwards;
@@ -532,8 +532,8 @@
 
 .cardLines {
   font-family: var(--serif);
-  font-size: 1.12rem;
-  line-height: 1.6;
+  font-size: var(--text-lg);
+  line-height: var(--leading-excerpt);
   color: var(--ink-60);
   margin-top: var(--space-4);
   white-space: pre-wrap;
@@ -568,7 +568,7 @@
 .readLink {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--accent);
 }
 
@@ -621,7 +621,7 @@
 
 .allNum {
   font-family: var(--mono);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--ink-25);
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -640,14 +640,14 @@
 
 .allTitle {
   font-family: var(--serif);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .allAuthor {
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: var(--ink-40);
   white-space: nowrap;
 }
@@ -704,7 +704,6 @@
 
   .cardTitle {
     padding-right: var(--space-12);
-    font-size: 1.4rem;
   }
 
   .allMeta {
