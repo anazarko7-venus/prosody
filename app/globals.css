@@ -54,19 +54,6 @@
 }
 
 :root {
-  --paper: #f5f2ea;
-  --paper-deep: #edeadf;
-  --paper-card: #faf8f1;
-  --ink: #211e1a;
-  --ink-60: #5c574d;
-  --ink-40: #8d8779;
-  --ink-25: #bab4a6;
-  --hairline: rgba(33, 30, 26, 0.14);
-  --hairline-soft: rgba(33, 30, 26, 0.07);
-  --accent: #9c3b1e; /* the editor's pencil */
-  --accent-soft: rgba(156, 59, 30, 0.09);
-  --sheet-shadow: 0 1px 2px rgba(33, 30, 26, 0.05), 0 6px 18px rgba(33, 30, 26, 0.07);
-
   color-scheme: light;
 }
 
@@ -81,8 +68,8 @@ html {
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--sans);
   font-size: 100%; /* the user's browser setting is the root */
   line-height: var(--leading-ui);
@@ -130,12 +117,12 @@ button {
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: var(--color-selection);
 }
 
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);
+  box-shadow: var(--focus-ring);
   border-radius: 1px;
 }
 
@@ -144,7 +131,7 @@ button {
   align-items: baseline;
   gap: var(--space-5);
   padding: var(--space-6) var(--gutter) var(--space-4);
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .wordmark {
@@ -156,7 +143,7 @@ button {
 }
 
 .site-header .tag {
-  color: var(--ink-40);
+  color: var(--color-text-tertiary);
 }
 
 @media (max-width: 640px) {
@@ -171,7 +158,7 @@ button {
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--ink-60);
+  color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
