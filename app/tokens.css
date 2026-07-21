@@ -1,0 +1,222 @@
+/* ============================================================================
+   Prosody design tokens — three layers.
+
+   1. PRIMITIVES  — context-free raw material: the palette, the base unit,
+                    the type ratio's outputs. Never referenced by components.
+   2. SEMANTIC    — the public vocabulary: named bounded scales (space, text,
+                    duration…) and role tokens (color-text-secondary…).
+                    This is the ONLY layer components may reference,
+                    plus their own component tokens.
+   3. COMPONENT   — dimensions owned by one component, still derived from
+                    the base unit.
+
+   Rules of the system (full text in docs/design-system/README.md):
+   - Base unit 4px (0.25rem). Every spatial value is an integer multiple.
+   - Inside text-relative (em) contexts the unit is 0.25em.
+   - Type: base 16px, ratio 1.2 (minor third), rounded to whole px.
+   - Stroke-level values (border widths, control insets) are the one
+     documented half-step class: 1px / 1.5px / 2px.
+   ========================================================================= */
+
+:root {
+  /* ------------------------------------------------------------------ */
+  /* 1 · PRIMITIVES                                                     */
+  /* ------------------------------------------------------------------ */
+
+  /* palette — warm ink on aged paper */
+  --ink-900: #211e1a; /* 14.84:1 on paper-200 */
+  --ink-700: #565148; /* 7.04:1 on paper-200 (AAA), 6.54:1 on paper-300 */
+  --ink-500: #6d685d; /* 4.95:1 on paper-200, 4.60:1 on paper-300 (AA) */
+  --ink-400: #8d8779; /* 3.20:1 — non-text roles only (borders ≥3:1) */
+  --ink-250: #bab4a6; /* 1.85:1 — decorative / disabled strokes only */
+  --paper-100: #faf8f1;
+  --paper-200: #f5f2ea;
+  --paper-300: #edeadf;
+  --rust-600: #9c3b1e; /* 6.14:1 on paper-200 (AA at any size) */
+
+  /* alpha primitives */
+  --ink-alpha-14: rgba(33, 30, 26, 0.14);
+  --ink-alpha-07: rgba(33, 30, 26, 0.07);
+  --ink-alpha-05: rgba(33, 30, 26, 0.05);
+  --rust-alpha-09: rgba(156, 59, 30, 0.09);
+
+  /* base unit: 4px */
+  --unit: 0.25rem;
+
+  /* easing curves */
+  --curve-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --curve-std: ease;
+
+  /* ------------------------------------------------------------------ */
+  /* 2 · SEMANTIC — spatial scale (n × 4px, bounded)                    */
+  /* ------------------------------------------------------------------ */
+  --space-1: 0.25rem; /*  4px */
+  --space-2: 0.5rem; /*  8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-24: 6rem; /* 96px */
+
+  /* layout: containers (all ÷4) and page gutters */
+  --container-sheet: 34rem; /* 544px — cards, result list */
+  --container-prose: 44rem; /* 704px — reader measure */
+  --container-stage: 46rem; /* 736px — finder stage */
+  --gutter: var(--space-8); /* 32px desktop */
+  --gutter-compact: var(--space-5); /* 20px under 640 */
+
+  /* interactive target minimums */
+  --target-min: 44px; /* coarse pointers / primary actions */
+  --target-dense: 24px; /* WCAG 2.2 AA floor, fine pointers */
+
+  /* type scale — 16px base × 1.2, rounded to whole px (raw values in
+     docs/design-system/02-tokens.md). All land on exact rem fractions. */
+  --text-2xs: 0.6875rem; /* 11px — mono caps metadata (raw 11.11) */
+  --text-xs: 0.8125rem; /* 13px — dense sans UI      (raw 13.33) */
+  --text-md: 1rem; /* 16px — sans UI base */
+  --text-lg: 1.1875rem; /* 19px — serif UI & verse   (raw 19.20) */
+  --text-xl: 1.4375rem; /* 23px — headings, wordmark (raw 23.04) */
+  --text-2xl: 1.75rem; /* 28px — display min        (raw 27.65) */
+  --text-3xl: 2.0625rem; /* 33px — display max        (raw 33.18) */
+
+  /* annotation sizes: negative powers of the ratio, em-relative to the
+     verse line: 1/1.2 = .833, 1/1.2² = .694, 1/1.2³ = .579 */
+  --annot-lg: 0.83em;
+  --annot-md: 0.69em;
+  --annot-sm: 0.58em;
+
+  /* line-height, bound to size class */
+  --leading-solid: 1; /* marks, odometer reels */
+  --leading-display: 1.2; /* ≥23px serif headings */
+  --leading-ui: 1.45; /* ≤19px UI text */
+  --leading-excerpt: 1.6; /* verse excerpts (card) */
+  --leading-verse: 1.75; /* the reader body */
+
+  /* weight, bound to size step (variable-font values) */
+  --weight-verse: 420; /* 19px serif prose */
+  --weight-display: 500; /* ≥28px serif display */
+  --weight-heading: 540; /* 23px serif headings: +40 optical bump */
+  --weight-emphasis: 600; /* wordmark */
+  --weight-marks: 700; /* deviation marks */
+
+  /* tracking */
+  --tracking-display: -0.01em; /* serif ≥23px */
+  --tracking-caps: 0.08em; /* mono caps default */
+  --tracking-caps-wide: 0.16em; /* emphasized caps: stamp, slip head */
+
+  /* color roles */
+  --color-bg: var(--paper-200);
+  --color-bg-recessed: var(--paper-300);
+  --color-surface: var(--paper-100);
+  --color-text: var(--ink-900);
+  --color-text-secondary: var(--ink-700);
+  --color-text-tertiary: var(--ink-500);
+  --color-text-placeholder: var(--ink-500);
+  --color-text-disabled: var(--ink-400); /* exempt: inactive controls */
+  --color-accent: var(--rust-600);
+  --color-accent-bg: var(--rust-alpha-09);
+  --color-border: var(--ink-alpha-14);
+  --color-border-soft: var(--ink-alpha-07);
+  --color-border-input: var(--ink-400); /* 3.2:1 ≥ 3:1 non-text */
+  --color-border-hover: var(--ink-400);
+  --color-border-accent: var(--rust-600);
+  --color-border-disabled: var(--ink-250);
+  --color-focus: var(--rust-600);
+  --color-selection: var(--rust-alpha-09);
+
+  /* stroke widths — the documented half-step class */
+  --stroke-hairline: 1px;
+  --stroke-emphasis: 1.5px; /* stamp/plate outlines: 1px too faint
+                               beside 11px caps, 2px overwhelms them */
+  --stroke-strong: 2px;
+
+  /* radii */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-full: 999px;
+
+  /* elevation */
+  --shadow-paper: 0 1px 2px var(--ink-alpha-05);
+  --shadow-sheet: 0 1px 2px var(--ink-alpha-05),
+    0 6px 18px var(--ink-alpha-07);
+
+  /* z-index — bounded, named. Texture (paper grain) intentionally sits
+     above popovers: the grain belongs to every surface. */
+  --z-behind: -1;
+  --z-raised: 1;
+  --z-popover: 10;
+  --z-texture: 20;
+
+  /* motion: durations (bounded set), staggers (n × 20ms), easings */
+  --dur-fast: 120ms;
+  --dur-quick: 160ms;
+  --dur-base: 240ms;
+  --dur-gentle: 320ms;
+  --dur-slow: 480ms;
+  --dur-deal: 640ms; /* must match DEAL_MS in Finder.tsx */
+  --stagger-xs: 20ms;
+  --stagger-sm: 60ms; /* 3 × xs */
+  --stagger-md: 80ms; /* 4 × xs */
+  --ease-out: var(--curve-out);
+  --ease-std: var(--curve-std);
+
+  /* editorial tilt — the desk's signature. Static tilts multiply by
+     --tilt-factor (halved on compact viewports where tilt reads louder);
+     keyframe poses may negate or sum two steps. */
+  --tilt-1: 0.4deg;
+  --tilt-2: 0.8deg;
+  --tilt-3: 1.6deg;
+  --tilt-4: 4deg;
+  --tilt-factor: 1;
+
+  /* opacity roles */
+  --opacity-texture: 0.3;
+  --opacity-disabled: 0.4; /* inactive controls: WCAG-exempt */
+  --opacity-muted: 0.65;
+  --opacity-strong: 0.85;
+
+  /* focus ring — every interactive element */
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  /* font stacks */
+  --serif: "EB Garamond", "Iowan Old Style", Georgia, serif;
+  --sans: "General Sans", "Avenir Next", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  /* ------------------------------------------------------------------ */
+  /* 3 · COMPONENT — single-owner dimensions, all ÷4                    */
+  /* ------------------------------------------------------------------ */
+  --label-col-w: 4rem; /* 64px — request-slip label column */
+  --num-col-w: 2.5rem; /* 40px — result-list number column */
+  --menu-w: 16rem; /* 256px */
+  --menu-w-compact: 13rem; /* 208px */
+  --menu-max-h: 15rem; /* 240px */
+  --keyword-max-w: 18rem; /* 288px */
+  --deck-w: 12.5rem; /* 200px */
+  --deck-h: 4.5rem; /* 72px */
+  --deck-sheet-h: 3.25rem; /* 52px */
+  --switch-w: 28px;
+  --switch-h: 16px;
+  --switch-knob: 8px;
+  --switch-inset: 2px; /* stroke-level inset (half-step class) */
+  --incant-reserve: 2.25em; /* ≈1.5 lines at --leading-ui */
+}
+
+/* compact viewports: tilt reads louder on small screens — halve it */
+@media (max-width: 640px) {
+  :root {
+    --tilt-factor: 0.5;
+    --gutter: var(--gutter-compact);
+  }
+}
+
+/* Breakpoints (CSS custom properties cannot drive @media; these are the
+   system's constants, restated wherever used):
+   480px — annotation rail hidden
+   640px — compact layout, tilt halved
+   720px — reader rhyme rail pulled inboard (rail would overflow 640–720)
+   All are ÷4. Do not introduce others. */
