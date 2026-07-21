@@ -134,6 +134,7 @@
   --stroke-emphasis: 1.5px; /* stamp/plate outlines: 1px too faint
                                beside 11px caps, 2px overwhelms them */
   --stroke-strong: 2px;
+  --press-depth: 2px; /* active-state sink, stroke-level class */
 
   /* radii */
   --radius-xs: 2px;
