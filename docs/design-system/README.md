@@ -43,8 +43,17 @@ are in [`02-tokens.md`](02-tokens.md); the audit that made this necessary is
 
 ## Known, deliberately open items
 
-- The reader's single-key `m` shortcut fails WCAG 2.1.4 (no remap/disable).
-  Kept pending a product decision; the visible toggle is the accessible path.
-- Fine-pointer chip targets sit at ~28–40px, not 44 (see the flag in
-  `02-tokens.md` §accessibility).
 - Light scheme only; a dark palette would need its own contrast table.
+
+## Resolved constraints (were open, now closed)
+
+- **Every interactive control clears `--target-min` (44px) on any pointer** —
+  pills, menu options, slot buttons, the keyword field, and result rows, not
+  just coarse pointers. The `--space-2` gaps in the chip grid and result list
+  keep adjacent hit areas from touching. `--target-dense` (24px) survives only
+  as the reader toggle's baseline height.
+- **The reader's `m` shortcut is WCAG 2.1.4-compliant** via "active only on
+  focus": it fires only while reading — when the document body holds focus —
+  and goes inactive the instant any control (link, button, field) is focused,
+  so it can never intercept a keystroke meant for something else. The visible
+  machinery toggle is the always-available, fully keyboard-operable path.
