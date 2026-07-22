@@ -709,30 +709,23 @@
 }
 
 /* --------------------------- interactive targets ------------------------ */
-/* Fine pointers: nothing below --target-dense (controls here sit at
-   27–44px). Coarse pointers: everything reaches --target-min. */
+/* Every interactive control clears --target-min (44px) on any pointer.
+   The --space-2 gaps in .pills and the list rows keep adjacent hit areas
+   from touching. */
 
 .pill,
 .opt,
+.slotBtn,
 .allBtn {
-  min-height: var(--target-dense);
+  min-height: var(--target-min);
+  align-items: center;
 }
 
-@media (pointer: coarse) {
-  .pill,
-  .opt,
-  .slotBtn,
-  .allBtn {
-    min-height: var(--target-min);
-    align-items: center;
-  }
+.keyword,
+.allRow {
+  min-height: var(--target-min);
+}
 
-  .keyword,
-  .allRow {
-    min-height: var(--target-min);
-  }
-
-  .relaxChip {
-    padding-block: var(--space-2);
-  }
+.relaxChip {
+  padding-block: var(--space-2);
 }

@@ -76,13 +76,18 @@ function anaphoraSpans(devices: Device[]): Map<number, number> {
 export default function Reader({ poem }: { poem: Poem }) {
   const [machinery, setMachinery] = useState(false);
 
+  // The `m` shortcut is active only while reading — i.e. when no interactive
+  // control holds focus (document body is the default focus for the page).
+  // The moment a link, button, or field is focused it goes inactive, so it can
+  // never intercept a keystroke meant for a control. This "active only on
+  // focus" scoping (to the reading context) is the WCAG 2.1.4 escape hatch;
+  // the visible toggle is the always-available, fully-operable path.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "m" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const t = e.target as HTMLElement;
-        if (t.tagName === "INPUT" || t.tagName === "TEXTAREA") return;
-        setMachinery((v) => !v);
-      }
+      if (e.key.toLowerCase() !== "m" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
+      setMachinery((v) => !v);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

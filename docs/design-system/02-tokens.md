@@ -154,12 +154,18 @@ brand rust for a gain no body copy needs (accent never sets long-form text).
 
 - `--focus-ring` on **every** interactive element; no component may zero it
   (the search input's `box-shadow: none` reset is removed).
-- `--target-min` 44px: primary action (stamp) and all controls on coarse
-  pointers; `--target-dense` 24px is the floor for fine pointers (WCAG 2.2 AA),
-  with row/menu targets padded to ~32–40px. *Flagged as the one place the
-  literal "44 everywhere" constraint is interpreted:* 44px-tall pills in a
-  wrapped chip grid on desktop would also force ≥16px row gaps to keep hit
-  areas non-overlapping, roughly doubling the slip's height. Overridable —
-  say the word and pills go to 44 on fine pointers too.
+- `--target-min` 44px on **every** interactive control, on any pointer: the
+  stamp, pills, menu options, slot buttons, the keyword field, and result rows.
+  The `--space-2` gaps in `.pills` and the result list keep adjacent hit areas
+  from touching. `--target-dense` 24px remains only as the reader toggle's
+  baseline height (the toggle sits inline in prose where 44px would break the
+  line box; it reaches 44px on coarse pointers).
+- Reader `m` shortcut, WCAG 2.1.4 — resolved by "active only on focus" scoped
+  to the reading context: the global keydown handler fires only when
+  `document.activeElement` is the document body (the plain reading state) and
+  returns early once any interactive control holds focus, so it can't hijack a
+  keystroke meant for a link, button, or field. No `tabindex`/auto-focus is
+  used (an earlier region-focus variant was dropped: focus rarely stays on a
+  container, and programmatic focus painted an unwanted focus ring).
 - Reduced motion: durations **and delays** zeroed (delays were the audit's gap 8).
 - `color-scheme: light` retained; the palette has no dark variant yet.
