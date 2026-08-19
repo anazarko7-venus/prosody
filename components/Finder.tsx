@@ -6,10 +6,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { label, type PoemMeta } from "@/lib/poems";
 import styles from "./Finder.module.css";
 
+/* ============================================================================
+   The finder — one card on a ruled page.
+
+   Five facets, in the order the design puts them: three that take one value
+   each and read as dropdowns (form, meter, theme), two that read as chip
+   fields (era, device). Every value carries a live count: how many poems
+   would answer if you added it to what is already set. The counts are set in
+   Monofett, so they read as stamped marks rather than as more words.
+
+   State lives in the URL, so a search is a link.
+   ========================================================================= */
+
 const SINGLE = ["form", "meter", "era"] as const;
-const MULTI = ["devices", "themes"] as const;
 type SingleFacet = (typeof SINGLE)[number];
-type MultiFacet = (typeof MULTI)[number];
 
 type Filters = {
   form?: string;
@@ -17,7 +27,6 @@ type Filters = {
   era?: string;
   devices: string[];
   themes: string[];
-  q?: string;
 };
 
 function matches(p: PoemMeta, f: Filters): boolean {
@@ -26,164 +35,22 @@ function matches(p: PoemMeta, f: Filters): boolean {
   if (f.era && p.era !== f.era) return false;
   if (!f.devices.every((d) => p.devices.includes(d))) return false;
   if (!f.themes.every((t) => p.themes.includes(t))) return false;
-  if (f.q) {
-    const q = f.q.toLowerCase();
-    if (!p.title.toLowerCase().includes(q) && !p.author.toLowerCase().includes(q))
-      return false;
-  }
   return true;
 }
 
-/** Filters with one constraint removed, for relaxation + hold-out counts. */
-function without(f: Filters, facet: SingleFacet | MultiFacet | "q"): Filters {
-  const g = { ...f, devices: [...f.devices], themes: [...f.themes] };
-  if (facet === "devices" || facet === "themes") g[facet] = [];
-  else delete g[facet];
-  return g;
-}
-
-/* ------------------------- the composed sentence ------------------------- */
-
-const FORM_PHRASE: Record<string, string> = {
-  sonnet_shakespearean: "a Shakespearean sonnet",
-  sonnet_petrarchan: "a Petrarchan sonnet",
-  sonnet_other: "a sonnet of an odd stripe",
-  blank_verse: "a poem in blank verse",
-  couplets: "a poem in couplets",
-  quatrains: "a poem in quatrains",
-  common_meter_stanzas: "a poem in hymn stanzas",
-  rhymed_stanzas: "a poem in rhymed stanzas",
-  villanelle: "a villanelle",
-  limerick: "a limerick",
-  irregular: "a poem of irregular build",
-};
-
-const ERA_PHRASE: Record<string, string> = {
-  renaissance: "from the Renaissance",
-  seventeenth: "from the seventeenth century",
-  eighteenth: "from the eighteenth century",
-  romantic: "from the Romantic era",
-  victorian: "from the Victorians",
-  american_19c: "from nineteenth-century America",
-  modern: "from the moderns",
-};
-
-function joinAnd(xs: string[]): string {
-  if (xs.length <= 1) return xs[0] ?? "";
-  return `${xs.slice(0, -1).join(", ")} & ${xs[xs.length - 1]}`;
-}
-
-function sentence(f: Filters): string {
-  const bits: string[] = [];
-  bits.push(f.form ? FORM_PHRASE[f.form] ?? `a ${label(f.form)}` : "a poem");
-  if (f.meter) bits.push(`in ${label(f.meter)}`);
-  if (f.era) bits.push(ERA_PHRASE[f.era] ?? `from the ${label(f.era)}`);
-  if (f.devices.length) bits.push(`using ${joinAnd(f.devices.map(label))}`);
-  if (f.themes.length) bits.push(`about ${joinAnd(f.themes.map(label))}`);
-  if (f.q) bits.push(`answering “${f.q}”`);
-  if (bits.length === 1 && !f.form) return "any poem at all, cut from the whole deck";
-  return bits.join(", ");
-}
-
-/* ------------------------------- odometer ------------------------------- */
-
-function Odometer({ value }: { value: number }) {
-  const digits = String(value).split("");
-  return (
-    <span className={styles.odo} aria-hidden>
-      {digits.map((d, i) => (
-        <span key={digits.length - i} className={styles.odoDigit}>
-          <span
-            className={styles.odoReel}
-            style={{ transform: `translateY(-${Number(d)}em)` }}
-          >
-            {[..."0123456789"].map((n) => (
-              <span key={n}>{n}</span>
-            ))}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/* ------------------------------ slot (menu) ------------------------------ */
-
-type Opt = { v: string; text: string; n: number; on: boolean };
-
-function Slot({
-  placeholder,
-  display,
-  options,
-  onPick,
-  multi,
-}: {
-  placeholder: string;
-  display: string | null;
-  options: Opt[];
-  onPick: (v: string) => void;
-  multi?: boolean;
-}) {
-  const ref = useRef<HTMLDetailsElement>(null);
-
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape" && ref.current?.open) {
-      ref.current.open = false;
-      ref.current.querySelector("summary")?.focus();
+/** Distinct values of a facet across the corpus, commonest first. */
+function valuesOf(index: PoemMeta[], pick: (p: PoemMeta) => string | string[]) {
+  const n = new Map<string, number>();
+  for (const p of index) {
+    const v = pick(p);
+    for (const one of Array.isArray(v) ? v : [v]) {
+      if (one) n.set(one, (n.get(one) ?? 0) + 1);
     }
-  };
-
-  useEffect(() => {
-    const close = (e: PointerEvent) => {
-      const el = ref.current;
-      if (el?.open && !el.contains(e.target as Node)) el.open = false;
-    };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
-  }, []);
-
-  return (
-    <details className={styles.slot} ref={ref} onKeyDown={onKeyDown}>
-      <summary
-        className={`${styles.slotBtn} ${display ? styles.slotFilled : ""}`}
-      >
-        {display ?? placeholder}
-        <span className={styles.slotCaret} aria-hidden>
-          ▾
-        </span>
-      </summary>
-      <div className={styles.menu}>
-        {options.map((o) => (
-          <button
-            key={o.v}
-            aria-pressed={o.on}
-            disabled={o.n === 0 && !o.on}
-            className={`${styles.opt} ${o.on ? styles.optOn : ""} ${
-              o.n === 0 && !o.on ? styles.optZero : ""
-            }`}
-            onClick={() => {
-              onPick(o.v);
-              if (!multi && ref.current) ref.current.open = false;
-            }}
-          >
-            <span>
-              {o.on && <span className={styles.tick}>✓ </span>}
-              {o.text}
-            </span>
-            <span className={styles.optN}>{o.n}</span>
-          </button>
-        ))}
-      </div>
-    </details>
-  );
+  }
+  return [...n.keys()].sort((a, b) => (n.get(b) ?? 0) - (n.get(a) ?? 0));
 }
 
-/* -------------------------------- finder -------------------------------- */
-
-type Phase = "idle" | "drawing" | "revealed";
-
-/* keep in sync with --dur-deal in app/tokens.css */
-const DEAL_MS = 640;
+/* --------------------------------- screen -------------------------------- */
 
 export default function Finder({ index }: { index: PoemMeta[] }) {
   const router = useRouter();
@@ -191,15 +58,12 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
   const params = useSearchParams();
 
   const filters: Filters = useMemo(() => {
-    const list = (k: string) =>
-      params.get(k)?.split(",").filter(Boolean) ?? [];
+    const list = (k: string) => params.get(k)?.split(",").filter(Boolean) ?? [];
     const f: Filters = { devices: list("devices"), themes: list("themes") };
     for (const k of SINGLE) {
       const v = params.get(k);
       if (v) f[k] = v;
     }
-    const q = params.get("q");
-    if (q) f.q = q;
     return f;
   }, [params]);
 
@@ -218,62 +82,45 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
   const toggleSingle = (facet: SingleFacet, v: string) =>
     setParam(facet, filters[facet] === v ? null : v);
 
-  const toggleMulti = (facet: MultiFacet, v: string) => {
-    const cur = filters[facet];
-    const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
-    setParam(facet, next.length ? next.join(",") : null);
+  const toggleDevice = (v: string) => {
+    const next = filters.devices.includes(v)
+      ? filters.devices.filter((x) => x !== v)
+      : [...filters.devices, v];
+    setParam("devices", next.length ? next.join(",") : null);
   };
+
+  /* ------------------------------- the sets ------------------------------ */
+
+  const forms = useMemo(() => valuesOf(index, (p) => p.form), [index]);
+  const meters = useMemo(() => valuesOf(index, (p) => p.meter), [index]);
+  const themes = useMemo(() => valuesOf(index, (p) => p.themes), [index]);
+  const eras = useMemo(() => valuesOf(index, (p) => p.era), [index]);
+  const devices = useMemo(() => valuesOf(index, (p) => p.devices), [index]);
+
+  /** How many poems answer if this value were set on this facet. */
+  const countWith = useCallback(
+    (facet: keyof Filters, v: string) => {
+      const probe: Filters = {
+        ...filters,
+        devices: [...filters.devices],
+        themes: [...filters.themes],
+      };
+      if (facet === "devices") {
+        if (!probe.devices.includes(v)) probe.devices = [...probe.devices, v];
+      } else if (facet === "themes") {
+        probe.themes = [v];
+      } else {
+        probe[facet] = v;
+      }
+      return index.filter((p) => matches(p, probe)).length;
+    },
+    [filters, index]
+  );
 
   const results = useMemo(
     () => index.filter((p) => matches(p, filters)),
     [index, filters]
   );
-
-  // zero-result relaxation: name the weakest constraint
-  const relaxed = useMemo(() => {
-    if (results.length > 0) return null;
-    const active: Array<SingleFacet | MultiFacet | "q"> = [
-      ...SINGLE.filter((f) => filters[f]),
-      ...MULTI.filter((f) => filters[f].length > 0),
-      ...(filters.q ? (["q"] as const) : []),
-    ];
-    if (active.length < 2) return null;
-    let best: { facet: (typeof active)[number]; rows: PoemMeta[] } | null = null;
-    for (const facet of active) {
-      const rows = index.filter((p) => matches(p, without(filters, facet)));
-      if (!best || rows.length > best.rows.length) best = { facet, rows };
-    }
-    return best && best.rows.length > 0 ? best : null;
-  }, [results, filters, index]);
-
-  /* counts. single facets: hold the facet out, count per value.
-     multi facets: count what adding each value would leave. */
-  const counts = useMemo(() => {
-    const single = {} as Record<SingleFacet, Map<string, number>>;
-    for (const facet of SINGLE) {
-      const held = without(filters, facet);
-      const map = new Map<string, number>();
-      for (const p of index) {
-        if (!matches(p, held)) continue;
-        map.set(p[facet], (map.get(p[facet]) ?? 0) + 1);
-      }
-      single[facet] = map;
-    }
-    const multi = {} as Record<MultiFacet, Map<string, number>>;
-    for (const facet of MULTI) {
-      const key = facet === "devices" ? "devices" : "themes";
-      const map = new Map<string, number>();
-      for (const p of index) {
-        if (!matches(p, without(filters, facet))) continue;
-        // p already satisfies everything else; each value it carries is a
-        // candidate — but the count must respect the values already chosen
-        if (!filters[facet].every((v) => p[key].includes(v))) continue;
-        for (const v of p[key]) map.set(v, (map.get(v) ?? 0) + 1);
-      }
-      multi[facet] = map;
-    }
-    return { ...single, ...multi };
-  }, [index, filters]);
 
   const corpusNumber = useMemo(() => {
     const m = new Map<string, number>();
@@ -281,319 +128,199 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
     return m;
   }, [index]);
 
-  /* ------------------------------ the draw ------------------------------ */
+  const active =
+    Boolean(filters.form || filters.meter || filters.era) ||
+    filters.devices.length > 0 ||
+    filters.themes.length > 0;
 
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [drawnId, setDrawnId] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
-  const historyRef = useRef<string[]>([]);
-  const timerRef = useRef<number | undefined>(undefined);
+  /* ------------------------------ the search ----------------------------- */
 
-  const filtersKey = JSON.stringify(filters);
+  const [searched, setSearched] = useState(false);
+  const resultsRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
-    // a changed ask reassembles the deck
-    setPhase("idle");
-    setDrawnId(null);
-    setShowAll(false);
-    historyRef.current = [];
-    return () => clearTimeout(timerRef.current);
-  }, [filtersKey]);
-
-  const draw = useCallback(() => {
-    if (results.length === 0 || phase === "drawing") return;
-    let pool = results.filter((p) => !historyRef.current.includes(p.id));
-    if (pool.length === 0) {
-      historyRef.current = [];
-      pool = results.length > 1 ? results.filter((p) => p.id !== drawnId) : results;
-    }
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    historyRef.current.push(pick.id);
+    if (!searched || !resultsRef.current) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setPhase("drawing");
-    clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(
-      () => {
-        setDrawnId(pick.id);
-        setPhase("revealed");
-      },
-      reduced ? 0 : DEAL_MS
-    );
-  }, [results, phase, drawnId]);
-
-  const drawn = drawnId ? index.find((p) => p.id === drawnId) ?? null : null;
-
-  const cardRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (phase !== "revealed" || !cardRef.current) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    cardRef.current.scrollIntoView({
+    resultsRef.current.scrollIntoView({
       behavior: reduced ? "auto" : "smooth",
-      block: "center",
+      block: "nearest",
     });
-  }, [phase, drawnId]);
+  }, [searched]);
 
-  /* ------------------------------- options ------------------------------ */
-
-  // a chosen value must stay visible even when nothing else matches it,
-  // or there would be no way to let it go
-  const opts = (facet: SingleFacet): Opt[] => {
-    const map = new Map(counts[facet]);
-    const sel = filters[facet];
-    if (sel && !map.has(sel)) map.set(sel, 0);
-    return [...map.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([v, n]) => ({ v, text: label(v), n, on: sel === v }));
+  const reset = () => {
+    router.replace(pathname, { scroll: false });
+    setSearched(false);
   };
 
-  const multiOpts = (facet: MultiFacet): Opt[] => {
-    const map = new Map(counts[facet]);
-    for (const sel of filters[facet]) if (!map.has(sel)) map.set(sel, 0);
-    return [...map.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([v, n]) => ({ v, text: label(v), n, on: filters[facet].includes(v) }));
+  /* ------------------------------- rendering ----------------------------- */
+
+  const dropdown = (
+    facet: "form" | "meter" | "themes",
+    heading: string,
+    options: string[]
+  ) => {
+    const current =
+      facet === "themes" ? filters.themes[0] ?? "" : filters[facet] ?? "";
+    return (
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor={`f-${facet}`}>
+          {heading}:
+        </label>
+        <select
+          id={`f-${facet}`}
+          className={`${styles.select} ${current ? styles.selectFilled : ""}`}
+          value={current}
+          onChange={(e) => setParam(facet, e.target.value || null)}
+        >
+          <option value="">Any</option>
+          {options.map((v) => {
+            const n = countWith(facet, v);
+            return (
+              <option key={v} value={v} disabled={n === 0 && v !== current}>
+                {label(v)} ({n})
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    );
   };
 
-  const deviceOpts = multiOpts("devices");
-  const eraOpts = opts("era");
-  const sheets = results.length === 0 ? 1 : Math.max(1, Math.round((6 * results.length) / index.length));
+  const chipField = (
+    heading: string,
+    options: string[],
+    isOn: (v: string) => boolean,
+    onToggle: (v: string) => void,
+    facet: keyof Filters
+  ) => (
+    <fieldset className={styles.field}>
+      <legend className={styles.label}>{heading}:</legend>
+      <div className={styles.chips}>
+        {options.map((v) => {
+          const on = isOn(v);
+          const n = countWith(facet, v);
+          return (
+            <button
+              key={v}
+              type="button"
+              aria-pressed={on}
+              disabled={n === 0 && !on}
+              className={`${styles.chip} ${on ? styles.chipOn : ""}`}
+              onClick={() => onToggle(v)}
+            >
+              <span className={styles.chipText}>{label(v)}</span>
+              <span className={styles.chipCount} aria-hidden>
+                {n}
+              </span>
+              <span className={styles.srOnly}>{n} poems</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
 
   return (
-    <main className={styles.desk}>
-      <div className={styles.stage}>
-        <h1 className={styles.srOnly}>Find a poem by how it&rsquo;s made</h1>
-        {/* ------------------------- the request slip ------------------------- */}
-        <section className={styles.slip} aria-label="Compose a request">
-          <header className={styles.slipHead}>
-            <span className={styles.rule} aria-hidden />
-            <span className="tag">request slip</span>
-            <span className={styles.rule} aria-hidden />
-          </header>
+    <main className={styles.page}>
+      <div className={styles.gridTop} aria-hidden />
+      <div className={styles.gridLeft} aria-hidden />
+      <div className={styles.gridRight} aria-hidden />
+      <div className={styles.gridBottom} aria-hidden />
 
-          <div className={styles.rows}>
-            <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>form</span>
-              <Slot
-                placeholder="any form"
-                display={filters.form ? label(filters.form) : null}
-                options={opts("form")}
-                onPick={(v) => toggleSingle("form", v)}
-              />
-            </div>
+      <form
+        className={styles.card}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearched(true);
+        }}
+      >
+        <header className={styles.head}>
+          <h1 className={styles.wordmark}>Prosody</h1>
+          <p className={styles.tagline}>Find a poem by how it&rsquo;s made&hellip;</p>
+        </header>
 
-            <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>meter</span>
-              <Slot
-                placeholder="any meter"
-                display={filters.meter ? label(filters.meter) : null}
-                options={opts("meter")}
-                onPick={(v) => toggleSingle("meter", v)}
-              />
-            </div>
+        <hr className={styles.rule} />
 
-            <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>era</span>
-              <div className={styles.pills}>
-                {eraOpts.map((o) => (
-                  <button
-                    key={o.v}
-                    className={`${styles.pill} ${o.on ? styles.pillOn : ""}`}
-                    disabled={o.n === 0 && !o.on}
-                    aria-pressed={o.on}
-                    onClick={() => toggleSingle("era", o.v)}
-                  >
-                    {o.text}
-                    <span className={styles.pillN}>{o.n}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>using</span>
-              <div className={styles.pills}>
-                {deviceOpts.map((o) => (
-                  <button
-                    key={o.v}
-                    className={`${styles.pill} ${o.on ? styles.pillOn : ""}`}
-                    disabled={o.n === 0 && !o.on}
-                    aria-pressed={o.on}
-                    onClick={() => toggleMulti("devices", o.v)}
-                  >
-                    {o.text}
-                    <span className={styles.pillN}>{o.n}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.row}>
-              <span className={`${styles.rowLabel} tag`}>about</span>
-              <div className={styles.slotWrap}>
-                <Slot
-                  placeholder="any theme"
-                  display={
-                    filters.themes.length
-                      ? joinAnd(filters.themes.map(label))
-                      : null
-                  }
-                  options={multiOpts("themes")}
-                  onPick={(v) => toggleMulti("themes", v)}
-                  multi
-                />
-              </div>
-            </div>
-
-            <div className={styles.row}>
-              <label htmlFor="keyword" className={`${styles.rowLabel} tag`}>
-                words
-              </label>
-              <input
-                id="keyword"
-                type="search"
-                className={styles.keyword}
-                placeholder="a title, an author…"
-                value={filters.q ?? ""}
-                onChange={(e) => setParam("q", e.target.value || null)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") draw();
-                }}
-                spellCheck={false}
-              />
-            </div>
-          </div>
-
-          <p className={styles.incant} aria-live="polite">
-            {relaxed ? (
-              <>
-                nothing answers all of that — set aside{" "}
-                <button
-                  className={styles.relaxChip}
-                  onClick={() =>
-                    relaxed.facet === "q"
-                      ? setParam("q", null)
-                      : setParam(relaxed.facet, null)
-                  }
-                  title="Remove this constraint"
-                >
-                  {relaxed.facet === "q"
-                    ? `“${filters.q}”`
-                    : relaxed.facet === "devices" || relaxed.facet === "themes"
-                    ? joinAnd(filters[relaxed.facet].map(label))
-                    : label(filters[relaxed.facet]!)}
-                </button>
-                , the weakest constraint, and {relaxed.rows.length} remain
-              </>
-            ) : (
-              <>{sentence(filters)} —</>
-            )}
-          </p>
-
-          <footer className={styles.slipFoot}>
-            <span className={`${styles.tally} tag`}>
-              <Odometer value={results.length} />
-              <span aria-hidden>
-                {" "}of {index.length} answer
-                {results.length === 1 ? "s" : ""}
-              </span>
-              <span className={styles.srOnly}>
-                {results.length} of {index.length} poems answer
-              </span>
-            </span>
-            <button
-              className={styles.stamp}
-              onClick={draw}
-              disabled={results.length === 0 || phase === "drawing"}
-            >
-              {phase === "drawing"
-                ? "drawing…"
-                : phase === "revealed"
-                ? "draw again"
-                : "find a poem"}
-            </button>
-          </footer>
-        </section>
-
-        {/* ----------------------------- the table ---------------------------- */}
-        <div
-          className={`${styles.table} ${phase === "drawing" ? styles.tableDrawing : ""}`}
-        >
-          {phase === "revealed" && drawn && (
-            <article
-              className={styles.card}
-              key={drawn.id}
-              ref={cardRef}
-              aria-live="polite"
-            >
-              <span className={styles.cardNo} aria-hidden>
-                N<span className={styles.cardNoSup}>o</span>{" "}
-                {String(corpusNumber.get(drawn.id)).padStart(3, "0")}
-              </span>
-              <h2 className={styles.cardTitle}>{drawn.title}</h2>
-              <p className={styles.cardBy}>
-                {drawn.author} · {label(drawn.era)}
-              </p>
-              <div className={styles.cardLines}>
-                {drawn.opening.map((l, i) => (
-                  <p key={i}>{l}</p>
-                ))}
-              </div>
-              <p className={`${styles.cardMeta} tag`}>
-                {label(drawn.form)} · {label(drawn.meter)} · {drawn.lineCount} ll
-              </p>
-              <div className={styles.cardActs}>
-                <Link href={`/poem/${drawn.id}/`} className={styles.readLink}>
-                  read this poem <span className={styles.arrow}>→</span>
-                </Link>
-                {results.length > 1 && (
-                  <button
-                    className={`${styles.allBtn} tag`}
-                    onClick={() => setShowAll((v) => !v)}
-                    aria-expanded={showAll}
-                  >
-                    {showAll ? "hide" : "see"} the other {results.length - 1}
-                  </button>
-                )}
-              </div>
-            </article>
-          )}
-
-          {showAll && phase === "revealed" && (
-            <ol className={styles.all}>
-              {results
-                .filter((p) => p.id !== drawnId)
-                .map((p) => (
-                  <li key={p.id}>
-                    <Link href={`/poem/${p.id}/`} className={styles.allRow}>
-                      <span className={styles.allNum}>
-                        {String(corpusNumber.get(p.id)).padStart(3, "0")}
-                      </span>
-                      <span className={styles.allMain}>
-                        <span className={styles.allTitle}>{p.title}</span>
-                        <span className={styles.allAuthor}>{p.author}</span>
-                      </span>
-                      <span className={`${styles.allMeta} tag`}>
-                        {label(p.meter)}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-            </ol>
-          )}
-
-          <figure className={styles.deck} aria-hidden>
-            {Array.from({ length: sheets }).map((_, i) => (
-              <span
-                key={i}
-                className={styles.sheet}
-                style={{ "--si": sheets - 1 - i } as React.CSSProperties}
-              />
-            ))}
-            <figcaption className={`${styles.deckLabel} tag`}>
-              the deck · {index.length} poems
-            </figcaption>
-          </figure>
+        <div className={styles.row}>
+          {dropdown("form", "Form", forms)}
+          {dropdown("meter", "Meter", meters)}
+          {dropdown("themes", "Theme", themes)}
         </div>
-      </div>
+
+        <hr className={styles.rule} />
+
+        {chipField(
+          "Era",
+          eras,
+          (v) => filters.era === v,
+          (v) => toggleSingle("era", v),
+          "era"
+        )}
+
+        <hr className={styles.rule} />
+
+        {chipField(
+          "Device",
+          devices,
+          (v) => filters.devices.includes(v),
+          toggleDevice,
+          "devices"
+        )}
+
+        <hr className={styles.rule} />
+
+        <div className={styles.acts}>
+          <button type="submit" className={styles.action}>
+            Search
+          </button>
+          {active && (
+            <button type="button" className={styles.reset} onClick={reset}>
+              clear all
+            </button>
+          )}
+        </div>
+
+        {searched && (
+          <>
+            <hr className={styles.rule} />
+            <section className={styles.results} ref={resultsRef} aria-live="polite">
+              <h2 className={styles.label}>
+                {results.length === 1 ? "One poem answers" : "Poems that answer"}:
+                <span className={styles.resultCount} aria-hidden>
+                  {results.length}
+                </span>
+                <span className={styles.srOnly}>{results.length}</span>
+              </h2>
+
+              {results.length === 0 ? (
+                <p className={styles.empty}>
+                  Nothing in the corpus is made that way. Drop a constraint and
+                  ask again.
+                </p>
+              ) : (
+                <ol className={styles.list}>
+                  {results.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/poem/${p.id}/`} className={styles.listRow}>
+                        <span className={styles.listNum}>
+                          {String(corpusNumber.get(p.id)).padStart(3, "0")}
+                        </span>
+                        <span className={styles.listMain}>
+                          <span className={styles.listTitle}>{p.title}</span>
+                          <span className={styles.listBy}>{p.author}</span>
+                        </span>
+                        <span className={styles.listMeta}>
+                          {label(p.form)} · {label(p.meter)}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          </>
+        )}
+      </form>
     </main>
   );
 }

@@ -1,5 +1,12 @@
 # Design-system audit — Phase 1
 
+> **Historical.** This audits the *paper* system (warm ink on aged paper,
+> EB Garamond + General Sans) that Prosody ran on until August 2026. Its token
+> names no longer exist — see [`README.md`](README.md) and
+> [`02-tokens.md`](02-tokens.md) for the system in force. It is kept because
+> the rules it produced (no magic numbers, colour licensing, reduced motion,
+> semantic HTML before ARIA) are the ones the current system inherited.
+
 *2026-07-21. Scope: `app/globals.css` (187 lines), `components/Finder.module.css` (715),
 `components/Reader.module.css` (304), and the four TSX files that consume them.
 Nothing is changed by this document; it is the inventory the rebuild is judged against.*

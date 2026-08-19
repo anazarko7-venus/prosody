@@ -1,57 +1,77 @@
+/* ============================================================================
+   Faces.
+
+   GULAX — Vojtěch Tabačuk / Velvetyne. A wide geometric display face with
+   flat-cut terminals; its caps read as engraved plate lettering, which is
+   why it carries the wordmark, the field labels and the action, and nothing
+   else. It has one weight. Do not ask it for a second.
+
+   SATOSHI — Indian Type Foundry. A neo-grotesque with a tall x-height and
+   near-closed apertures; it holds at 16px in a control and at 20px in a
+   line of verse. Five masters, no variable axis, so the weight token set is
+   exactly {300, 400, 500, 700, 900} and font-synthesis is off.
+
+   MONOFETT — Vernon Adams (SIL OFL), Google Fonts latin subset, self-hosted.
+   Every glyph is a filled slab; a digit set in it reads as a stamped count,
+   not as running text. It is used for counts and nothing else — it has no
+   business setting a word.
+   ========================================================================= */
+
 @font-face {
-  font-family: "EB Garamond";
-  src: url("/fonts/EBGaramond-Variable-ext.woff2") format("woff2");
-  font-weight: 400 800;
+  font-family: "Gulax";
+  src: url("/fonts/Gulax-Regular.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
-    U+1D00-1DBF, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
-    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-  font-family: "EB Garamond";
-  src: url("/fonts/EBGaramond-Variable.woff2") format("woff2");
-  font-weight: 400 800;
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monofett";
+  src: url("/fonts/Monofett-Latin.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+    U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
 }
-@font-face {
-  font-family: "EB Garamond";
-  src: url("/fonts/EBGaramond-VariableItalic-ext.woff2") format("woff2");
-  font-weight: 400 800;
-  font-style: italic;
-  font-display: swap;
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
-    U+1D00-1DBF, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
-    U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: "EB Garamond";
-  src: url("/fonts/EBGaramond-VariableItalic.woff2") format("woff2");
-  font-weight: 400 800;
-  font-style: italic;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/GeneralSans-Variable.woff2") format("woff2");
-  font-weight: 200 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/GeneralSans-VariableItalic.woff2") format("woff2");
-  font-weight: 200 700;
-  font-style: italic;
-  font-display: swap;
-}
+
+/* ------------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
@@ -70,28 +90,16 @@ html {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--sans);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
   font-size: 100%; /* the user's browser setting is the root */
   line-height: var(--leading-ui);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-synthesis: none;
-  /* header + growing main; pages no longer restate the header's height */
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-}
-
-/* paper grain over everything, beneath the pointer */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: var(--z-texture);
-  opacity: var(--opacity-texture);
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.53 0 0 0 0 0.47 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1,
@@ -99,6 +107,7 @@ h2,
 h3 {
   text-wrap: balance;
   font-weight: inherit;
+  font-size: inherit;
 }
 
 a {
@@ -123,43 +132,45 @@ button {
 :focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
 }
 
-.site-header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--gutter) var(--space-4);
-  border-bottom: var(--stroke-hairline) solid var(--color-border);
-}
-
-.wordmark {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: var(--weight-emphasis);
-  font-size: var(--text-xl);
-  letter-spacing: var(--tracking-display);
-}
-
-.site-header .tag {
-  color: var(--color-text-tertiary);
-}
-
-@media (max-width: 640px) {
-  .site-header {
-    padding: var(--space-4) var(--gutter) var(--space-3);
-  }
-}
-
-/* uppercase mono label, used everywhere metadata appears */
-.tag {
-  font-family: var(--mono);
-  font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-caps);
+/* The engraved label: the one place Gulax appears outside the wordmark and
+   the action. Always followed by its colon in the markup, never faked here. */
+.label {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text);
   text-transform: uppercase;
+}
+
+/* A stamped count. Monofett sets solid slabs, so it needs no colour of its
+   own — it inherits, and reads as a mark beside the word it counts. */
+.count {
+  font-family: var(--font-count);
+  font-size: var(--count-size);
+  line-height: var(--leading-solid);
+  font-weight: var(--weight-regular);
+}
+
+/* Fine print: metadata under a title, the reader legend. */
+.tag {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

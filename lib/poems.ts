@@ -69,8 +69,8 @@ export const LABELS: Record<string, string> = {
   irregular: "irregular",
   // eras
   renaissance: "Renaissance",
-  seventeenth: "17th century",
-  eighteenth: "18th century",
+  seventeenth: "17th Century",
+  eighteenth: "18th Century",
   romantic: "Romantic",
   victorian: "Victorian",
   american_19c: "American 19th c.",

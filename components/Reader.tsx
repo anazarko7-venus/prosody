@@ -111,22 +111,29 @@ export default function Reader({ poem }: { poem: Poem }) {
 
   return (
     <main className={`${styles.page} ${machinery ? styles.on : ""}`}>
-      <nav className={styles.crumbs}>
-        <Link href="/" className="tag">
-          ← ask again
-        </Link>
-        <button
-          className={`${styles.toggle} tag`}
-          onClick={() => setMachinery((v) => !v)}
-          aria-pressed={machinery}
-        >
-          machinery
-          <span className={styles.switch} aria-hidden />
-          <kbd className={styles.kbd}>m</kbd>
-        </button>
-      </nav>
+      <div className={styles.gridTop} aria-hidden />
+      <div className={styles.gridLeft} aria-hidden />
+      <div className={styles.gridRight} aria-hidden />
+      <div className={styles.gridBottom} aria-hidden />
 
-      <article className={styles.poem}>
+      <article className={styles.card}>
+        <nav className={styles.crumbs}>
+          <Link href="/" className={styles.home}>
+            Prosody
+          </Link>
+          <button
+            className={styles.toggle}
+            onClick={() => setMachinery((v) => !v)}
+            aria-pressed={machinery}
+          >
+            machinery
+            <span className={styles.switch} aria-hidden />
+            <kbd className={styles.kbd}>m</kbd>
+          </button>
+        </nav>
+
+        <hr className={styles.rule} />
+
         <header className={styles.head}>
           <h1 className={styles.title}>{poem.title}</h1>
           <p className={styles.byline}>
@@ -145,6 +152,8 @@ export default function Reader({ poem }: { poem: Poem }) {
             )}
           </p>
         </header>
+
+        <hr className={styles.rule} />
 
         <div className={styles.body}>
           {poem.lines.map((line, i) => {
@@ -240,18 +249,26 @@ export default function Reader({ poem }: { poem: Poem }) {
         </div>
 
         {machinery && (
-          <footer className={styles.legend}>
-            <span className="tag">
-              / stressed&ensp;× unstressed&ensp;<span className={styles.legendSoft}>faint
-              = read from the meter</span>&ensp;
-              <span className={styles.legendDev}>marked = against the meter</span>
-            </span>
-            {poem.themes.length > 0 && (
-              <span className={`${styles.themes} tag`}>
-                themes: {poem.themes.join(", ")}
+          <>
+            <hr className={styles.rule} />
+            <footer className={styles.legend}>
+              <span className="tag">
+                / stressed&ensp;× unstressed&ensp;
+                <span className={styles.legendSoft}>
+                  faint = read from the meter
+                </span>
+                &ensp;
+                <span className={styles.legendDev}>
+                  marked = against the meter
+                </span>
               </span>
-            )}
-          </footer>
+              {poem.themes.length > 0 && (
+                <span className={`${styles.themes} tag`}>
+                  themes: {poem.themes.join(", ")}
+                </span>
+              )}
+            </footer>
+          </>
         )}
       </article>
     </main>
