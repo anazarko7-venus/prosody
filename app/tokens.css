@@ -205,9 +205,9 @@
 
   /* reader */
   --rhyme-rail: 2.5rem; /* 40px — the rhyme letters' outboard column */
-  --switch-w: 28px; /* the machinery toggle: stroke-level geometry, */
-  --switch-h: 16px; /* sized to the 16px text it sits beside */
-  --switch-knob: 8px;
+  --switch-w: 44px; /* the machinery toggle: a filled track, */
+  --switch-h: 24px; /* sized against the 16px text it sits beside */
+  --switch-knob: 20px;
   --switch-inset: 2px; /* stroke-level inset (half-step class) */
 }
 
