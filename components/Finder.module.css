@@ -209,10 +209,10 @@
     gap: var(--space-2);
   }
 
-  /* .chip and .tag are the two sizes of the same idea — a value wearing a
-     small surface — so they share their text setting and part ways on box. */
-  .chip,
-  .tag {
+  /* .chip is the larger of the two sizes of one idea — a value wearing a
+     small surface. The smaller one, `.tag`, is drawn by both screens and so
+     lives in shared.module.css. */
+  .chip {
     display: inline-flex;
     align-items: center;
     padding-inline: var(--space-3);
@@ -220,9 +220,6 @@
     font-weight: var(--weight-medium);
     line-height: var(--leading-tight);
     white-space: nowrap;
-  }
-
-  .chip {
     height: var(--control-h);
     border-radius: var(--radius-md);
     background: var(--color-surface-sunk);
@@ -441,15 +438,6 @@
     justify-content: flex-end;
     align-items: center;
     gap: var(--space-2);
-  }
-
-  .tag {
-    height: var(--tag-h);
-    border: var(--stroke-hairline) solid var(--color-border-tag);
-    border-radius: var(--radius-full);
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    flex-shrink: 0;
   }
 
   /* ------------------------------ responsive ------------------------------ */

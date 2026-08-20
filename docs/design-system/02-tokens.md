@@ -52,7 +52,16 @@ the ring.
   count. Adding a second half-step needs an argument written here.
 - **Em contexts** (inside the verse body, where geometry must ride with the
   type): the unit is **0.25em**. All verse-relative offsets are quarter-em
-  multiples.
+  multiples. The scansion staff is the one thing inside the verse that is
+  *not* em-based — see below.
+- **The staff's two exceptions to that.** `--beat-pitch` (20px, 5 × 4) and
+  `--staff-inset` (4px) are rem, not em, even though they live inside the
+  verse. They have to be: a beat cell sets its own `font-size` to
+  `--annot-md`, so an `em` width would resolve against the mark rather than
+  against the verse line the mark describes, and the pitch would silently
+  shrink. 20px is the verse's own em at `--text-lg`; under 480px, where the
+  verse steps to `--text-md`, `--beat-pitch` steps to 12px (3 × 4) with it.
+  Both values are on the 4px unit, so the exception costs the system nothing.
 - **Stroke half-steps**: 1 / 1.5 / 2px borders and the 2px switch inset, as
   before. `--stroke-emphasis` (1.5px) was dropped when nothing used it.
 
@@ -82,10 +91,12 @@ The asymmetry is the design's: the upper card opens with air above the
 wordmark and closes tight under the actions; the lower card mirrors it, tight
 under the heading and open at the floor.
 
-The two cards also breathe differently *inside*: the finder's section gap is
-`--space-10` (40px) because it is a sectioned form and its facets are
-chapters, while the reader's is `--space-6` (24px) because a poem's card is
-one continuous document. The divergence is deliberate, not drift.
+Both cards use `--space-10` (40px) between sections. The reader used to sit
+at `--space-6` on the argument that a poem's card is one continuous document;
+[`96:8637`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637)
+sets rule-to-head, head-to-rule and rule-to-verse all at 40, and the header
+gained a third element (the pill row) that wanted the air. The two cards now
+breathe the same.
 
 ## Type
 
@@ -194,12 +205,48 @@ table is not licensed.**
 | stone-400 `#a8a29e` | white | **2.52:1** | **exempt, decorative only** |
 | blue-600 | stone-100 | 6.06:1 | AA |
 | white | blue-600 (active chip, hovered action) | 6.61:1 | AA |
+| stone-900 | mint-100 `#d9fff2` (the staff) | 16.27:1 | AAA |
+| stone-600 | mint-100 | 7.10:1 | AAA |
+| stone-500 | mint-100 | **4.46:1** | **fails AA** |
+| blue-600 | mint-100 | 6.15:1 | AA |
+| stone-900 | callout ground `#e6ecff` | 14.83:1 | AAA |
+| stone-600 | callout ground | 6.47:1 | AAA |
+| stone-500 | callout ground | **4.07:1** | **fails AA** |
+| blue-600 | callout ground | 5.60:1 | AA |
 
 **The one restriction that follows:** `--color-text-tertiary` and
 `--color-text-placeholder` are stone-500 and are licensed **on white only**.
-Everything drawn on the stone-100 page ground uses `--color-text-secondary`.
-In practice this costs nothing, because all text in the product lives inside
-the white card.
+Everything drawn on the stone-100 page ground uses `--color-text-secondary`,
+and so does everything drawn on the two machinery grounds — stone-500 misses
+AA on all three. This is why the staff's `.soft` beat (a syllable read from
+the meter rather than heard in the word) is stone-600 set at
+`--weight-regular` rather than stone-500 set at medium: on mint the hierarchy
+has to be carried by weight, because the ink it used to be carried by is not
+licensed there.
+
+### <a id="the-third-hue"></a>The third hue
+
+`--mint-100: #d9fff2` is the palette's only cool colour and its only addition
+since the warm-grey-plus-blue system was set. It is the design's own value
+([`96:8637`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637))
+and it earns a hue of its own because it names a *speaker*, the same way the
+three faces do:
+
+| Hue | Role token | What it says |
+|---|---|---|
+| warm grey | `--color-bg`, `--color-surface`, the rules | the page |
+| blue-600 | `--color-action`, `--color-callout-ground` | the poem's own move — the search, the turn |
+| mint-100 | `--color-machinery-ground` | the machine's annotation, laid over the poem |
+
+`--color-callout-ground` is not a fourth colour: it is `--blue-alpha-10`,
+blue-600 at 10% on the card, which composites to `#e6ecff`. Keeping the volta
+in the action's family and the scansion out of it is the whole point — the
+reader can tell at a glance which marks are the poem's and which are the
+machine's.
+
+Both grounds are non-text surfaces on white (mint 1.07:1, callout 1.18:1).
+Neither identifies a control, so WCAG 1.4.11 does not apply; each is read as
+a region, and each region's meaning is also carried by its text.
 
 ### Non-text pairs
 
@@ -211,6 +258,8 @@ the white card.
 | `--color-border-tag` | stone-200 `#e7e5e4` | 1.26:1 | the result-row form/meter tags |
 | `--color-border-ghost` | stone-100 `#f5f5f4` | 1.09:1 | the `clear` action's outline |
 | `--color-surface-sunk` | stone-100 | 1.09:1 | chip ground |
+| `--color-machinery-ground` | mint-100 `#d9fff2` | 1.07:1 | the scansion staff's band |
+| `--color-callout-ground` | `--blue-alpha-10` over white → `#e6ecff` | 1.18:1 | the volta callout's note |
 
 **Open item — WCAG 1.4.11.** A control's boundary is supposed to reach 3:1
 against its surround. None of the four strokes above do. The dropdowns are

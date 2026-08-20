@@ -9,8 +9,9 @@ The system is the one drawn in Figma, file `GbaOppKpsNi6ZL4VrVCVOO`
 
 - [`85:7138` — Prosody](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=85-7138), the finder at rest
 - [`86:7476` — Prosody List](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=86-7476), the finder after search
+- [`96:8637` — Prosody Poem](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637), the reader with the machinery on
 
-Where the two disagree, the later frame wins: `86:7476` moved the field
+Where the two finder frames disagree, the later frame wins: `86:7476` moved the field
 labels, the tagline and the titles from Gulax and Satoshi to EB Garamond,
 lowercased the wordmark and the actions, added the `clear` action, and split
 the results into their own card. Where this document and Figma disagree, Figma
@@ -42,7 +43,7 @@ Each face has a job, and the jobs are about *who is speaking*.
 
 | Face | Token | What it is allowed to say |
 |---|---|---|
-| **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else. One weight — do not ask for a second. Set lowercase, as the design sets it. |
+| **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else — the reader's `volta` label used to be the exception and was moved to Satoshi in August 2026, where a machine's label belongs. One weight — do not ask for a second. Set lowercase, as the design sets it. |
 | **EB Garamond** | `--font-serif` | The poetry speaking: the verse itself, and everything that names a property of a poem — field labels (`Form:`, `Era:`), poem titles, authors. Self-hosted variable, 400–800. |
 | **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem — and the stress marks, which are the machine annotating the verse. Three shipped masters {400, 500, 700}; `font-synthesis` is off, so those three are all there is. |
 
@@ -56,6 +57,49 @@ The line to hold: **Garamond labels the material, Satoshi labels the machine.**
 "Form:" is Garamond because it names something the poem has. "rhymed stanzas"
 on a result-row tag is Satoshi because it is the index reporting. When you add
 a string, ask which of the two it is.
+
+## <a id="the-three-hues"></a>The three hues
+
+The palette answers the same question the faces do — *who is speaking* — with
+one hue each.
+
+| Hue | Role tokens | Speaks for |
+|---|---|---|
+| warm grey (stone) | `--color-bg`, `--color-surface`, `--color-rule`, `--color-grid`, the text ramp | the page and its furniture |
+| blue-600 | `--color-action`, `--color-focus`, `--color-selection`, `--color-callout-ground` | the poem's own move — the search that acts, the turn that the volta names |
+| mint-100 | `--color-machinery-ground` | the machine's annotation, laid over the poem: the scansion staff's band |
+
+Mint arrived in August 2026 with the reader's staff and is the palette's only
+cool colour. It is a third hue in a system that had two, so it is argued
+rather than assumed: the reader has to be able to tell at a glance which
+marks belong to the poem and which belong to the machine reading it, and hue
+is the cheapest way to say that. The full derivation, the composite of the
+callout ground, and every licensed ink on both are in
+[`02-tokens.md`](02-tokens.md#the-third-hue).
+
+There is no fourth. If something needs to be told apart from these three,
+tell it apart with weight, size or position first.
+
+## The reader's staff
+
+Scansion does not float over the words. Each verse line carries a band above
+it holding **one square cell per syllable at a fixed pitch** — so a
+common-meter poem alternates a long band and a short one, eight beats against
+six, and rhythm can be read *down* the page rather than word by word.
+
+What the fixed pitch gives up is the tie between a mark and the syllable
+under it. The tie is handed back on demand: a word and its beats carry the
+same `data-w` inside their line, and one delegated pointer handler
+(`useHoverLink`, `Reader.tsx`) lights both. It is imperative on purpose — the
+poem must not re-render on a pointer move — and it is decoration over a
+display that is already complete, so it adds no tab stops and the staff stays
+`aria-hidden`.
+
+The band opens on an `0fr → 1fr` grid row, which is the one height that
+animates without a magic number in it: the row resolves against the content,
+so the line opens to exactly the band it is making room for. Both the band
+and the volta's frame stay in the DOM while the machinery is off, empty and
+zero-height, because a row can only animate from a value it already had.
 
 ## The page
 
@@ -88,7 +132,9 @@ or reintroduce motion, by construction. New global rules go inside
 `@layer base`; new module files wrap their rules in `@layer screens`.
 
 Fragments both screens draw — the section rule, the sr-only clip, the Gulax
-base — live once, in `components/shared.module.css`.
+base, the `.tag` pill and its row — live once, in
+`components/shared.module.css`. `.tag` moved there in August 2026 when the
+reader's header started drawing the same pill the finder's result rows do.
 
 ## The rules
 
@@ -111,7 +157,10 @@ base — live once, in `components/shared.module.css`.
 5. **Color licensing.** Text may only use tokens proven ≥4.5:1 on every
    background they sit on. `--color-text-tertiary` (stone-500) is licensed on
    `--color-surface` (white, 4.80:1) and **not** on `--color-bg` (stone-100,
-   4.40:1) — use `--color-text-secondary` there. `--color-grid`,
+   4.40:1), **not** on `--color-machinery-ground` (mint, 4.46:1) and **not**
+   on `--color-callout-ground` (4.07:1) — use `--color-text-secondary` on all
+   three. This is why the staff's faint beat is stone-600 unbolded rather
+   than stone-500: on mint the hierarchy is carried by weight. `--color-grid`,
    `--color-rule`, `--color-border-tag` and `--color-border-ghost` are
    structurally non-text. `--color-text-index` (stone-400, 2.52:1 on white) is
    the one text token below the floor: it sets the result-row ordinal, which is

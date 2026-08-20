@@ -9,8 +9,22 @@ import shared from "./shared.module.css";
 
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
 const STRONG_PUNCT = /[;:.!?—]/;
+/** The rhyme pill is an overview, not a transcript: past this the rail carries
+ *  the rest. The corpus runs to 113 letters (The Raven). */
+const SCHEME_MAX = 32;
 
 type Mark = { ch: string; cls: "firm" | "soft" | "dev" };
+
+type WordSeg = {
+  kind: "word";
+  text: string;
+  token: ScanToken;
+  startSyl: number;
+  /** Position of this word in its line — the key the staff and the verse
+   *  share, so a beat can find the syllable it describes. */
+  wordNo: number;
+};
+type Segment = { kind: "text"; text: string } | WordSeg;
 
 function marksForWord(
   token: ScanToken,
@@ -32,11 +46,8 @@ function marksForWord(
 
 /** Split a raw line into text segments and word segments, pairing words
  *  with their scansion tokens. Falls back to plain text on any mismatch. */
-function segmentLine(line: string, scan: ScanToken[]) {
-  const segments: Array<
-    | { kind: "text"; text: string }
-    | { kind: "word"; text: string; token: ScanToken; startSyl: number }
-  > = [];
+function segmentLine(line: string, scan: ScanToken[]): Segment[] | null {
+  const segments: Segment[] = [];
   let last = 0;
   let wordIdx = 0;
   let syl = 0;
@@ -44,7 +55,13 @@ function segmentLine(line: string, scan: ScanToken[]) {
     const token = scan[wordIdx];
     if (!token || token.w !== m[0]) return null;
     if (m.index! > last) segments.push({ kind: "text", text: line.slice(last, m.index) });
-    segments.push({ kind: "word", text: m[0], token, startSyl: syl });
+    segments.push({
+      kind: "word",
+      text: m[0],
+      token,
+      startSyl: syl,
+      wordNo: wordIdx,
+    });
     syl += token.s.length;
     last = m.index! + m[0].length;
     wordIdx += 1;
@@ -76,14 +93,66 @@ function anaphoraSpans(devices: Device[]): Map<number, number> {
 }
 
 /* The machinery's lifecycle. `on` and `off` are the two resting states;
-   `closing` holds the marks in the DOM just long enough for the exit to
-   play (Reader.module.css), then unmounts them. The budget for the whole
+   `closing` holds the staff in the DOM just long enough for the exit to
+   play (Reader.module.css), then unmounts it. The budget for the whole
    exit is --dur-slow, read from the tokens so no duration lives here. */
 type Phase = "on" | "closing" | "off";
+
+/** The correspondence between a beat and the syllable it describes, and
+ *  between a rhyme letter in the header pill and the lines that share it.
+ *  Both are hover-only decoration over an already-complete display, so this
+ *  runs imperatively: the poem never re-renders on a pointer move. */
+function useHoverLink(root: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    let lit: Element[] = [];
+
+    const clear = () => {
+      for (const n of lit) n.classList.remove(styles.linked);
+      lit = [];
+    };
+
+    const light = (scope: Element, selector: string) => {
+      clear();
+      lit = Array.from(scope.querySelectorAll(selector));
+      for (const n of lit) n.classList.add(styles.linked);
+    };
+
+    const onOver = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return clear();
+
+      const word = t.closest<HTMLElement>("[data-w]");
+      if (word) {
+        const line = word.closest("[data-line]");
+        const w = word.dataset.w;
+        if (line && w && /^\d+$/.test(w)) return light(line, `[data-w="${w}"]`);
+      }
+
+      const letter = t.closest<HTMLElement>("[data-rhyme]");
+      const r = letter?.dataset.rhyme;
+      if (r && /^[A-Za-z]$/.test(r)) return light(el, `[data-rhyme="${r}"]`);
+
+      clear();
+    };
+
+    el.addEventListener("pointerover", onOver);
+    el.addEventListener("pointerleave", clear);
+    return () => {
+      el.removeEventListener("pointerover", onOver);
+      el.removeEventListener("pointerleave", clear);
+      clear();
+    };
+  }, [root]);
+}
 
 export default function Reader({ poem }: { poem: Poem }) {
   const [phase, setPhase] = useState<Phase>("off");
   const closeTimer = useRef<number | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
+
+  useHoverLink(cardRef);
 
   const toggleMachinery = useCallback(() => {
     if (closeTimer.current !== null) {
@@ -128,11 +197,15 @@ export default function Reader({ poem }: { poem: Poem }) {
   const volta = poem.devices.find((d) => d.name === "volta");
 
   // rhyme letters, faded when the letter never recurs
+  const scheme = useMemo(
+    () => poem.rhyme_scheme.split("").filter((c) => c !== "-"),
+    [poem]
+  );
   const letterCounts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const ch of poem.rhyme_scheme) if (ch !== "-") c[ch] = (c[ch] ?? 0) + 1;
+    for (const ch of scheme) c[ch] = (c[ch] ?? 0) + 1;
     return c;
-  }, [poem]);
+  }, [scheme]);
 
   let visIdx = 0; // stagger counter for non-blank lines
 
@@ -145,7 +218,7 @@ export default function Reader({ poem }: { poem: Poem }) {
       <Band />
 
       <Row>
-        <article className={`${shellColumn} ${styles.card}`}>
+        <article ref={cardRef} className={`${shellColumn} ${styles.card}`}>
         <nav className={styles.crumbs}>
           <Link href="/" className={styles.home}>
             prosody
@@ -155,10 +228,10 @@ export default function Reader({ poem }: { poem: Poem }) {
             onClick={toggleMachinery}
             aria-pressed={machinery}
           >
-            machinery
             <span className={styles.switch} aria-hidden>
               <span className={styles.switchThumb} />
             </span>
+            machinery
           </button>
         </nav>
 
@@ -171,18 +244,41 @@ export default function Reader({ poem }: { poem: Poem }) {
               {poem.author} · {label(poem.era)}
             </p>
           </hgroup>
-          <p className={`${styles.finePrint} ${styles.meta}`}>
-            {label(poem.form)} · {label(poem.meter)}
-            {poem.meter !== "free_verse" && (
-              <span> · fit {poem.meter_confidence.toFixed(2)}</span>
+          <div className={shared.tags}>
+            <span className={shared.tag}>{label(poem.form)}</span>
+            {/* free verse is both the form and the meter for some poems;
+                one pill can say that once. */}
+            {poem.meter !== poem.form && (
+              <span className={shared.tag}>{label(poem.meter)}</span>
             )}
-            {machinery && poem.rhyme_scheme.replace(/-/g, "").length > 0 && (
-              <span>
-                {" "}
-                · {poem.rhyme_scheme.replace(/-/g, " ").slice(0, 28)}
+            {poem.meter !== "free_verse" && (
+              <span className={shared.tag}>
+                fit {poem.meter_confidence.toFixed(2)}
               </span>
             )}
-          </p>
+            {mounted && scheme.length > 0 && (
+              <span
+                className={`${shared.tag} ${shared.tagWide} ${styles.scheme}`}
+                aria-label={`rhyme scheme ${scheme.join("")}`}
+              >
+                {scheme.slice(0, SCHEME_MAX).map((c, k) => (
+                  <span
+                    key={k}
+                    className={styles.schemeLetter}
+                    data-rhyme={c}
+                    aria-hidden
+                  >
+                    {c}
+                  </span>
+                ))}
+                {scheme.length > SCHEME_MAX && (
+                  <span className={styles.schemeMore} aria-hidden>
+                    …
+                  </span>
+                )}
+              </span>
+            )}
+          </div>
         </header>
 
         <hr className={shared.rule} />
@@ -196,18 +292,42 @@ export default function Reader({ poem }: { poem: Poem }) {
             const anaphSpan = anaphora.get(n);
             const stagger = Math.min(visIdx++, 24); // steps of --stagger-xs (tokens.css)
             const letter = poem.rhyme_scheme[i];
+            const words = segments?.filter((s): s is WordSeg => s.kind === "word") ?? [];
 
-            return (
+            const row = (
               <div
                 key={i}
-                className={`${styles.line} ${volta?.line === n ? styles.voltaLine : ""}`}
+                className={styles.line}
+                data-line={n}
                 style={{ "--li": stagger } as React.CSSProperties}
               >
-                {volta?.line === n && (
-                  <span className={styles.voltaNote}>
-                    <span className={styles.voltaWord}>volta</span> {volta.why}
-                  </span>
-                )}
+                {/* The band stays in the DOM even when it is empty: a grid row
+                    can only animate from 0fr to 1fr if the element it belongs
+                    to was already there to have a from-value. */}
+                <span className={styles.staffWrap} aria-hidden>
+                  {mounted && words.length > 0 && (
+                    <span className={styles.staff}>
+                      {words.map((seg) => (
+                        <span
+                          key={seg.wordNo}
+                          className={styles.beatGroup}
+                          data-w={seg.wordNo}
+                        >
+                          {marksForWord(seg.token, seg.startSyl, foot, devs).map(
+                            (mk, k) => (
+                              <span
+                                key={k}
+                                className={`${styles.beat} ${styles[mk.cls]}`}
+                              >
+                                {mk.ch}
+                              </span>
+                            )
+                          )}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </span>
                 <span className={styles.lineText}>
                   {segments === null
                     ? line
@@ -236,25 +356,15 @@ export default function Reader({ poem }: { poem: Poem }) {
                           }
                           return <span key={j}>{seg.text}</span>;
                         }
-                        const wordNo = segments.slice(0, j).filter((x) => x.kind === "word").length;
                         const underline =
-                          (anaphSpan !== undefined && wordNo < anaphSpan) || refrain.has(n);
+                          (anaphSpan !== undefined && seg.wordNo < anaphSpan) ||
+                          refrain.has(n);
                         return (
                           <span
                             key={j}
                             className={`${styles.w} ${underline ? styles.echo : ""}`}
+                            data-w={seg.wordNo}
                           >
-                            {mounted && (
-                              <span className={styles.marks} aria-hidden>
-                                {marksForWord(seg.token, seg.startSyl, foot, devs).map(
-                                  (mk, k) => (
-                                    <span key={k} className={styles[mk.cls]}>
-                                      {mk.ch}
-                                    </span>
-                                  )
-                                )}
-                              </span>
-                            )}
                             {seg.text}
                           </span>
                         );
@@ -270,6 +380,7 @@ export default function Reader({ poem }: { poem: Poem }) {
                     className={`${styles.rhyme} ${
                       letterCounts[letter] > 1 ? "" : styles.rhymeLone
                     }`}
+                    data-rhyme={letter}
                     aria-hidden
                   >
                     {letter}
@@ -277,6 +388,27 @@ export default function Reader({ poem }: { poem: Poem }) {
                 )}
               </div>
             );
+
+            // The turn is the one device that earns a frame of its own: the
+            // note sits above the line it names, and the line comes with it.
+            // The frame is always in the DOM for the same reason the band is —
+            // it has to have somewhere to open from.
+            if (volta?.line === n) {
+              return (
+                <div key={i} className={styles.callout}>
+                  <div className={styles.calloutNoteWrap}>
+                    {mounted && (
+                      <div className={styles.calloutNote}>
+                        <span className={styles.calloutLabel}>volta</span>
+                        <p className={styles.calloutWhy}>{volta.why}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.calloutLine}>{row}</div>
+                </div>
+              );
+            }
+            return row;
           })}
         </div>
 
@@ -292,6 +424,12 @@ export default function Reader({ poem }: { poem: Poem }) {
                 &ensp;
                 <span className={styles.legendDev}>
                   marked = against the meter
+                </span>
+              </span>
+              <span className={styles.finePrint}>
+                <span className={styles.legendSoft}>
+                  Point at a word and its beats light with it; point at a letter
+                  in the rhyme scheme to find the lines that share it.
                 </span>
               </span>
               {poem.themes.length > 0 && (
