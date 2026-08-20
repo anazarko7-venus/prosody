@@ -22,8 +22,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* The two faces on the first paint: the wordmark and everything
-            the card says. Monofett and the other Satoshi masters are
-            requested only if something on the page asks for them. */}
+            the card says. The other Satoshi masters are requested only if
+            something on the page asks for them. */}
         <link
           rel="preload"
           as="font"

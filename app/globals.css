@@ -16,10 +16,6 @@
    property of a poem — field labels, poem titles, authors. Where Satoshi
    labels the apparatus, Garamond labels the material.
 
-   MONOFETT — Vernon Adams (SIL OFL), Google Fonts latin subset, self-hosted.
-   Every glyph is a filled slab; a digit set in it reads as a stamped count,
-   not as running text. It is used for counts and nothing else — it has no
-   business setting a word.
    ========================================================================= */
 
 @font-face {
@@ -64,16 +60,6 @@
   font-weight: 900;
   font-style: normal;
   font-display: swap;
-}
-
-@font-face {
-  font-family: "Monofett";
-  src: url("/fonts/Monofett-Latin.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -190,15 +176,6 @@ button {
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
   color: var(--color-text);
-}
-
-/* A stamped count. Monofett sets solid slabs, so it needs no colour of its
-   own — it inherits, and reads as a mark beside the word it counts. */
-.count {
-  font-family: var(--font-count);
-  font-size: var(--count-size);
-  line-height: var(--leading-solid);
-  font-weight: var(--weight-regular);
 }
 
 /* Fine print: metadata under a title, the reader legend. Apparatus, so
