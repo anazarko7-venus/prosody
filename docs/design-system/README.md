@@ -10,6 +10,7 @@ The system is the one drawn in Figma, file `GbaOppKpsNi6ZL4VrVCVOO`
 - [`85:7138` — Prosody](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=85-7138), the finder at rest
 - [`86:7476` — Prosody List](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=86-7476), the finder after search
 - [`96:8637` — Prosody Poem](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637), the reader with the machinery on
+- [`96:8668` — the reader's verse](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8668), which supersedes `96:8637` for everything below the second rule: the line gap, the rhyme tile, and the volta in amber
 
 Where the two finder frames disagree, the later frame wins: `86:7476` moved the field
 labels, the tagline and the titles from Gulax and Satoshi to EB Garamond,
@@ -58,27 +59,33 @@ The line to hold: **Garamond labels the material, Satoshi labels the machine.**
 on a result-row tag is Satoshi because it is the index reporting. When you add
 a string, ask which of the two it is.
 
-## <a id="the-three-hues"></a>The three hues
+## <a id="the-four-hues"></a>The four hues
 
 The palette answers the same question the faces do — *who is speaking* — with
 one hue each.
 
 | Hue | Role tokens | Speaks for |
 |---|---|---|
-| warm grey (stone) | `--color-bg`, `--color-surface`, `--color-rule`, `--color-grid`, the text ramp | the page and its furniture |
-| blue-600 | `--color-action`, `--color-focus`, `--color-selection`, `--color-callout-ground` | the poem's own move — the search that acts, the turn that the volta names |
-| mint-100 | `--color-machinery-ground` | the machine's annotation, laid over the poem: the scansion staff's band |
+| warm grey (stone) | `--color-bg`, `--color-surface`, `--color-rule`, `--color-grid`, the rhyme tile, the text ramp | the page and its furniture |
+| blue-600 | `--color-action`, `--color-focus`, `--color-selection` | the app acting — and, in the staff, a syllable read *against* the meter |
+| mint-100 | `--color-machinery-ground` | the machine's reading, laid over the poem: the scansion staff's band |
+| amber-500 | `--color-volta-ground`, `--color-volta-accent` | the poem's own event: the turn |
 
-Mint arrived in August 2026 with the reader's staff and is the palette's only
-cool colour. It is a third hue in a system that had two, so it is argued
-rather than assumed: the reader has to be able to tell at a glance which
-marks belong to the poem and which belong to the machine reading it, and hue
-is the cheapest way to say that. The full derivation, the composite of the
-callout ground, and every licensed ink on both are in
-[`02-tokens.md`](02-tokens.md#the-third-hue).
+The system had two hues until the reader arrived in August 2026. Mint and
+amber are both the design's own values, and both are argued rather than
+assumed, because each names a speaker the reader has to be able to tell apart
+at a glance: what the machine says about the poem, and what the poem does on
+its own.
 
-There is no fourth. If something needs to be told apart from these three,
-tell it apart with weight, size or position first.
+The volta was briefly blue — that is what `96:8637` drew — and `96:8668` moved
+it to amber. It had to move: blue already meant *the app is acting* and *this
+syllable goes against the meter*, and a volta box always contains a staff, so
+a blue box was sitting a blue deviation mark on a tint of itself. Full
+derivations, both composites and every licensed ink are in
+[`02-tokens.md`](02-tokens.md#the-annotation-hues).
+
+There is no fifth. If something needs to be told apart from these four, tell
+it apart with weight, size or position first.
 
 ## The reader's staff
 
@@ -97,9 +104,23 @@ display that is already complete, so it adds no tab stops and the staff stays
 
 The band opens on an `0fr → 1fr` grid row, which is the one height that
 animates without a magic number in it: the row resolves against the content,
-so the line opens to exactly the band it is making room for. Both the band
-and the volta's frame stay in the DOM while the machinery is off, empty and
+so the line opens to exactly the band it is making room for. The band and the
+volta's note stay in the DOM while the machinery is off, empty and
 zero-height, because a row can only animate from a value it already had.
+
+**A line is a flex row: the block, then the tile.** The rhyme letter is not a
+mark floating outboard of the measure any more — it is a stone-100 tile at
+the measure's right edge, ruled on its two vertical edges so the column reads
+as one ruled strip that the line gaps cut into tiles. The tile is a flex
+sibling with `align-items: stretch`, which is what makes it exactly as tall
+as whatever it sits beside: a one-line block, a wrapped one, or the volta's
+whole box. Its slot is reserved whether or not it holds a letter, so toggling
+the machinery never re-wraps the verse.
+
+**The volta is the same box as its line**, not a wrapper around it — the note
+is one more thing inside the line's block. That is why the tile beside it
+stretches to the whole callout for free, and why there is no second layout to
+keep in step with the first.
 
 ## The page
 
@@ -157,10 +178,12 @@ reader's header started drawing the same pill the finder's result rows do.
 5. **Color licensing.** Text may only use tokens proven ≥4.5:1 on every
    background they sit on. `--color-text-tertiary` (stone-500) is licensed on
    `--color-surface` (white, 4.80:1) and **not** on `--color-bg` (stone-100,
-   4.40:1), **not** on `--color-machinery-ground` (mint, 4.46:1) and **not**
-   on `--color-callout-ground` (4.07:1) — use `--color-text-secondary` on all
-   three. This is why the staff's faint beat is stone-600 unbolded rather
-   than stone-500: on mint the hierarchy is carried by weight. `--color-grid`,
+   4.40:1) and **not** on `--color-machinery-ground` (mint, 4.46:1). It clears
+   AA on `--color-volta-ground` by a hundredth (4.50:1), which is not a margin
+   worth remembering an exception for, so the rule is simply: **stone-500 is
+   white-only.** This is why the staff's faint beat and the rhyme tile's lone
+   letter are stone-600 unbolded rather than stone-500 — off white the
+   hierarchy is carried by weight. `--color-grid`,
    `--color-rule`, `--color-border-tag` and `--color-border-ghost` are
    structurally non-text. `--color-text-index` (stone-400, 2.52:1 on white) is
    the one text token below the floor: it sets the result-row ordinal, which is

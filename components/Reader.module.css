@@ -191,25 +191,43 @@
 
   /* -------------------------------- body --------------------------------- */
 
+  /* The reader's rhythm is the gap between line blocks, not leading inside
+     them (96:8668). A line block is its band plus its text set solid at the
+     display leading; the poem is those blocks 16px apart. A wrapped line
+     therefore sits closer to its own continuation than to the next line,
+     which is what it should do. */
   .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
     font-family: var(--font-serif);
     font-size: var(--text-lg);
     font-weight: var(--weight-regular);
-    line-height: var(--leading-verse);
-    padding-right: var(--rhyme-rail);
+    line-height: var(--leading-tight);
   }
 
+  /* three line-gaps: the stanza reads as a stanza without a token of its own */
   .stanzaBreak {
-    height: 1.25em;
+    height: var(--space-4);
+  }
+
+  /* A line is its block and its rhyme tile, side by side. `stretch` is what
+     makes the tile as tall as whatever it sits beside — a one-line block, a
+     wrapped one, or the volta's whole box. */
+  .line {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .lineMain {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: pre-wrap;
   }
 
   /* The hanging indent belongs to the verse, not to the line box: the band
      has to start where the line's first character starts, not two ems in. */
-  .line {
-    position: relative;
-    white-space: pre-wrap;
-  }
-
   .lineText {
     display: block;
     padding-left: 2em;
@@ -292,7 +310,7 @@
   .closing .staff,
   .closing .rhyme,
   .closing .scheme,
-  .closing .calloutNote,
+  .closing .voltaNote,
   .closing .legend,
   .closing .legendRule {
     animation: marksOut var(--dur-base) var(--ease-std) forwards;
@@ -340,9 +358,17 @@
     box-shadow: inset 0 calc(-1 * var(--stroke-strong)) 0 var(--color-text);
   }
 
-  .rhyme.linked,
   .schemeLetter.linked {
     box-shadow: none;
+    color: var(--color-action);
+  }
+
+  .rhymeCell.linked {
+    box-shadow: none;
+    background: var(--color-surface-sunk-strong);
+  }
+
+  .rhymeCell.linked .rhyme {
     color: var(--color-action);
   }
 
@@ -365,18 +391,32 @@
     user-select: none;
   }
 
-  /* Bottom-anchored so it rides the band-opening for free (the band grows
-     above), and on a wrapped line it sits beside the last visual line —
-     where the rhyme actually sounds. 1.25em reproduces the letter's resting
-     place beside a single line. It enters on the same stagger as the band. */
+  /* The rhyme letter is a tile at the right edge of the measure, not a mark
+     floating outboard of it. Vertical rules only: the column reads as one
+     ruled edge that the 16px line gaps cut into tiles. The slot is always
+     there; only the fill and the letter come and go with the machinery, so
+     the verse never re-wraps on a toggle. */
+  .rhymeCell {
+    flex: 0 0 var(--rhyme-cell);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-inline: var(--stroke-hairline) solid transparent;
+    transition: background var(--dur-quick) var(--ease-std),
+      border-color var(--dur-quick) var(--ease-std);
+  }
+
+  .rhymeFilled {
+    background: var(--color-surface-sunk);
+    border-inline-color: var(--color-border-tag);
+  }
+
   .rhyme {
-    position: absolute;
-    right: calc(-1 * var(--rhyme-rail));
-    bottom: 1.25em;
-    font-size: var(--annot-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     line-height: var(--leading-solid);
-    color: var(--color-text-secondary);
+    color: var(--color-text);
     text-indent: 0;
     opacity: 0;
     animation: marksIn var(--dur-base) var(--ease-out) forwards;
@@ -384,74 +424,75 @@
     transition: color var(--dur-quick) var(--ease-std);
   }
 
+  /* a letter that never recurs is not a rhyme yet — stone-600, because
+     stone-500 misses AA on the tile's stone-100 ground (4.40:1) */
   .rhymeLone {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
   }
 
   /* -------------------------------- volta --------------------------------- */
 
-  /* The turn is the only device that gets a frame. The note sits on the
-     action's own ground — the blue names the poem's move, the mint names the
-     machine's — and the line it turns on comes inside the frame with it. */
-  .callout {
-    border: var(--stroke-hairline) solid transparent;
-    border-radius: var(--radius-sm);
-    transition: border-color var(--dur-gentle) var(--ease-std),
-      margin var(--dur-gentle) var(--ease-out);
+  /* The turn is the only device that gets a box, and it is the SAME box as
+     the line — the note is simply one more thing inside the line's block, so
+     the rhyme tile beside it stretches to the whole thing for free.
+
+     Amber, not blue. Blue already means two things in this screen (the app
+     acting, and a syllable read against the meter); the turn is neither of
+     those, and it is the poem's own event rather than the machine's, so it
+     leaves the mint alone too. */
+  .volta {
+    border-left: var(--stroke-accent) solid transparent;
+    transition: background var(--dur-gentle) var(--ease-std),
+      border-color var(--dur-gentle) var(--ease-std),
+      padding var(--dur-gentle) var(--ease-out);
   }
 
-  .on .callout,
-  .closing .callout {
-    border-color: var(--color-rule);
-    margin-block: var(--space-4);
+  /* `.on` only, not `.closing`: the box starts collapsing the moment the exit
+     begins, so it lands inside --dur-slow with everything else rather than
+     trailing --dur-gentle behind it. */
+  .on .volta {
+    background: var(--color-volta-ground);
+    border-left-color: var(--color-volta-accent);
+    padding: var(--space-4) var(--space-6);
   }
 
-  .calloutNoteWrap {
+  .voltaNoteWrap {
     display: grid;
     grid-template-rows: 0fr;
-    background: var(--color-callout-ground);
     transition: grid-template-rows var(--dur-gentle) var(--ease-out);
   }
 
-  .on .calloutNoteWrap {
+  .on .voltaNoteWrap {
     grid-template-rows: 1fr;
   }
 
-  .calloutNote {
+  .voltaNote {
     overflow: hidden;
     min-height: 0;
-    padding: var(--space-4) var(--space-6);
+    padding-bottom: var(--space-3);
     font-family: var(--font-sans);
     font-size: var(--text-md);
     line-height: var(--leading-ui);
+    white-space: normal;
   }
 
-  .calloutLabel {
+  .voltaLabel {
     display: block;
     font-weight: var(--weight-bold);
     color: var(--color-text);
+    margin-bottom: var(--space-3);
   }
 
   /* stored lowercase because the device names read as prose elsewhere; the
      label raises the first letter rather than the data carrying two spellings
      (the finder's chips do the same) */
-  .calloutLabel::first-letter {
+  .voltaLabel::first-letter {
     text-transform: uppercase;
   }
 
-  .calloutWhy {
+  .voltaWhy {
     color: var(--color-text-secondary);
     max-width: 60ch;
-  }
-
-  .calloutLine {
-    background: var(--color-surface);
-    transition: padding var(--dur-gentle) var(--ease-out);
-  }
-
-  .on .calloutLine,
-  .closing .calloutLine {
-    padding: var(--space-4) var(--space-6);
   }
 
   /* ------------------------------- legend --------------------------------- */
@@ -490,7 +531,6 @@
   @media (max-width: 480px) {
     .body {
       font-size: var(--text-md);
-      padding-right: 0;
     }
 
     .lineText {
@@ -503,13 +543,16 @@
       max-width: 100%;
     }
 
-    .rhyme {
+    /* the tile gives its slot back to the measure, gap and all */
+    .rhymeCell {
       display: none;
     }
 
-    .calloutNote,
-    .on .calloutLine,
-    .closing .calloutLine {
+    .line {
+      gap: 0;
+    }
+
+    .on .volta {
       padding: var(--space-3) var(--space-4);
     }
   }

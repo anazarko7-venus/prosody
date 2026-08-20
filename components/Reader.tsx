@@ -294,6 +294,8 @@ export default function Reader({ poem }: { poem: Poem }) {
             const letter = poem.rhyme_scheme[i];
             const words = segments?.filter((s): s is WordSeg => s.kind === "word") ?? [];
 
+            const isVolta = volta?.line === n;
+
             const row = (
               <div
                 key={i}
@@ -301,6 +303,20 @@ export default function Reader({ poem }: { poem: Poem }) {
                 data-line={n}
                 style={{ "--li": stagger } as React.CSSProperties}
               >
+                {/* The line and everything the machine says about it. On the
+                    volta this is also the callout: same box, one more thing
+                    inside it. */}
+                <div className={`${styles.lineMain} ${isVolta ? styles.volta : ""}`}>
+                {isVolta && (
+                  <div className={styles.voltaNoteWrap}>
+                    {mounted && (
+                      <div className={styles.voltaNote}>
+                        <span className={styles.voltaLabel}>volta</span>
+                        <p className={styles.voltaWhy}>{volta.why}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* The band stays in the DOM even when it is empty: a grid row
                     can only animate from 0fr to 1fr if the element it belongs
                     to was already there to have a from-value. */}
@@ -375,39 +391,31 @@ export default function Reader({ poem }: { poem: Poem }) {
                     </span>
                   )}
                 </span>
-                {mounted && letter && letter !== "-" && (
-                  <span
-                    className={`${styles.rhyme} ${
-                      letterCounts[letter] > 1 ? "" : styles.rhymeLone
-                    }`}
-                    data-rhyme={letter}
-                    aria-hidden
-                  >
-                    {letter}
-                  </span>
-                )}
+                </div>
+                {/* The tile keeps its slot whether or not it is holding a
+                    letter, so toggling the machinery never re-wraps the
+                    verse. It stretches to the line block beside it, which is
+                    why the volta's tile is as tall as the volta's box. */}
+                <div
+                  className={`${styles.rhymeCell} ${
+                    mounted && letter && letter !== "-" ? styles.rhymeFilled : ""
+                  }`}
+                  data-rhyme={mounted && letter !== "-" ? letter : undefined}
+                  aria-hidden
+                >
+                  {mounted && letter && letter !== "-" && (
+                    <span
+                      className={`${styles.rhyme} ${
+                        letterCounts[letter] > 1 ? "" : styles.rhymeLone
+                      }`}
+                    >
+                      {letter}
+                    </span>
+                  )}
+                </div>
               </div>
             );
 
-            // The turn is the one device that earns a frame of its own: the
-            // note sits above the line it names, and the line comes with it.
-            // The frame is always in the DOM for the same reason the band is —
-            // it has to have somewhere to open from.
-            if (volta?.line === n) {
-              return (
-                <div key={i} className={styles.callout}>
-                  <div className={styles.calloutNoteWrap}>
-                    {mounted && (
-                      <div className={styles.calloutNote}>
-                        <span className={styles.calloutLabel}>volta</span>
-                        <p className={styles.calloutWhy}>{volta.why}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.calloutLine}>{row}</div>
-                </div>
-              );
-            }
             return row;
           })}
         </div>
