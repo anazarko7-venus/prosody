@@ -231,11 +231,9 @@
                             no longer outboard: the tile is inside the 784
                             measure and stretches to its line block's height. */
   /* the scansion staff. One syllable gets one square cell, so pitch and
-     height are the same number: 20px, the verse's own em, and 5 × 4px.
-     (The design reads 19px against the 20px verse.) Not an em: the marks
-     inside the cell are set at --annot-md, and an em would then resolve
-     against the mark rather than the verse. */
-  --beat-pitch: 1.25rem; /* 20px */
+     height are the same number: 32px, 8 × 4px, sized to hold a 16px bold
+     mark comfortably rather than tracking the verse's own em. */
+  --beat-pitch: 2rem; /* 32px */
   --staff-inset: 0.25rem; /*  4px — the band's own inset */
   --switch-w: 44px; /* the machinery toggle: a filled track, */
   --switch-h: 24px; /* sized against the 16px text it sits beside */
@@ -265,17 +263,9 @@
   }
 }
 
-/* 480: the verse steps down a rung (to --text-md), and the staff steps with
-   it — 12px to the syllable keeps a long line's band inside the measure. */
-@media (max-width: 480px) {
-  :root {
-    --beat-pitch: 0.75rem; /* 12px */
-  }
-}
-
 /* Breakpoints (CSS custom properties cannot drive @media; these are the
    system's constants, restated wherever used):
-   480px — reader rhyme rail hidden; the verse and the staff step down a rung
+   480px — reader rhyme rail hidden; the verse steps down a rung
    640px — compact layout: card inset drops to 24px, fields stack
    960px — the 912px column stops being a column and becomes the page
            (flex collapse needs no query for that; the query drops the
