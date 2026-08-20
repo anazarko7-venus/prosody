@@ -16,7 +16,14 @@
 
 .card {
   padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
-  gap: var(--space-6);
+  gap: var(--space-10);
+}
+
+/* Standing alone — before a search has been made — the card is the whole
+   page, and is padded evenly rather than leaning toward a results card
+   that is not there. */
+.cardAlone {
+  padding-block: var(--card-pad-alone);
 }
 
 .results {
@@ -52,6 +59,9 @@
   border-top: var(--stroke-hairline) solid var(--color-rule);
 }
 
+/* The header's rule is the only one the card draws. It closes the title
+   block; everything under it is held apart by the 40px section gap. */
+
 /* -------------------------------- fields --------------------------------- */
 
 .fields {
@@ -60,13 +70,13 @@
   gap: var(--space-6);
 }
 
-/* fieldset and div alike: the label sits 8px above its control */
+/* fieldset and div alike: the label sits 12px above its control */
 .field {
   border: 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 /* The field label is set in the poetry face, not the app's — it names a
@@ -131,7 +141,6 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2-5);
   height: var(--control-h);
   padding-inline: var(--space-3);
   border-radius: var(--radius-md);
@@ -169,15 +178,6 @@
 
 .chipText::first-letter {
   text-transform: uppercase;
-}
-
-/* the stamped count. Monofett's digits sit flat on the baseline with no
-   descender, so the flex row centres them on its own — no optical nudge. */
-.chipCount {
-  font-family: var(--font-count);
-  font-size: var(--count-size);
-  line-height: var(--leading-solid);
-  font-weight: var(--weight-regular);
 }
 
 /* -------------------------------- actions -------------------------------- */
@@ -252,11 +252,11 @@
 }
 
 .resultCount {
-  font-family: var(--font-count);
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
-  line-height: var(--leading-solid);
-  font-weight: var(--weight-regular);
+  line-height: var(--leading-tight);
   color: var(--color-action);
+  white-space: nowrap;
 }
 
 .empty {
@@ -267,18 +267,18 @@
   text-wrap: pretty;
 }
 
-/* A hairline between rows, with equal air above and below it: the 16px list
-   gap sits above the rule, the 16px padding below it. */
+/* A hairline between rows, with equal air above and below it: the 12px list
+   gap sits above the rule, the 12px padding below it. */
 .list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .listItem:not(:first-child) {
   border-top: var(--stroke-hairline) solid var(--color-rule);
-  padding-top: var(--space-4);
+  padding-top: var(--space-3);
 }
 
 .listRow {
@@ -299,8 +299,12 @@
 }
 
 .listTitle {
+  /* the title is what yields when a row runs long — it can ellipsise and
+     still name the poem, where a half-drawn tag names nothing */
+  flex: 0 1 auto;
+  min-width: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-row);
   font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
@@ -311,6 +315,8 @@
 }
 
 .listBy {
+  flex: 0 1 auto;
+  min-width: 0;
   font-family: var(--font-serif);
   font-size: var(--text-md);
   font-weight: var(--weight-regular);
@@ -328,13 +334,11 @@
 }
 
 .listTags {
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 1 0 auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: var(--space-2);
-  overflow: hidden;
 }
 
 .tag {

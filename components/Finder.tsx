@@ -13,10 +13,12 @@ import styles from "./Finder.module.css";
    The upper card asks: five facets, in the order the design puts them. Three
    take one value each and read as dropdowns (form, meter, theme); two read as
    chip fields (era, device). Every value carries a live count — how many poems
-   would answer if you added it to what is already set — set in Monofett so it
-   reads as a stamped mark rather than as more words.
+   would answer if you added it to what is already set — parenthesised beside
+   the value, in the value's own face.
 
    The lower card answers. It appears on search and stays live afterwards.
+   While it is closed the asking card is the whole page and is padded evenly;
+   once it opens the two lean together and the seam between them tightens.
 
    State lives in the URL, so a search is a link.
    ========================================================================= */
@@ -139,6 +141,11 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
     });
   }, [searched]);
 
+  const dirty =
+    Boolean(filters.form || filters.meter || filters.era) ||
+    filters.devices.length > 0 ||
+    filters.themes.length > 0;
+
   const reset = () => {
     router.replace(pathname, { scroll: false });
     setSearched(false);
@@ -200,11 +207,10 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
               className={`${styles.chip} ${on ? styles.chipOn : ""}`}
               onClick={() => onToggle(v)}
             >
-              <span className={styles.chipText}>{label(v)}</span>
-              <span className={styles.chipCount} aria-hidden>
-                {n}
+              <span className={styles.chipText}>
+                {label(v)} ({n})
               </span>
-              <span className={styles.srOnly}>{n} poems</span>
+              <span className={styles.srOnly}>poems</span>
             </button>
           );
         })}
@@ -219,7 +225,9 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
       {/* ----------------------------- the asking --------------------------- */}
       <Row>
         <form
-          className={`${shellColumn} ${styles.card}`}
+          className={`${shellColumn} ${styles.card} ${
+            searched ? "" : styles.cardAlone
+          }`}
           onSubmit={(e) => {
             e.preventDefault();
             setSearched(true);
@@ -240,8 +248,6 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
             {dropdown("themes", "Theme", themes)}
           </div>
 
-          <hr className={styles.rule} />
-
           {chipField(
             "Era",
             eras,
@@ -249,8 +255,6 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
             (v) => toggleSingle("era", v),
             "era"
           )}
-
-          <hr className={styles.rule} />
 
           {chipField(
             "Device",
@@ -260,15 +264,19 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
             "devices"
           )}
 
-          <hr className={styles.rule} />
-
           <div className={styles.acts}>
             <button type="submit" className={styles.action}>
               search
             </button>
-            <button type="button" className={styles.actionGhost} onClick={reset}>
-              clear
-            </button>
+            {(dirty || searched) && (
+              <button
+                type="button"
+                className={styles.actionGhost}
+                onClick={reset}
+              >
+                clear
+              </button>
+            )}
           </div>
         </form>
       </Row>
@@ -285,10 +293,9 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
               <span>
                 {results.length === 1 ? "poem that answers:" : "poems that answer:"}
               </span>
-              <span className={styles.resultCount} aria-hidden>
-                {results.length}
+              <span className={styles.resultCount}>
+                {results.length} of {index.length}
               </span>
-              <span className={styles.srOnly}>{results.length}</span>
             </h2>
 
             {results.length === 0 ? (
