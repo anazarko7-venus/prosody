@@ -4,10 +4,17 @@ Read this before touching any `*.css` or component file. The full derivations
 and the contrast table are in [`02-tokens.md`](02-tokens.md); tokens live in
 [`app/tokens.css`](../../app/tokens.css).
 
-The system is the one drawn in Figma
-([Portfolio → Prosody, node 85:7138](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=85-7138)).
-Where this document and that file disagree, the file is right and this
-document is stale — fix it here.
+The system is the one drawn in Figma, file `GbaOppKpsNi6ZL4VrVCVOO`
+("Portfolio"), page "Template":
+
+- [`85:7138` — Prosody](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=85-7138), the finder at rest
+- [`86:7476` — Prosody List](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=86-7476), the finder after search
+
+Where the two disagree, the later frame wins: `86:7476` moved the field
+labels, the tagline and the titles from Gulax and Satoshi to EB Garamond,
+lowercased the wordmark and the actions, added the `clear` action, and split
+the results into their own card. Where this document and Figma disagree, Figma
+is right and this document is stale — fix it here.
 
 > **History.** [`01-audit.md`](01-audit.md) is the audit of the *paper* system
 > that ran until August 2026 (warm ink on aged paper, EB Garamond + General
@@ -26,24 +33,40 @@ document is stale — fix it here.
 - **Breakpoints: 480 / 640** — the only raw px values allowed in components,
   because CSS can't tokenize `@media`.
 
-## The three faces
+## The four faces
+
+Each face has a job, and the jobs are about *who is speaking*.
 
 | Face | Token | What it is allowed to say |
 |---|---|---|
-| **Gulax** | `--font-display` | The wordmark, the field labels, the action, and the reader's home link. Nothing else. One weight — do not ask for a second. |
-| **Satoshi** | `--font-sans` | Everything the application actually says: values, chips, titles, verse, metadata. Five masters {300, 400, 500, 700, 900}; `font-synthesis` is off, so those five are all there is. |
-| **Monofett** | `--font-count` | Counts. Digits only. A word set in Monofett is a bug. |
+| **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else. One weight — do not ask for a second. Set lowercase, as the design sets it. |
+| **EB Garamond** | `--font-serif` | The poetry speaking: the verse itself, and everything that names a property of a poem — field labels (`Form:`, `Era:`), poem titles, authors. Self-hosted variable, 400–800. |
+| **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem. Five masters {300, 400, 500, 700, 900}; `font-synthesis` is off, so those five are all there is. |
+| **Monofett** | `--font-count` | Counts and row numbers. Digits only. A word set in Monofett is a bug. |
+
+The line to hold: **Garamond labels the material, Satoshi labels the machine.**
+"Form:" is Garamond because it names something the poem has. "rhymed stanzas"
+on a result-row tag is Satoshi because it is the index reporting. When you add
+a string, ask which of the two it is.
 
 ## The page
 
-Every screen is the same picture: a **912px column** on a stone ground, with
-hairlines ruling a 3 × 3 grid around a white card. The finder is one card; the
-reader is the same card with a poem in it. There is no site header — the
-wordmark is inside the card, and the reader repeats it as the link home.
+Every screen is the same picture: a **912px column** on a stone ground, ruled
+by hairlines, holding one or more white cards. The finder is two cards — the
+upper asks, the lower answers — and the reader is one card with a poem in it.
+There is no site header: the wordmark is inside the card, and the reader
+repeats it as the link home.
 
-Each hairline is drawn exactly once: the top and bottom cells own the
-verticals, the flanks own the horizontals, the card owns its own box. Two
-elements never paint the same boundary.
+The column sits between two **two-cell flanks**, so at 1440 the verticals fall
+at 132 / 264 / 1176 / 1308. Below 912px the flanks collapse to zero on their
+own — no media query — and the column becomes the page.
+
+The whole shell lives in [`components/PageShell.tsx`](../../components/PageShell.tsx)
+and its stylesheet. **Screens must not re-implement it.** `<Band />` is empty
+ruled ground, `<Row>` is a card row, and `shellColumn` is the class that makes
+an element the card. Each hairline is drawn exactly once — only the inner cell
+of each flank pair rules, because the column's own border draws the boundary
+beside it — and that invariant only survives if there is one copy of it.
 
 ## The rules
 
@@ -56,17 +79,19 @@ elements never paint the same boundary.
 3. **No new tokens without a derivation.** A spatial token must be n × 4px;
    a type size must be a rounded power of 1.25; a duration must come from the
    five-step set. If your value doesn't derive, the value is wrong — or the
-   system is, in which case flag it rather than smuggling it in.
-   `--count-size` (26px) is the one size off the scale, and
-   [`02-tokens.md`](02-tokens.md#the-count-size) shows why.
+   system is, in which case flag it rather than smuggling it in. Two sizes sit
+   off the type scale on purpose — `--count-size` (26px) and `--text-sm`
+   (14px) — and [`02-tokens.md`](02-tokens.md#off-scale-sizes) shows why for
+   each. There are two, and there is not going to be a third.
 4. **Half-steps** exist only at stroke level (1 / 1.5 / 2px borders, the switch
    inset) and at `--space-2-5`. Justify any new member of those classes in
    writing, here.
 5. **Color licensing.** Text may only use tokens proven ≥4.5:1 on every
    background they sit on. `--color-text-tertiary` (stone-500) is licensed on
-   `--color-surface` (white, 4.83:1) and **not** on `--color-bg` (stone-100,
-   4.43:1) — use `--color-text-secondary` there. `--color-grid` and
-   `--color-rule` are structurally non-text. Adding a color pair means adding
+   `--color-surface` (white, 4.80:1) and **not** on `--color-bg` (stone-100,
+   4.40:1) — use `--color-text-secondary` there. `--color-grid`,
+   `--color-rule`, `--color-border-tag` and `--color-border-ghost` are
+   structurally non-text. Adding a color pair means adding
    its computed ratio to [`02-tokens.md`](02-tokens.md).
 6. **Accessibility is load-bearing.** Every interactive element keeps the
    `--focus-ring`; every control is `--target-min` (40px) tall and separated
@@ -81,11 +106,13 @@ elements never paint the same boundary.
 ## Known, deliberately open items
 
 - **Control borders are below 3:1.** `--color-border-input` is `#e5e5e5`
-  (1.26:1 on white) and `--color-grid` is stone-300 (1.49:1), both taken
-  straight from the design. WCAG 1.4.11 asks for 3:1 on the parts that
-  identify a control, so the dropdowns currently rely on their shadow, their
-  radius and their caret to read as controls rather than on their stroke.
-  Raising `--color-border-input` to about `#949494` would clear 3:1 and is a
-  one-token change; it visibly hardens the design, so it is the designer's
-  call, not a silent fix.
+  (1.26:1 on white), `--color-grid` is stone-300 (1.49:1), `--color-border-tag`
+  is stone-200 (1.26:1), and `--color-border-ghost` — the `clear` action's
+  outline — is stone-100 (1.09:1), effectively invisible. All four are the
+  design's own values. WCAG 1.4.11 asks for 3:1 on the parts that identify a
+  control, so the dropdowns rely on their shadow, radius and caret, and the
+  ghost action relies on its word. Raising `--color-border-input` and
+  `--color-border-ghost` to about `#949494` would clear 3:1 and is a two-token
+  change; it visibly hardens the design, so it is the designer's call, not a
+  silent fix.
 - Light scheme only; a dark palette would need its own contrast table.

@@ -1,65 +1,33 @@
 /* ============================================================================
-   Finder — the card on the ruled page.
+   Finder — two cards on a ruled page.
 
-   Every value here is a var() from app/tokens.css. The page is a 3 × 3 grid:
-   a --column-wide middle track between two flanks, and a --band-tall band
-   above and below the card. The hairlines are drawn once each — the top and
-   bottom cells own the verticals, the flanks own the horizontals, the card
-   owns its own box — so no boundary is ever painted twice.
+   Every value here is a var() from app/tokens.css. The ruled page around the
+   cards is PageShell's — see PageShell.module.css for its geometry.
+
+   Type roles, per the design: Gulax is the app speaking (wordmark, actions,
+   the results heading); EB Garamond is the poetry speaking (field labels,
+   poem titles, authors); Satoshi is apparatus (control values, chips, tags);
+   Monofett counts.
    ========================================================================= */
 
-.page {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, var(--column)) minmax(0, 1fr);
-  grid-template-rows: minmax(var(--band), 1fr) auto minmax(var(--band), 1fr);
-}
-
-.gridTop,
-.gridBottom {
-  grid-column: 2;
-  border-inline: var(--stroke-hairline) solid var(--color-grid);
-}
-
-.gridTop {
-  grid-row: 1;
-}
-
-.gridBottom {
-  grid-row: 3;
-}
-
-.gridLeft,
-.gridRight {
-  grid-row: 2;
-  border-block: var(--stroke-hairline) solid var(--color-grid);
-}
-
-.gridLeft {
-  grid-column: 1;
-}
-
-.gridRight {
-  grid-column: 3;
-}
-
-/* --------------------------------- card ---------------------------------- */
+/* -------------------------------- the cards ------------------------------- */
+/* The white face, the box and the column width come from PageShell's
+   `.column`; what is left here is what goes inside each card. */
 
 .card {
-  grid-area: 2 / 2 / 3 / 3;
-  background: var(--color-surface);
-  border: var(--stroke-hairline) solid var(--color-grid);
-  padding: var(--card-pad);
-  display: flex;
-  flex-direction: column;
+  padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
   gap: var(--space-6);
-  min-width: 0;
+}
+
+.results {
+  padding: var(--results-pad-top) var(--card-pad) var(--results-pad-bottom);
+  gap: var(--space-10);
 }
 
 .head {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
 }
 
 .wordmark {
@@ -70,8 +38,9 @@
 }
 
 .tagline {
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
   color: var(--color-text-secondary);
@@ -85,7 +54,7 @@
 
 /* -------------------------------- fields --------------------------------- */
 
-.row {
+.fields {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-6);
@@ -100,16 +69,18 @@
   gap: var(--space-2);
 }
 
+/* The field label is set in the poetry face, not the app's — it names a
+   property of a poem, so it belongs to the poem's voice. */
 .label {
   display: block;
   float: none; /* legend */
   padding: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
   color: var(--color-text);
-  text-transform: uppercase;
 }
 
 /* ------------------------------- dropdown -------------------------------- */
@@ -166,6 +137,7 @@
   border-radius: var(--radius-md);
   background: var(--color-surface-sunk);
   color: var(--color-text);
+  font-family: var(--font-sans);
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
@@ -208,32 +180,37 @@
   font-weight: var(--weight-regular);
 }
 
-/* --------------------------------- action -------------------------------- */
+/* -------------------------------- actions -------------------------------- */
 
 .acts {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-2);
 }
 
-.action {
+.action,
+.actionGhost {
   width: var(--action-w);
   height: var(--action-h);
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Gulax sits high in its em box; 2px of bottom padding centres the caps */
+  /* Gulax sits high in its em box; 2px of bottom padding centres the word */
   padding-bottom: var(--stroke-strong);
-  border: var(--stroke-strong) solid var(--color-action);
+  border: var(--stroke-strong) solid transparent;
   border-radius: var(--radius-full);
   font-family: var(--font-display);
   font-size: var(--text-xl);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-action);
   transition: background var(--dur-quick) var(--ease-std),
+    border-color var(--dur-quick) var(--ease-std),
     color var(--dur-quick) var(--ease-std);
+}
+
+.action {
+  border-color: var(--color-action);
+  color: var(--color-action);
 }
 
 .action:hover {
@@ -245,104 +222,135 @@
   translate: 0 var(--stroke-hairline);
 }
 
-.reset {
-  min-height: var(--target-min);
-  padding-inline: var(--space-1);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
+/* The second action is drawn but not urged: its outline is the page ground,
+   so the word carries it. */
+.actionGhost {
+  border-color: var(--color-border-ghost);
   color: var(--color-text-tertiary);
-  transition: color var(--dur-quick) var(--ease-std);
 }
 
-.reset:hover {
-  color: var(--color-action);
+.actionGhost:hover:not(:disabled) {
+  border-color: var(--color-border-tag);
+  color: var(--color-text);
+}
+
+.actionGhost:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
 }
 
 /* -------------------------------- results -------------------------------- */
 
-.results {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.results .label {
+.resultsHead {
   display: flex;
   align-items: center;
-  gap: var(--space-2-5);
+  gap: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
 }
 
 .resultCount {
   font-family: var(--font-count);
-  font-size: var(--count-size);
+  font-size: var(--text-2xl);
   line-height: var(--leading-solid);
   font-weight: var(--weight-regular);
-  text-transform: none;
   color: var(--color-action);
 }
 
 .empty {
-  font-size: var(--text-md);
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
   color: var(--color-text-secondary);
   max-width: 44ch;
   text-wrap: pretty;
 }
 
+/* A hairline between rows, with equal air above and below it: the 16px list
+   gap sits above the rule, the 16px padding below it. */
 .list {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.listItem:not(:first-child) {
+  border-top: var(--stroke-hairline) solid var(--color-rule);
+  padding-top: var(--space-4);
 }
 
 .listRow {
-  display: grid;
-  grid-template-columns: var(--num-col-w) minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: baseline;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
   min-height: var(--target-min);
-  padding: var(--space-2) var(--space-2-5) var(--space-2) 0;
-  border-bottom: var(--stroke-hairline) solid var(--color-rule);
-  transition: background var(--dur-quick) var(--ease-std);
-}
-
-.listRow:hover {
-  background: var(--color-surface-sunk);
 }
 
 .listNum {
-  font-size: var(--text-md);
-  color: var(--color-text-tertiary);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.listRow:hover .listNum {
-  color: var(--color-action);
-}
-
-.listMain {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  min-width: 0;
+  font-family: var(--font-count);
+  font-size: var(--text-lg);
+  line-height: var(--leading-solid);
+  font-weight: var(--weight-regular);
+  color: var(--color-text);
+  flex-shrink: 0;
+  transition: color var(--dur-quick) var(--ease-std);
 }
 
 .listTitle {
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
   font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-quick) var(--ease-std);
+}
+
+.listBy {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.listBy {
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
+.listRow:hover .listTitle,
+.listRow:hover .listNum {
+  color: var(--color-action);
 }
 
-.listMeta {
-  font-size: var(--text-md);
-  color: var(--color-text-tertiary);
+.listTags {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+  overflow: hidden;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--tag-h);
+  padding-inline: var(--space-3);
+  border: var(--stroke-hairline) solid var(--color-border-tag);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ------------------------------- utilities -------------------------------- */
@@ -358,10 +366,11 @@
 
 /* ------------------------------- responsive ------------------------------- */
 
-/* 640: the three dropdowns stop fitting side by side, the card inset drops
-   to 24px (--card-pad, tokens.css), and the wordmark steps down one rung. */
+/* 640: the three dropdowns stop fitting side by side, the card insets drop
+   (tokens.css), the wordmark steps down one rung, and a result row stacks
+   its tags under its title rather than crushing them against it. */
 @media (max-width: 640px) {
-  .row {
+  .fields {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -369,16 +378,34 @@
     font-size: var(--text-3xl);
   }
 
-  .head {
-    gap: var(--space-4);
+  .resultsHead {
+    font-size: var(--text-xl);
   }
 
-  .listMeta {
-    display: none;
+  .resultCount {
+    font-size: var(--text-xl);
   }
 
-  .listMain {
-    flex-direction: column;
-    gap: 0;
+  .listRow {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-2) var(--space-3);
+    align-items: baseline;
+    padding-block: var(--space-1);
+  }
+
+  .listNum {
+    grid-row: 1 / 3;
+  }
+
+  .listTitle,
+  .listBy {
+    white-space: normal;
+  }
+
+  .listTags {
+    grid-column: 2;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }

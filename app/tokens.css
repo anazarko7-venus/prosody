@@ -17,7 +17,10 @@
      16 · 20 · 25 · 31 · 39 · 49.
    - Stroke-level values (border widths, control insets) are the one
      documented half-step class: 1px / 1.5px / 2px.
-   - Three faces, no more: Gulax displays, Satoshi says, Monofett counts.
+   - Four faces, no more: Gulax is the voice of the app (wordmark, actions,
+     the results heading); EB Garamond is the voice of the poetry (field
+     labels, poem titles, the verse); Satoshi is the apparatus (control
+     values, chips, tags); Monofett counts.
    ========================================================================= */
 
 :root {
@@ -64,11 +67,14 @@
   --space-10: 2.5rem; /* 40px */
   --space-12: 3rem; /* 48px */
   --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
 
-  /* layout — the page is one 912px column between two flanks, drawn as a
-     3 × 3 grid of hairlines. 912 = 228 × 4; the flank minimum 264 = 66 × 4. */
+  /* layout — the page is one 912px column between two two-cell flanks,
+     ruled by hairlines: at 1440 the flanks are 4 × 132px. 912 = 228 × 4. */
   --column: 57rem; /* 912px — the card, and the reader measure */
-  --band: 11.0625rem; /* 177px — grid band above and below the card */
+  --band: 7.3125rem; /* 117px — grid band above and below the cards. A
+                        remainder, not a measure: it is the minmax() floor of
+                        a 1fr track, so it sets nothing else's rhythm. */
 
   /* interactive target minimums */
   --target-min: 2.5rem; /* 40px — every control in the design */
@@ -76,6 +82,9 @@
 
   /* type scale — 16px base × 1.25, rounded to whole px.
      raw: 16 · 20 · 25 · 31.25 · 39.06 · 48.83 */
+  --text-sm: 0.875rem; /* 14px — result-row tags only. Off the 1.25 scale
+                          (the rung below 16 is 13px, too small to hold a
+                          pill's label). The design's value; see 02-tokens.md */
   --text-md: 1rem; /* 16px — UI base: chips, values, verse annotations */
   --text-lg: 1.25rem; /* 20px — field labels, verse, list titles */
   --text-xl: 1.5625rem; /* 25px — the action */
@@ -122,6 +131,8 @@
   --color-grid: var(--stone-300); /* the page grid, decorative */
   --color-border-input: var(--neutral-200);
   --color-border-hover: var(--stone-500);
+  --color-border-tag: var(--stone-200); /* result-row form/meter tags */
+  --color-border-ghost: var(--stone-100); /* the clear action's outline */
   --color-focus: var(--blue-600);
   --color-selection: var(--blue-alpha-08);
 
@@ -159,13 +170,24 @@
      No webfont request leaves the origin. */
   --font-display: "Gulax", "Futura", "Trebuchet MS", sans-serif;
   --font-sans: "Satoshi", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Palatino,
+    "Times New Roman", serif;
   --font-count: "Monofett", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* ------------------------------------------------------------------ */
   /* 3 · COMPONENT — single-owner dimensions, all ÷4                    */
   /* ------------------------------------------------------------------ */
-  --card-pad: var(--space-10); /* 40px — the card's inset */
+  /* the two cards' insets. Horizontal is shared; vertical is not — the
+     filter card opens with 64px of air above the wordmark and closes tight
+     at 40px, and the results card mirrors it: 40px in, 80px of floor. */
+  --card-pad: var(--space-16); /* 64px — horizontal inset, both cards */
+  --card-pad-top: var(--space-16); /* 64px */
+  --card-pad-bottom: var(--space-10); /* 40px */
+  --results-pad-top: var(--space-10); /* 40px */
+  --results-pad-bottom: var(--space-20); /* 80px */
+
   --control-h: 2.5rem; /* 40px — dropdowns and chips */
+  --tag-h: 1.75rem; /* 28px — the result-row form/meter tags */
   --action-w: 7.5rem; /* 120px */
   --action-h: 3rem; /* 48px */
   --caret-size: 1.5rem; /* 24px — the exported arrow_drop_down asset */
@@ -176,7 +198,6 @@
                               beside it — half again as tall, which is what
                               makes a count read as a stamped mark rather than
                               as a second word. Worked in 02-tokens.md. */
-  --num-col-w: 2.5rem; /* 40px — result-list number column */
 
   /* reader */
   --rhyme-rail: 2.5rem; /* 40px — the rhyme letters' outboard column */
@@ -191,6 +212,10 @@
 @media (max-width: 640px) {
   :root {
     --card-pad: var(--space-6);
+    --card-pad-top: var(--space-8);
+    --card-pad-bottom: var(--space-6);
+    --results-pad-top: var(--space-6);
+    --results-pad-bottom: var(--space-10);
     --band: var(--space-8);
   }
 }

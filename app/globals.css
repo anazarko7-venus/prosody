@@ -7,9 +7,14 @@
    else. It has one weight. Do not ask it for a second.
 
    SATOSHI — Indian Type Foundry. A neo-grotesque with a tall x-height and
-   near-closed apertures; it holds at 16px in a control and at 20px in a
-   line of verse. Five masters, no variable axis, so the weight token set is
-   exactly {300, 400, 500, 700, 900} and font-synthesis is off.
+   near-closed apertures; it holds at 16px in a control. Five masters, no
+   variable axis, so the weight token set is exactly {300, 400, 500, 700, 900}
+   and font-synthesis is off.
+
+   EB GARAMOND — Georg Duffner / Octavio Pardo (SIL OFL), self-hosted variable.
+   The voice of the poetry: the verse itself, and everything that names a
+   property of a poem — field labels, poem titles, authors. Where Satoshi
+   labels the apparatus, Garamond labels the material.
 
    MONOFETT — Vernon Adams (SIL OFL), Google Fonts latin subset, self-hosted.
    Every glyph is a filled slab; a digit set in it reads as a stamped count,
@@ -69,6 +74,47 @@
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/EBGaramond-Variable-ext.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/EBGaramond-Variable.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/EBGaramond-VariableItalic-ext.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/EBGaramond-VariableItalic.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -135,15 +181,15 @@ button {
   border-radius: var(--radius-sm);
 }
 
-/* The engraved label: the one place Gulax appears outside the wordmark and
-   the action. Always followed by its colon in the markup, never faked here. */
+/* The field label. Set in the poetry face, sentence case, and always
+   followed by its colon in the markup — never faked with a pseudo-element. */
 .label {
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-label);
   color: var(--color-text);
-  text-transform: uppercase;
 }
 
 /* A stamped count. Monofett sets solid slabs, so it needs no colour of its
@@ -155,7 +201,8 @@ button {
   font-weight: var(--weight-regular);
 }
 
-/* Fine print: metadata under a title, the reader legend. */
+/* Fine print: metadata under a title, the reader legend. Apparatus, so
+   Satoshi — this is the app describing the poem, not the poem speaking. */
 .tag {
   font-family: var(--font-sans);
   font-size: var(--text-md);

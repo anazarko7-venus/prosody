@@ -1,0 +1,66 @@
+/* ============================================================================
+   The ruled page — shared by every screen.
+
+   A stack of rows. Each row is the 912px column (--column) between two
+   two-cell flanks, so at 1440 the flanks are 4 × 132px and the verticals fall
+   at 132 / 264 / 1176 / 1308.
+
+   Each hairline is drawn exactly once. Only the INNER cell of each flank pair
+   carries a vertical rule; the boundary next to the column is the column's own
+   border. Two elements never paint the same line.
+
+   Below 912px the flanks collapse to zero width on their own — no media query
+   needed — and the column becomes the page.
+   ========================================================================= */
+
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* An empty band of ruled ground. Grows to fill the viewport when the content
+   is short, floors at --band when it is not. */
+.band {
+  flex: 1 1 auto;
+  min-height: var(--band);
+  display: flex;
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
+}
+
+.flank {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.flankRule {
+  border-left: var(--stroke-hairline) solid var(--color-grid);
+}
+
+/* the horizontals that run out from a card's top and bottom edges */
+.flankBlock {
+  border-block: var(--stroke-hairline) solid var(--color-grid);
+}
+
+.bandColumn {
+  flex: 0 1 var(--column);
+  width: var(--column);
+  min-width: 0;
+  border-inline: var(--stroke-hairline) solid var(--color-grid);
+}
+
+/* Any card in the column: the white face and its box. What goes inside is the
+   screen's business, not the shell's. */
+.column {
+  flex: 0 1 var(--column);
+  width: var(--column);
+  min-width: 0;
+  background: var(--color-surface);
+  border: var(--stroke-hairline) solid var(--color-grid);
+  display: flex;
+  flex-direction: column;
+}
