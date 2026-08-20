@@ -86,6 +86,13 @@
                           (the rung below 16 is 13px, too small to hold a
                           pill's label). The design's value; see 02-tokens.md */
   --text-md: 1rem; /* 16px — UI base: chips, values, verse annotations */
+  --text-row: 1.125rem; /* 18px — result-row titles only. The second off-scale
+                           size, and the design's own value: a row title is the
+                           poem's name, so it must outweigh the 16px author
+                           beside it, but the list is apparatus and the 20px
+                           rung sets it as loud as the field labels above.
+                           18px is the step that separates it from the author
+                           without promoting the row to a heading. */
   --text-lg: 1.25rem; /* 20px — field labels, verse, list titles */
   --text-xl: 1.5625rem; /* 25px — the action */
   --text-2xl: 1.9375rem; /* 31px — reader title */
@@ -185,6 +192,9 @@
   --card-pad-bottom: var(--space-10); /* 40px */
   --results-pad-top: var(--space-10); /* 40px */
   --results-pad-bottom: var(--space-20); /* 80px */
+  --card-pad-alone: var(--space-20); /* 80px — with no results card beneath it
+                                        the filter card is the whole page, and
+                                        sits on even air top and bottom. */
 
   --control-h: 2.5rem; /* 40px — dropdowns and chips */
   --tag-h: 1.75rem; /* 28px — the result-row form/meter tags */
@@ -216,6 +226,7 @@
     --card-pad-bottom: var(--space-6);
     --results-pad-top: var(--space-6);
     --results-pad-bottom: var(--space-10);
+    --card-pad-alone: var(--space-8);
     --band: var(--space-8);
   }
 }
