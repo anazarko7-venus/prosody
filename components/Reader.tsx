@@ -235,8 +235,6 @@ export default function Reader({ poem }: { poem: Poem }) {
           </button>
         </nav>
 
-        <hr className={shared.rule} />
-
         <header className={styles.head}>
           <hgroup className={styles.titles}>
             <h1 className={styles.title}>{poem.title}</h1>
@@ -280,8 +278,6 @@ export default function Reader({ poem }: { poem: Poem }) {
             )}
           </div>
         </header>
-
-        <hr className={shared.rule} />
 
         <div className={styles.body}>
           {poem.lines.map((line, i) => {
