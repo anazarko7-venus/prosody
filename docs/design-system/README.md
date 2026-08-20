@@ -33,7 +33,7 @@ is right and this document is stale — fix it here.
 - **Breakpoints: 480 / 640** — the only raw px values allowed in components,
   because CSS can't tokenize `@media`.
 
-## The four faces
+## <a id="the-faces"></a>The three faces
 
 Each face has a job, and the jobs are about *who is speaking*.
 
@@ -42,7 +42,12 @@ Each face has a job, and the jobs are about *who is speaking*.
 | **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else. One weight — do not ask for a second. Set lowercase, as the design sets it. |
 | **EB Garamond** | `--font-serif` | The poetry speaking: the verse itself, and everything that names a property of a poem — field labels (`Form:`, `Era:`), poem titles, authors. Self-hosted variable, 400–800. |
 | **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem. Five masters {300, 400, 500, 700, 900}; `font-synthesis` is off, so those five are all there is. |
-| **Monofett** | `--font-count` | Counts and row numbers. Digits only. A word set in Monofett is a bug. |
+
+Monofett was a fourth face, setting counts as stamped slabs. It lost its last
+job when the chip count moved inline (`Victorian (72)`, one Satoshi run) and
+the result-row index moved to Gulax, and was retired — token, `@font-face` and
+woff2 together. Gulax now carries the index, which keeps the ordinal in the
+application's own voice rather than in a face of its own.
 
 The line to hold: **Garamond labels the material, Satoshi labels the machine.**
 "Form:" is Garamond because it names something the poem has. "rhymed stanzas"
@@ -79,10 +84,10 @@ beside it — and that invariant only survives if there is one copy of it.
 3. **No new tokens without a derivation.** A spatial token must be n × 4px;
    a type size must be a rounded power of 1.25; a duration must come from the
    five-step set. If your value doesn't derive, the value is wrong — or the
-   system is, in which case flag it rather than smuggling it in. Two sizes sit
-   off the type scale on purpose — `--count-size` (26px) and `--text-sm`
-   (14px) — and [`02-tokens.md`](02-tokens.md#off-scale-sizes) shows why for
-   each. There are two, and there is not going to be a third.
+   system is, in which case flag it rather than smuggling it in. One size sits
+   off the type scale on purpose — `--text-sm` (14px) — and
+   [`02-tokens.md`](02-tokens.md#off-scale-sizes) shows why. There is one, and
+   a second needs the same standard of argument.
 4. **Half-steps** exist only at stroke level (1 / 1.5 / 2px borders, the switch
    inset) and at `--space-2-5`. Justify any new member of those classes in
    writing, here.
@@ -91,7 +96,10 @@ beside it — and that invariant only survives if there is one copy of it.
    `--color-surface` (white, 4.80:1) and **not** on `--color-bg` (stone-100,
    4.40:1) — use `--color-text-secondary` there. `--color-grid`,
    `--color-rule`, `--color-border-tag` and `--color-border-ghost` are
-   structurally non-text. Adding a color pair means adding
+   structurally non-text. `--color-text-index` (stone-400, 2.52:1 on white) is
+   the one text token below the floor: it sets the result-row ordinal, which is
+   `aria-hidden` decoration duplicating the row's position, so it is exempt
+   rather than licensed. It may not be used for anything a reader must read. Adding a color pair means adding
    its computed ratio to [`02-tokens.md`](02-tokens.md).
 6. **Accessibility is load-bearing.** Every interactive element keeps the
    `--focus-ring`; every control is `--target-min` (40px) tall and separated

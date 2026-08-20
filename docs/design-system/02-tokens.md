@@ -90,25 +90,12 @@ Negative powers of the same ratio, em-relative to the verse line so the
 machinery scales with the type: 1/1.25 = 0.8 (`--annot-lg`), 1/1.25² = 0.64
 (`--annot-md`), 1/1.25³ = 0.512 → 0.51 (`--annot-sm`).
 
-### <a id="off-scale-sizes"></a>The two off-scale sizes
+### <a id="off-scale-sizes"></a>The off-scale size
 
-Two sizes are not powers of 1.25. Both are the design's own values, and both
-have a reason that survives being written down. There are two, and a third
-would mean the scale is wrong rather than the value.
-
-**`--count-size` — 26px, the chip count.** Measured with `fontTools` from
-`public/fonts/`, not eyeballed:
-
-| Face | units/em | cap (digit) height | at its size |
-|---|---|---|---|
-| Monofett | 2048 | 1370 → 0.669em | 26px → **17.4px** |
-| Satoshi | 1000 | 723 → 0.723em | 16px → **11.6px** |
-
-The count is set half again as tall as the caps of the word beside it. That is
-what makes it read as a mark stamped onto the chip rather than as a second
-word in the sentence. Set at 16px to "match", Monofett's digits come out at
-10.7px and read as a footnote; on the scale at 25px the difference from 26 is
-under a pixel and not worth a second exception.
+One size is not a power of 1.25. It is the design's own value, and it has a
+reason that survives being written down. There is one, and a second would want
+the same standard of argument — or would mean the scale is wrong rather than
+the value.
 
 **`--text-sm` — 14px, the result-row tag.** The rung below 16 on a 1.25 scale
 is 12.8 → 13px, which is too small to hold a two-word label inside a 28px
@@ -116,34 +103,47 @@ pill without the pill looking empty. 14px is the design's value and the only
 place it is used. If a second element ever wants 14px, that is the signal to
 re-derive the bottom of the scale rather than to spread the exception.
 
+Two off-scale sizes have been retired rather than kept. `--count-size` (26px)
+set the chip count in Monofett until the design moved the count inside the
+chip's own text — `Victorian (72)`, one Satoshi run. `--text-row` (18px) set
+the result-row title until the row was restyled to a 16px semibold Garamond
+title against a Gulax index. Both went out with the elements that justified
+them, which is the intended lifecycle for an exception.
+
 ### Faces, and who speaks in them
 
-Four faces, each with a job. The rule that decides between the two text faces
-is *who is speaking* — see [`README.md`](README.md#the-four-faces).
+Three faces, each with a job. The rule that decides between the two text
+faces is *who is speaking* — see [`README.md`](README.md#the-faces).
 
 | Token | Face | Delivery | Speaks for |
 |---|---|---|---|
 | `--font-display` | Gulax | self-hosted woff2, 1 weight | the application: wordmark, `search`, `clear`, the results heading, the reader's home link — all lowercase |
 | `--font-serif` | EB Garamond | self-hosted variable woff2, 400–800 + italic | the poetry: field labels, poem titles, authors, the tagline, the verse |
 | `--font-sans` | Satoshi | self-hosted woff2, 5 masters | the apparatus: dropdown values, chips, result-row tags, metadata about a poem |
-| `--font-count` | Monofett | self-hosted Google latin subset | counts and row numbers, digits only |
 
 No webfont request leaves the origin.
 
 ### Weight
 
-Satoshi ships five masters and has no variable axis, so the weight scale is
-exactly `{300, 400, 500, 700, 900}` and `font-synthesis` is `none`. Medium
-(500) is the default for both text faces — Satoshi's controls and Garamond's
-labels and titles alike. Regular (400) carries the verse, the authors and the
+Satoshi ships five masters and has no variable axis, so the weights available
+to it are exactly `{300, 400, 500, 700, 900}` and `font-synthesis` is `none`.
+Medium (500) is the default for both text faces — Satoshi's controls and
+Garamond's labels alike. Regular (400) carries the verse, the authors and the
 tagline; Black (900) marks a deviation in the reader. Gulax has one weight,
 and 300 and 700 are currently held in reserve rather than used.
+
+`--weight-semibold` (600) is the one weight outside Satoshi's set. EB Garamond
+is a variable face spanning 400–800, so it can reach 600 honestly where Satoshi
+would have to synthesise it; the result-row title is the only thing set there,
+to separate it from the 400 author beside it at the same 16px. It is licensed
+for `--font-serif` only — asking Satoshi for 600 is a bug, and with
+`font-synthesis: none` it will simply render at 500.
 
 ### Leading
 
 | Token | Value | Bound to |
 |---|---|---|
-| `--leading-solid` | 1 | counts, stress marks |
+| `--leading-solid` | 1 | stress marks |
 | `--leading-tight` | 1.3 | the design's own leading — every display size and every control |
 | `--leading-ui` | 1.5 | ≤20px running UI text |
 | `--leading-verse` | 1.75 | the reader body |
@@ -165,6 +165,7 @@ table is not licensed.**
 | stone-500 `#78716c` | white | 4.80:1 | AA |
 | stone-500 | stone-100 | **4.40:1** | **fails AA** |
 | blue-600 `#0040ff` | white | 6.61:1 | AA |
+| stone-400 `#a8a29e` | white | **2.52:1** | **exempt, decorative only** |
 | blue-600 | stone-100 | 6.06:1 | AA |
 | white | blue-600 (active chip, hovered action) | 6.61:1 | AA |
 

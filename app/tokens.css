@@ -17,10 +17,10 @@
      16 · 20 · 25 · 31 · 39 · 49.
    - Stroke-level values (border widths, control insets) are the one
      documented half-step class: 1px / 1.5px / 2px.
-   - Four faces, no more: Gulax is the voice of the app (wordmark, actions,
-     the results heading); EB Garamond is the voice of the poetry (field
-     labels, poem titles, the verse); Satoshi is the apparatus (control
-     values, chips, tags); Monofett counts.
+   - Three faces, no more: Gulax is the voice of the app (wordmark, actions,
+     the results heading, the result-row index); EB Garamond is the voice of
+     the poetry (field labels, poem titles, the verse); Satoshi is the
+     apparatus (control values, chips, tags).
    ========================================================================= */
 
 :root {
@@ -87,13 +87,6 @@
                           (the rung below 16 is 13px, too small to hold a
                           pill's label). The design's value; see 02-tokens.md */
   --text-md: 1rem; /* 16px — UI base: chips, values, verse annotations */
-  --text-row: 1.125rem; /* 18px — result-row titles only. The second off-scale
-                           size, and the design's own value: a row title is the
-                           poem's name, so it must outweigh the 16px author
-                           beside it, but the list is apparatus and the 20px
-                           rung sets it as loud as the field labels above.
-                           18px is the step that separates it from the author
-                           without promoting the row to a heading. */
   --text-lg: 1.25rem; /* 20px — field labels, verse, list titles */
   --text-xl: 1.5625rem; /* 25px — the action */
   --text-2xl: 1.9375rem; /* 31px — reader title */
@@ -107,7 +100,7 @@
   --annot-sm: 0.51em;
 
   /* line-height, bound to size class */
-  --leading-solid: 1; /* counts, marks */
+  --leading-solid: 1; /* stress marks */
   --leading-tight: 1.3; /* the design's own leading, all display sizes */
   --leading-ui: 1.5; /* ≤20px UI text */
   --leading-verse: 1.75; /* the reader body */
@@ -177,14 +170,12 @@
   /* focus ring — every interactive element */
   --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-focus);
 
-  /* font stacks. Gulax and Satoshi are self-hosted (public/fonts, declared
-     in globals.css); Monofett is the Google latin subset, self-hosted too.
-     No webfont request leaves the origin. */
+  /* font stacks. All three are self-hosted (public/fonts, declared in
+     globals.css). No webfont request leaves the origin. */
   --font-display: "Gulax", "Futura", "Trebuchet MS", sans-serif;
   --font-sans: "Satoshi", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
   --font-serif: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Palatino,
     "Times New Roman", serif;
-  --font-count: "Monofett", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* ------------------------------------------------------------------ */
   /* 3 · COMPONENT — single-owner dimensions, all ÷4                    */
@@ -206,13 +197,6 @@
   --action-w: 7.5rem; /* 120px */
   --action-h: 3rem; /* 48px */
   --caret-size: 1.5rem; /* 24px — the exported arrow_drop_down asset */
-  --count-size: 1.625rem; /* 26px — the one size off the 1.25 scale, and the
-                              design's own value. Monofett's digits are
-                              1370/2048 = 0.669em tall, so 26px sets a 17.4px
-                              slab against the 11.6px caps of the 16px Satoshi
-                              beside it — half again as tall, which is what
-                              makes a count read as a stamped mark rather than
-                              as a second word. Worked in 02-tokens.md. */
 
   /* reader */
   --rhyme-rail: 2.5rem; /* 40px — the rhyme letters' outboard column */

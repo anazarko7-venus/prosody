@@ -5,9 +5,9 @@
    cards is PageShell's — see PageShell.module.css for its geometry.
 
    Type roles, per the design: Gulax is the app speaking (wordmark, actions,
-   the results heading); EB Garamond is the poetry speaking (field labels,
-   poem titles, authors); Satoshi is apparatus (control values, chips, tags);
-   Monofett counts.
+   the results heading, the row index); EB Garamond is the poetry speaking
+   (field labels, poem titles, authors); Satoshi is apparatus (control values,
+   chips, tags).
    ========================================================================= */
 
 /* -------------------------------- the cards ------------------------------- */
