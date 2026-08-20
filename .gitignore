@@ -4,6 +4,7 @@ __pycache__/
 node_modules/
 .next/
 out/
+tsconfig.tsbuildinfo
 .DS_Store
 
 # local env (the app has no environment variables at present)

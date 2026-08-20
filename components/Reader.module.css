@@ -7,334 +7,407 @@
    Satoshi carries the machinery and the metadata about the poem. Inside the
    verse body geometry is em-based (quarter-em multiples) so the machinery
    rides with the type.
+
+   The machinery has three phases (Reader.tsx): `on`, `closing`, `off`.
+   Entering is the signature moment — marks and rhyme letters stagger in,
+   line by line. Leaving is quick and quiet: everything fades together, the
+   lines close, and the whole exit spends at most --dur-slow.
    ========================================================================= */
 
-/* The ruled page around the card is PageShell's — see PageShell.module.css.
-   `.card` here only says what goes inside it. */
-
-.card {
-  padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
-  gap: var(--space-6);
-}
-
-.rule {
-  border: 0;
-  border-top: var(--stroke-hairline) solid var(--color-rule);
-}
-
-/* -------------------------------- crumbs --------------------------------- */
-
-.crumbs {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-}
-
+/* composes only here — declarations live in the layer below */
 .home {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  min-height: var(--target-min);
-  display: inline-flex;
-  align-items: center;
-  transition: color var(--dur-quick) var(--ease-std);
-}
-
-.home:hover {
-  color: var(--color-action);
-}
-
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--target-min);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-secondary);
-  transition: color var(--dur-quick) var(--ease-std);
-}
-
-.toggle:hover {
-  color: var(--color-text);
-}
-
-.toggle[aria-pressed="true"] {
-  color: var(--color-action);
-}
-
-.switch {
-  width: var(--switch-w);
-  height: var(--switch-h);
-  border: var(--stroke-hairline) solid currentColor;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  padding: var(--switch-inset);
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.switchThumb {
-  width: var(--switch-knob);
-  height: var(--switch-knob);
-  border-radius: var(--radius-full);
-  background: currentColor;
-  transition: transform var(--dur-quick) var(--ease-out);
-}
-
-.toggle[aria-pressed="true"] .switchThumb {
-  /* travel = inner width − knob (padding already holds the inset) */
-  transform: translateX(
-    calc(
-      var(--switch-w) - 2 * var(--stroke-hairline) - 2 * var(--switch-inset) -
-        var(--switch-knob)
-    )
-  );
-}
-
-.kbd {
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  border: var(--stroke-hairline) solid var(--color-rule);
-  border-radius: var(--radius-sm);
-  padding: 0 var(--space-1);
-  color: var(--color-text-tertiary);
-  line-height: var(--leading-tight);
-}
-
-/* --------------------------------- head ---------------------------------- */
-
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* The poem's own name and its author speak in the poetry face, matching the
-   result rows they were reached from. */
-.title {
-  font-family: var(--font-serif);
-  font-size: clamp(var(--text-lg), 4.8vw, var(--text-2xl));
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-}
-
-.byline {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text-secondary);
-}
-
-.meta {
-  margin-top: var(--space-2);
-  color: var(--color-text-tertiary);
-}
-
-.fit,
-.scheme {
-  color: var(--color-text-tertiary);
-}
-
-/* --------------------------------- body ---------------------------------- */
-
-.body {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-verse);
-  padding-right: var(--rhyme-rail);
-}
-
-.stanzaBreak {
-  height: 1.25em;
-}
-
-.line {
-  position: relative;
-  white-space: pre-wrap;
-  padding-left: 2em;
-  text-indent: -2em; /* hanging indent on wrapped long lines */
-  transition: padding-top var(--dur-gentle) var(--ease-out);
-}
-
-.on .line {
-  padding-top: 0.75em; /* the poem opens up to make room for the marks */
-}
-
-.lineText {
-  text-indent: 0;
-}
-
-.w {
-  position: relative;
-  display: inline-block;
-  text-indent: 0;
-}
-
-/* ------------------------------- the marks -------------------------------- */
-
-.marks {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(100% - 0.25em);
-  display: flex;
-  justify-content: space-around;
-  font-size: var(--annot-sm);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-solid);
-  color: var(--color-text-secondary);
-  user-select: none;
-  pointer-events: none;
-  opacity: 0;
-  animation: marksIn var(--dur-base) var(--ease-out) forwards;
-  animation-delay: calc(var(--li, 0) * var(--stagger-xs));
-}
-
-@keyframes marksIn {
-  from {
-    opacity: 0;
-    transform: translateY(var(--space-1));
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.firm {
-  color: var(--color-text-secondary);
-}
-
-.soft {
-  color: var(--color-text-tertiary);
-}
-
-.dev {
-  color: var(--color-action);
-  font-weight: var(--weight-black);
-}
-
-/* -------------------------------- devices --------------------------------- */
-
-.echo {
-  border-bottom: var(--stroke-hairline) dotted var(--color-text-tertiary);
-}
-
-.caesura {
-  font-size: var(--annot-md);
-  color: var(--color-text-tertiary);
-  padding: 0 0.25em;
-}
-
-.enj {
-  font-size: var(--annot-md);
-  color: var(--color-text-tertiary);
-  margin-left: 0.25em;
-  user-select: none;
-}
-
-.rhyme {
-  position: absolute;
-  right: calc(-1 * var(--rhyme-rail));
-  top: 0.25em;
-  font-size: var(--annot-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-secondary);
-  text-indent: 0;
-  transition: top var(--dur-gentle) var(--ease-out);
-}
-
-.on .rhyme {
-  top: 0.75em;
-}
-
-.rhymeLone {
-  color: var(--color-text-tertiary);
-}
-
-/* --------------------------------- volta ---------------------------------- */
-
-.voltaLine::before {
-  content: "";
-  position: absolute;
-  left: -1.25em;
-  top: 0.25em;
-  bottom: 0.25em;
-  border-left: var(--stroke-strong) solid transparent;
-  transition: border-color var(--dur-gentle) var(--ease-std);
-}
-
-.on .voltaLine::before {
-  border-color: var(--color-action);
-}
-
-.voltaNote {
-  display: none;
-  font-size: var(--annot-lg);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-ui);
-  color: var(--color-action);
-  text-indent: 0;
-}
-
-.on .voltaNote {
-  display: block;
-  margin: 0.25em 0 1em; /* clear the stress marks of the line below */
-  max-width: 34em;
+  composes: display from "./shared.module.css";
 }
 
 .voltaWord {
-  font-family: var(--font-display);
-  font-size: var(--annot-lg);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-label);
-  margin-right: 0.5em;
+  composes: display from "./shared.module.css";
 }
 
-/* -------------------------------- legend ---------------------------------- */
+@layer screens {
+  .card {
+    padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
+    /* 24px between sections: the reader is one continuous document, so it
+       breathes tighter than the finder's sectioned form. Deliberate — see
+       02-tokens.md. */
+    gap: var(--space-6);
+  }
 
-.legend {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
+  /* ------------------------------- crumbs -------------------------------- */
 
-.legendSoft {
-  color: var(--color-text-tertiary);
-}
-
-.legendDev {
-  color: var(--color-action);
-}
-
-.themes {
-  color: var(--color-text-tertiary);
-}
-
-/* ------------------------------- responsive -------------------------------- */
-
-@media (max-width: 640px) {
   .crumbs {
-    flex-wrap: wrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
   }
-}
 
-/* 480: the rhyme rail has nowhere left to go */
-@media (max-width: 480px) {
+  .home {
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-label);
+    min-height: var(--target-min);
+    display: inline-flex;
+    align-items: center;
+    transition: color var(--dur-quick) var(--ease-std);
+  }
+
+  @media (hover: hover) {
+    .home:hover {
+      color: var(--color-action);
+    }
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--target-min);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-secondary);
+    transition: color var(--dur-quick) var(--ease-std);
+  }
+
+  @media (hover: hover) {
+    .toggle:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .toggle[aria-pressed="true"] {
+    color: var(--color-action);
+  }
+
+  .switch {
+    width: var(--switch-w);
+    height: var(--switch-h);
+    border: var(--stroke-hairline) solid currentColor;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    padding: var(--switch-inset);
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: translate var(--dur-fast) var(--ease-std);
+  }
+
+  /* press = the design's 1px settle */
+  .toggle:active .switch {
+    translate: 0 var(--stroke-hairline);
+  }
+
+  .switchThumb {
+    width: var(--switch-knob);
+    height: var(--switch-knob);
+    border-radius: var(--radius-full);
+    background: currentColor;
+    transition: transform var(--dur-quick) var(--ease-out);
+  }
+
+  .toggle[aria-pressed="true"] .switchThumb {
+    /* travel = inner width − knob (padding already holds the inset) */
+    transform: translateX(
+      calc(
+        var(--switch-w) - 2 * var(--stroke-hairline) - 2 * var(--switch-inset) -
+          var(--switch-knob)
+      )
+    );
+  }
+
+  .kbd {
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    border: var(--stroke-hairline) solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    padding: 0 var(--space-1);
+    color: var(--color-text-tertiary);
+    line-height: var(--leading-tight);
+  }
+
+  /* -------------------------------- head --------------------------------- */
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* the poem's own name and its author, held together tighter than the
+     metadata that follows them */
+  .titles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* The poem's own name and its author speak in the poetry face, matching
+     the result rows they were reached from. */
+  .title {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .byline {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-text-secondary);
+  }
+
+  /* Fine print: metadata under a title, the reader legend. Apparatus, so
+     Satoshi — this is the app describing the poem, not the poem speaking. */
+  .finePrint {
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* after .finePrint so its color wins */
+  .meta {
+    color: var(--color-text-tertiary);
+  }
+
+  .themes {
+    color: var(--color-text-tertiary);
+  }
+
+  /* -------------------------------- body --------------------------------- */
+
   .body {
-    padding-right: 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-verse);
+    padding-right: var(--rhyme-rail);
   }
 
+  .stanzaBreak {
+    height: 1.25em;
+  }
+
+  .line {
+    position: relative;
+    white-space: pre-wrap;
+    padding-left: 2em;
+    text-indent: -2em; /* hanging indent on wrapped long lines */
+    transition: padding-top var(--dur-gentle) var(--ease-out);
+  }
+
+  .on .line {
+    padding-top: 0.75em; /* the poem opens up to make room for the marks */
+  }
+
+  .lineText {
+    text-indent: 0;
+  }
+
+  .w {
+    position: relative;
+    display: inline-block;
+    text-indent: 0;
+  }
+
+  /* ------------------------------ the marks ------------------------------ */
+
+  /* The machine annotating the poem, so the marks speak Satoshi — one
+     annotation rung up from before, with the stress hierarchy carried by
+     weight and ink: a stressed beat is bold near-ink, a meter-inferred
+     syllable stays faint, a deviation is bold blue. */
+  .marks {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% - 0.25em);
+    display: flex;
+    justify-content: space-around;
+    font-family: var(--font-sans);
+    font-size: var(--annot-md);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-solid);
+    color: var(--color-text-secondary);
+    user-select: none;
+    pointer-events: none;
+    opacity: 0;
+    animation: marksIn var(--dur-base) var(--ease-out) forwards;
+    animation-delay: calc(var(--li, 0) * var(--stagger-xs));
+  }
+
+  @keyframes marksIn {
+    from {
+      opacity: 0;
+      transform: translateY(var(--space-1));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Leaving: no stagger, no ceremony — everything fades together while the
+     lines close underneath. Enter with character, exit with efficiency. */
+  @keyframes marksOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(var(--space-1));
+    }
+  }
+
+  .closing .marks,
+  .closing .rhyme,
+  .closing .voltaNote,
+  .closing .legend,
+  .closing .legendRule {
+    animation: marksOut var(--dur-base) var(--ease-std) forwards;
+  }
+
+  .firm {
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+  }
+
+  .soft {
+    color: var(--color-text-tertiary);
+  }
+
+  .dev {
+    font-weight: var(--weight-bold);
+    color: var(--color-action);
+  }
+
+  /* ------------------------------- devices -------------------------------- */
+
+  .echo {
+    border-bottom: var(--stroke-hairline) dotted var(--color-text-tertiary);
+  }
+
+  .caesura {
+    font-size: var(--annot-md);
+    color: var(--color-text-tertiary);
+    padding: 0 0.25em;
+  }
+
+  .enj {
+    font-size: var(--annot-md);
+    color: var(--color-text-tertiary);
+    margin-left: 0.25em;
+    user-select: none;
+  }
+
+  /* Bottom-anchored so it rides the line-opening for free (padding grows at
+     the top), and on a wrapped line it sits beside the last visual line —
+     where the rhyme actually sounds. 1.25em reproduces the letter's resting
+     place beside a single line. It enters on the same stagger as the marks. */
   .rhyme {
+    position: absolute;
+    right: calc(-1 * var(--rhyme-rail));
+    bottom: 1.25em;
+    font-size: var(--annot-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-solid);
+    color: var(--color-text-secondary);
+    text-indent: 0;
+    opacity: 0;
+    animation: marksIn var(--dur-base) var(--ease-out) forwards;
+    animation-delay: calc(var(--li, 0) * var(--stagger-xs));
+  }
+
+  .rhymeLone {
+    color: var(--color-text-tertiary);
+  }
+
+  /* -------------------------------- volta --------------------------------- */
+
+  .voltaLine::before {
+    content: "";
+    position: absolute;
+    left: -1.25em;
+    top: 0.25em;
+    bottom: 0.25em;
+    border-left: var(--stroke-strong) solid transparent;
+    transition: border-color var(--dur-gentle) var(--ease-std);
+  }
+
+  .on .voltaLine::before {
+    border-color: var(--color-action);
+  }
+
+  .voltaNote {
     display: none;
+    font-size: var(--annot-lg);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-ui);
+    color: var(--color-action);
+    text-indent: 0;
+  }
+
+  .on .voltaNote,
+  .closing .voltaNote {
+    display: block;
+    margin: 0.25em 0 1em; /* clear the stress marks of the line below */
+    max-width: 34em;
+  }
+
+  .voltaWord {
+    font-size: var(--annot-lg);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    margin-right: 0.5em;
+  }
+
+  /* ------------------------------- legend --------------------------------- */
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .legendSoft {
+    color: var(--color-text-tertiary);
+  }
+
+  .legendDev {
+    color: var(--color-action);
+  }
+
+  /* ------------------------------ responsive ------------------------------ */
+
+  @media (max-width: 640px) {
+    .crumbs {
+      flex-wrap: wrap;
+    }
+
+    .title {
+      font-size: var(--text-xl);
+    }
+  }
+
+  /* 480: the rhyme rail has nowhere left to go, and the verse steps down a
+     rung — the hanging indent narrows with it so the measure survives. */
+  @media (max-width: 480px) {
+    .body {
+      font-size: var(--text-md);
+      padding-right: 0;
+    }
+
+    .line {
+      padding-left: 1.5em;
+      text-indent: -1.5em;
+    }
+
+    .rhyme {
+      display: none;
+    }
   }
 }

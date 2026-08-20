@@ -11,7 +11,7 @@ where they differ, the later frame wins.*
 
 | Layer | Contents | Who may reference it |
 |---|---|---|
-| **Primitives** | palette hexes, alpha primitives, `--unit`, raw easing curves | `tokens.css` only |
+| **Primitives** | palette hexes, alpha primitives, raw easing curves | `tokens.css` only |
 | **Semantic** | the named bounded scales (`--space-*`, `--text-*`, `--dur-*`, `--radius-*`, `--stroke-*`, `--opacity-*`, tracking/leading/weights) and role tokens (`--color-*`, `--focus-ring`, `--shadow-control`, `--column`, `--band`, targets) | components |
 | **Component** | single-owner dimensions (`--card-pad`, `--control-h`, `--rhyme-rail`, …) | the owning component |
 
@@ -21,15 +21,30 @@ the base unit and the ratio. "Components reference semantic tokens only"
 therefore means: **no hex, no raw px/rem/ms/deg, no raw cubic-bezier in any
 `*.module.css` or component file.** The one deliberate exception is breakpoint
 constants, which CSS cannot tokenize (custom properties are invalid in
-`@media`); they are fixed at 480 / 640 and documented in `tokens.css`.
+`@media`); they are fixed at 480 / 640 / 960 and documented in `tokens.css`.
+
+### Cascade layers
+
+The stylesheets themselves are ordered by CSS cascade layers, declared once
+at the top of `tokens.css`: `@layer base, screens;`. `globals.css` wraps its
+reset and element defaults in `base`; every `*.module.css` wraps its rules in
+`screens`. Module styles therefore beat globals by *declared* order, never by
+link order. Two rules in `globals.css` are deliberately unlayered so they
+outrank everything layered: `:focus-visible` (the ring cannot be swallowed by
+a component's `box-shadow`) and the `prefers-reduced-motion` block. The
+alternative — moving the ring to `outline` — was considered; layers were
+chosen because they fix global-versus-module ordering generally, not just for
+the ring.
 
 ## Spatial system
 
 - **Base unit: 4px** (`0.25rem`). Every spacing, sizing, and layout value is an
   integer multiple, with one exception below.
-- **Scale** (named, bounded): 4, 8, **10**, 12, 16, 20, 24, 32, 40, 48, 64, 80
-  → `--space-1`, `-2`, `-2-5`, `-3`, `-4`, `-5`, `-6`, `-8`, `-10`, `-12`,
-  `-16`, `-20`.
+- **Scale** (named, bounded): 4, 8, **10**, 12, 16, 24, 32, 40, 64, 80
+  → `--space-1`, `-2`, `-2-5`, `-3`, `-4`, `-6`, `-8`, `-10`, `-16`, `-20`.
+  The scale is bounded *by use*: `--space-5` (20) and `--space-12` (48) were
+  declared and never referenced, so they were retired; either re-derives
+  (5 × 4, 12 × 4) the day something needs it.
 - **The half-step, `--space-2-5` (10px).** The design insets a dropdown's value
   and its caret by 10px, not 12. It is the only sub-unit value in the spatial
   scale and it appears in exactly three places: the dropdown's horizontal
@@ -59,13 +74,18 @@ by every screen.
 
 | Token | Value | Card |
 |---|---|---|
-| `--card-pad` | 64px | horizontal inset, both cards (24px under 640) |
+| `--card-pad` | 64px | horizontal inset, both cards (40px under 960, 24px under 640) |
 | `--card-pad-top` / `--card-pad-bottom` | 64 / 40px | the asking card, and the reader |
 | `--results-pad-top` / `--results-pad-bottom` | 40 / 80px | the answering card |
 
 The asymmetry is the design's: the upper card opens with air above the
 wordmark and closes tight under the actions; the lower card mirrors it, tight
 under the heading and open at the floor.
+
+The two cards also breathe differently *inside*: the finder's section gap is
+`--space-10` (40px) because it is a sectioned form and its facets are
+chapters, while the reader's is `--space-6` (24px) because a poem's card is
+one continuous document. The divergence is deliberate, not drift.
 
 ## Type
 
@@ -88,7 +108,9 @@ ratio from the paper era is gone; nothing derives from it any more.
 
 Negative powers of the same ratio, em-relative to the verse line so the
 machinery scales with the type: 1/1.25 = 0.8 (`--annot-lg`), 1/1.25² = 0.64
-(`--annot-md`), 1/1.25³ = 0.512 → 0.51 (`--annot-sm`).
+(`--annot-md`), 1/1.25³ = 0.512 → 0.51 (`--annot-sm`). The stress marks sit
+at `--annot-md`, one rung up from where they began — legible without shouting
+— and the rhyme letters stay at `--annot-sm`.
 
 ### <a id="off-scale-sizes"></a>The off-scale size
 
@@ -119,18 +141,22 @@ faces is *who is speaking* — see [`README.md`](README.md#the-faces).
 |---|---|---|---|
 | `--font-display` | Gulax | self-hosted woff2, 1 weight | the application: wordmark, `search`, `clear`, the results heading, the reader's home link — all lowercase |
 | `--font-serif` | EB Garamond | self-hosted variable woff2, 400–800 + italic | the poetry: field labels, poem titles, authors, the tagline, the verse |
-| `--font-sans` | Satoshi | self-hosted woff2, 5 masters | the apparatus: dropdown values, chips, result-row tags, metadata about a poem |
+| `--font-sans` | Satoshi | self-hosted woff2, 3 masters | the apparatus: dropdown values, chips, result-row tags, metadata about a poem — and the stress marks, which are the machine annotating the verse |
 
 No webfont request leaves the origin.
 
 ### Weight
 
-Satoshi ships five masters and has no variable axis, so the weights available
-to it are exactly `{300, 400, 500, 700, 900}` and `font-synthesis` is `none`.
-Medium (500) is the default for both text faces — Satoshi's controls and
-Garamond's labels alike. Regular (400) carries the verse, the authors and the
-tagline; Black (900) marks a deviation in the reader. Gulax has one weight,
-and 300 and 700 are currently held in reserve rather than used.
+The token set lists only weights a shipped face actually renders. Satoshi is
+a static-master family with no variable axis; the shipped set is exactly
+`{400, 500, 700}` and `font-synthesis` is `none`, so an unlisted weight would
+silently clamp rather than render. Medium (500) is the default for both text
+faces — Satoshi's controls and Garamond's labels alike. Regular (400) carries
+the verse, the authors and the tagline. Bold (700) is the stressed beat: the
+machinery's `/` marks and its deviations, fetched only when the machinery
+opens. Gulax has one weight. Light (300) and Black (900) were retired with
+their files — nothing spoke at 300, and 900 was being asked of EB Garamond
+(which caps at 800) and silently clamping.
 
 `--weight-semibold` (600) is the one weight outside Satoshi's set. EB Garamond
 is a variable face spanning 400–800, so it can reach 600 honestly where Satoshi
@@ -181,7 +207,7 @@ the white card.
 |---|---|---|---|
 | `--color-grid` | stone-300 `#d6d3d1` | 1.49:1 | the page rules — decorative, no information |
 | `--color-rule` | stone-300 | 1.49:1 | section rules inside the card |
-| `--color-border-input` | `#e5e5e5` | 1.26:1 | the dropdown stroke |
+| `--color-border-input` | stone-200 `#e7e5e4` | 1.26:1 | the dropdown stroke (was `#e5e5e5`, a stray cool grey sub-JND from stone-200; collapsed into the stone ramp) |
 | `--color-border-tag` | stone-200 `#e7e5e4` | 1.26:1 | the result-row form/meter tags |
 | `--color-border-ghost` | stone-100 `#f5f5f4` | 1.09:1 | the `clear` action's outline |
 | `--color-surface-sunk` | stone-100 | 1.09:1 | chip ground |
@@ -193,8 +219,9 @@ pill shape; and the `clear` action — whose outline at 1.09:1 is effectively
 invisible — by its word alone. Every value is the design's. Raising
 `--color-border-input` and `--color-border-ghost` to roughly `#949494` clears
 3:1 and is a two-token change; it visibly hardens the design, so it is a
-decision for the designer rather than a silent fix. Recorded here so it stays
-a decision and not an oversight.
+decision for the designer rather than a silent fix. **Decided August 2026:
+the borders stay soft.** Recorded here so it stays a decision and not an
+oversight.
 
 ## Elevation
 
@@ -204,19 +231,53 @@ by the grid, not by a shadow, which is why there is no `--shadow-sheet`.
 
 ## Motion
 
-Durations are the bounded set 120 / 160 / 240 / 320 / 480ms; staggers are
-multiples of `--stagger-xs` (20ms). The easing is
-`--curve-out: cubic-bezier(0.2, 0, 0, 1)` — it arrives and stops, which is the
-right character for a mechanism. `prefers-reduced-motion: reduce` zeroes
-durations **and delays**, in `globals.css`, for every element.
+Two curves, each with a role:
+
+- `--curve-out: cubic-bezier(0.2, 0, 0, 1)` → `--ease-out`. **Entrances** —
+  things arriving: the marks, the results card. It arrives and stops, the
+  right character for a mechanism.
+- `--curve-std: cubic-bezier(0.2, 0, 0.2, 1)` → `--ease-std`. **Reversible
+  state changes** — hover, press, border and color tints. It is `--curve-out`
+  with its exit softened to mirror its entry, kin by construction, so the
+  same motion reads well run in either direction. (It replaced the keyword
+  `ease`, which encoded no decision.)
+
+Durations are the bounded set 120 / 160 / 240 / 320 / 480ms, each with a job:
+
+| Token | Value | Job |
+|---|---|---|
+| `--dur-fast` | 120ms | press feedback — the 1px settle every pressable element shares |
+| `--dur-quick` | 160ms | color, border and background state changes |
+| `--dur-base` | 240ms | entrances and exits: the marks, the results card |
+| `--dur-gentle` | 320ms | the poem opening and closing; the volta rule |
+| `--dur-slow` | 480ms | the machinery exit's total budget — `Reader.tsx` reads it for the unmount timer, so the choreography and the timer cannot drift apart |
+
+Staggers are multiples of `--stagger-xs` (20ms); the machinery entrance
+staggers per line, capped at 24 steps (480ms — the same budget as the exit).
+
+The machinery's governing principle: **enter with character, exit with
+efficiency.** Entering, the marks and rhyme letters stagger in line by line
+while the poem opens. Leaving, everything fades together with no stagger over
+`--dur-base` while the lines close over `--dur-gentle`; the marks stay
+mounted through a `closing` phase and unmount when the `--dur-slow` budget
+ends. Under `prefers-reduced-motion` the closing phase is skipped entirely.
+
+Interaction states, uniformly: every `:hover` rule sits inside
+`@media (hover: hover)` so touch never sticks in a hover; every pressable
+element answers `:active` with the same 1px settle (`translate: 0
+var(--stroke-hairline)`, `--dur-fast`); a visited result row's title dims to
+`--color-text-secondary` — already read. `prefers-reduced-motion: reduce`
+zeroes durations **and delays**, unlayered in `globals.css`, for every
+element.
 
 ## Targets
 
 `--target-min` is **40px** — the height of every control in the design, and
 the height every control in the code actually has. Chips and list rows are
 separated by at least `--space-2` (8px), so adjacent hit areas never touch.
-`--target-dense` (24px) is retained as the WCAG 2.2 AA floor that nothing in
-the product may go below; nothing currently approaches it.
+The WCAG 2.2 AA floor of 24px is a rule of the system, not a token — nothing
+referenced the old `--target-dense`, so the constant lives here and in the
+README rather than in `var()` space. Nothing in the product approaches it.
 
 The previous system's self-imposed 44px minimum is gone. 40px clears the
 WCAG 2.2 AA requirement by 16px; the 44px figure was a house rule, and the

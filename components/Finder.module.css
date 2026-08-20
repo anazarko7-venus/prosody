@@ -2,7 +2,9 @@
    Finder — two cards on a ruled page.
 
    Every value here is a var() from app/tokens.css. The ruled page around the
-   cards is PageShell's — see PageShell.module.css for its geometry.
+   cards is PageShell's — see PageShell.module.css for its geometry. The
+   hairline rule, the sr-only clip and the Gulax base come from
+   shared.module.css.
 
    Type roles, per the design: Gulax is the app speaking (wordmark, actions,
    the results heading, the row index); EB Garamond is the poetry speaking
@@ -10,406 +12,491 @@
    chips, tags).
    ========================================================================= */
 
-/* -------------------------------- the cards ------------------------------- */
-/* The white face, the box and the column width come from PageShell's
-   `.column`; what is left here is what goes inside each card. */
-
-.card {
-  padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
-  gap: var(--space-10);
-}
-
-/* Standing alone — before a search has been made — the card is the whole
-   page, and is padded evenly rather than leaning toward a results card
-   that is not there. */
-.cardAlone {
-  padding-block: var(--card-pad-alone);
-}
-
-.results {
-  padding: var(--results-pad-top) var(--card-pad) var(--results-pad-bottom);
-  gap: var(--space-10);
-}
-
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
+/* composes only here — declarations live in the layer below */
 .wordmark {
-  font-family: var(--font-display);
-  font-size: var(--text-4xl);
-  line-height: var(--leading-tight);
-  color: var(--color-text);
-}
-
-.tagline {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text-secondary);
-  text-wrap: pretty;
-}
-
-.rule {
-  border: 0;
-  border-top: var(--stroke-hairline) solid var(--color-rule);
-}
-
-/* The header's rule is the only one the card draws. It closes the title
-   block; everything under it is held apart by the 40px section gap. */
-
-/* -------------------------------- fields --------------------------------- */
-
-.fields {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
-}
-
-/* fieldset and div alike: the label sits 12px above its control */
-.field {
-  border: 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-/* The field label is set in the poetry face, not the app's — it names a
-   property of a poem, so it belongs to the poem's voice. */
-.label {
-  display: block;
-  float: none; /* legend */
-  padding: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text);
-}
-
-/* ------------------------------- dropdown -------------------------------- */
-
-.select {
-  appearance: none;
-  width: 100%;
-  height: var(--control-h);
-  /* the caret is 24px inset 10px from the right edge; the value clears it */
-  padding: 0 calc(var(--space-2-5) + var(--caret-size) + var(--space-2)) 0
-    var(--space-2-5);
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  color: var(--color-text-placeholder);
-  background: var(--color-surface) url("/icons/caret-down.svg") no-repeat right
-    var(--space-2-5) center / var(--caret-size) var(--caret-size);
-  border: var(--stroke-hairline) solid var(--color-border-input);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-control);
-  cursor: pointer;
-  text-overflow: ellipsis;
-  transition: border-color var(--dur-quick) var(--ease-std);
-}
-
-/* once a value is set the control stops looking like a prompt */
-.selectFilled {
-  color: var(--color-text);
-}
-
-.select:hover {
-  border-color: var(--color-border-hover);
-}
-
-.select option {
-  color: var(--color-text);
-}
-
-/* --------------------------------- chips --------------------------------- */
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  height: var(--control-h);
-  padding-inline: var(--space-3);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-sunk);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  transition: background var(--dur-quick) var(--ease-std),
-    color var(--dur-quick) var(--ease-std);
-}
-
-.chip:hover:not(:disabled) {
-  background: var(--color-surface-sunk-strong);
-}
-
-.chipOn,
-.chipOn:hover:not(:disabled) {
-  background: var(--color-action);
-  color: var(--color-text-on-action);
-}
-
-.chip:disabled {
-  opacity: var(--opacity-disabled);
-  cursor: not-allowed;
-}
-
-/* Device names are stored lowercase because they read as prose in the reader
-   ("uses anaphora"); on a chip they are the name of a thing, so the chip
-   raises the first letter rather than the data carrying two spellings. */
-.chipText {
-  white-space: nowrap;
-}
-
-.chipText::first-letter {
-  text-transform: uppercase;
-}
-
-/* -------------------------------- actions -------------------------------- */
-
-.acts {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  composes: display from "./shared.module.css";
 }
 
 .action,
 .actionGhost {
-  width: var(--action-w);
-  height: var(--action-h);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Gulax sits high in its em box; 2px of bottom padding centres the word */
-  padding-bottom: var(--stroke-strong);
-  border: var(--stroke-strong) solid transparent;
-  border-radius: var(--radius-full);
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  transition: background var(--dur-quick) var(--ease-std),
-    border-color var(--dur-quick) var(--ease-std),
-    color var(--dur-quick) var(--ease-std);
+  composes: display from "./shared.module.css";
 }
-
-.action {
-  border-color: var(--color-action);
-  color: var(--color-action);
-}
-
-.action:hover {
-  background: var(--color-action);
-  color: var(--color-text-on-action);
-}
-
-.action:active {
-  translate: 0 var(--stroke-hairline);
-}
-
-/* The second action is drawn but not urged: its outline is the page ground,
-   so the word carries it. */
-.actionGhost {
-  border-color: var(--color-border-ghost);
-  color: var(--color-text-tertiary);
-}
-
-.actionGhost:hover:not(:disabled) {
-  border-color: var(--color-border-tag);
-  color: var(--color-text);
-}
-
-.actionGhost:disabled {
-  opacity: var(--opacity-disabled);
-  cursor: not-allowed;
-}
-
-/* -------------------------------- results -------------------------------- */
 
 .resultsHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  line-height: var(--leading-tight);
-  color: var(--color-text);
-}
-
-.resultCount {
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  line-height: var(--leading-tight);
-  color: var(--color-action);
-  white-space: nowrap;
-}
-
-.empty {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 44ch;
-  text-wrap: pretty;
-}
-
-/* A hairline between rows, with equal air above and below it: the 12px list
-   gap sits above the rule, the 12px padding below it. */
-.list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.listItem:not(:first-child) {
-  border-top: var(--stroke-hairline) solid var(--color-rule);
-  padding-top: var(--space-3);
-}
-
-.listRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  min-height: var(--target-min);
+  composes: display from "./shared.module.css";
 }
 
 .listNum {
-  font-family: var(--font-display);
-  font-size: var(--text-md);
-  line-height: var(--leading-tight);
-  font-weight: var(--weight-regular);
-  color: var(--color-text-index);
-  flex-shrink: 0;
-  transition: color var(--dur-quick) var(--ease-std);
+  composes: display from "./shared.module.css";
 }
 
-.listTitle {
-  /* the title is what yields when a row runs long — it can ellipsise and
-     still name the poem, where a half-drawn tag names nothing */
-  flex: 0 1 auto;
-  min-width: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color var(--dur-quick) var(--ease-std);
-}
+@layer screens {
+  /* ------------------------------- the cards ------------------------------ */
+  /* The white face, the box and the column width come from PageShell's
+     `.column`; what is left here is what goes inside each card. */
 
-.listBy {
-  flex: 0 1 auto;
-  min-width: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-md);
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .card {
+    padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
+    /* 40px between sections: the finder is a form, and its facets are
+       chapters. (The reader's card breathes tighter — it is one continuous
+       document. The divergence is deliberate; see 02-tokens.md.) */
+    gap: var(--space-10);
+  }
 
-.listRow:hover .listTitle,
-.listRow:hover .listNum {
-  color: var(--color-action);
-}
+  /* Standing alone — before a search has been made — the card is the whole
+     page, and is padded evenly rather than leaning toward a results card
+     that is not there. */
+  .cardAlone {
+    padding-block: var(--card-pad-alone);
+  }
 
-.listTags {
-  flex: 1 0 auto;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: var(--space-2);
-}
+  .results {
+    padding: var(--results-pad-top) var(--card-pad) var(--results-pad-bottom);
+    gap: var(--space-10);
+    /* the answering card arrives: a short rise, run once on mount */
+    animation: cardIn var(--dur-base) var(--ease-out);
+  }
 
-.tag {
-  display: inline-flex;
-  align-items: center;
-  height: var(--tag-h);
-  padding-inline: var(--space-3);
-  border: var(--stroke-hairline) solid var(--color-border-tag);
-  border-radius: var(--radius-full);
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  color: var(--color-text);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+  @keyframes cardIn {
+    from {
+      opacity: 0;
+      translate: 0 var(--space-2);
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
 
-/* ------------------------------- utilities -------------------------------- */
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* ------------------------------- responsive ------------------------------- */
-
-/* 640: the three dropdowns stop fitting side by side, the card insets drop
-   (tokens.css), the wordmark steps down one rung, and a result row stacks
-   its tags under its title rather than crushing them against it. */
-@media (max-width: 640px) {
-  .fields {
-    grid-template-columns: minmax(0, 1fr);
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
 
   .wordmark {
-    font-size: var(--text-3xl);
+    font-size: var(--text-4xl);
+    color: var(--color-text);
   }
+
+  .tagline,
+  .empty {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-ui);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-text-secondary);
+    text-wrap: pretty;
+  }
+
+  .empty {
+    max-width: 44ch;
+  }
+
+  /* The header's rule is the only one the card draws. It closes the title
+     block; everything under it is held apart by the 40px section gap. */
+
+  /* -------------------------------- fields -------------------------------- */
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* fieldset and div alike: the label sits 12px above its control */
+  .field {
+    border: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* The field label is set in the poetry face, not the app's — it names a
+     property of a poem, so it belongs to the poem's voice. */
+  .label {
+    display: block;
+    float: none; /* legend */
+    padding: 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-text);
+  }
+
+  /* ------------------------------- dropdown ------------------------------- */
+
+  /* The caret is drawn by the wrapper, in ink it controls: it tracks the
+     value's placeholder/filled state the way the value itself does. */
+  .selectWrap {
+    position: relative;
+    color: var(--color-text-tertiary);
+    transition: color var(--dur-quick) var(--ease-std);
+  }
+
+  .selectWrapFilled {
+    color: var(--color-text);
+  }
+
+  .selectWrap::after {
+    content: "";
+    position: absolute;
+    right: var(--space-2-5);
+    top: 50%;
+    translate: 0 -50%;
+    width: var(--caret-size);
+    height: var(--caret-size);
+    background: currentColor;
+    mask: url("/icons/caret-down.svg") center / contain no-repeat;
+    pointer-events: none;
+  }
+
+  .select {
+    appearance: none;
+    width: 100%;
+    height: var(--control-h);
+    /* the caret is 24px inset 10px from the right edge; the value clears it */
+    padding: 0 calc(var(--space-2-5) + var(--caret-size) + var(--space-2)) 0
+      var(--space-2-5);
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    color: var(--color-text-placeholder);
+    background: var(--color-surface);
+    border: var(--stroke-hairline) solid var(--color-border-input);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-control);
+    cursor: pointer;
+    text-overflow: ellipsis;
+    transition: border-color var(--dur-quick) var(--ease-std);
+  }
+
+  /* once a value is set the control stops looking like a prompt */
+  .selectFilled {
+    color: var(--color-text);
+  }
+
+  @media (hover: hover) {
+    .select:hover {
+      border-color: var(--color-border-hover);
+    }
+  }
+
+  .select option {
+    color: var(--color-text);
+  }
+
+  /* -------------------------------- chips --------------------------------- */
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* .chip and .tag are the two sizes of the same idea — a value wearing a
+     small surface — so they share their text setting and part ways on box. */
+  .chip,
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: var(--space-3);
+    font-family: var(--font-sans);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    white-space: nowrap;
+  }
+
+  .chip {
+    height: var(--control-h);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-sunk);
+    color: var(--color-text);
+    font-size: var(--text-md);
+    transition: background var(--dur-quick) var(--ease-std),
+      color var(--dur-quick) var(--ease-std),
+      translate var(--dur-fast) var(--ease-std);
+  }
+
+  @media (hover: hover) {
+    .chip:hover:not(:disabled) {
+      background: var(--color-surface-sunk-strong);
+    }
+  }
+
+  .chip:active:not(:disabled) {
+    background: var(--color-surface-sunk-strong);
+    translate: 0 var(--stroke-hairline);
+  }
+
+  .chipOn,
+  .chipOn:active:not(:disabled) {
+    background: var(--color-action);
+    color: var(--color-text-on-action);
+  }
+
+  @media (hover: hover) {
+    .chipOn:hover:not(:disabled) {
+      background: var(--color-action);
+      color: var(--color-text-on-action);
+    }
+  }
+
+  .chip:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Device names are stored lowercase because they read as prose in the
+     reader ("uses anaphora"); on a chip they are the name of a thing, so the
+     chip raises the first letter rather than the data carrying two
+     spellings. */
+  .chipText {
+    white-space: nowrap;
+  }
+
+  .chipText::first-letter {
+    text-transform: uppercase;
+  }
+
+  /* -------------------------------- actions ------------------------------- */
+
+  .acts {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .action,
+  .actionGhost {
+    width: var(--action-w);
+    height: var(--action-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Gulax sits high in its em box; 2px of bottom padding centres the word */
+    padding-bottom: var(--stroke-strong);
+    border: var(--stroke-strong) solid transparent;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-label);
+    transition: background var(--dur-quick) var(--ease-std),
+      border-color var(--dur-quick) var(--ease-std),
+      color var(--dur-quick) var(--ease-std),
+      translate var(--dur-fast) var(--ease-std);
+  }
+
+  .action {
+    border-color: var(--color-action);
+    color: var(--color-action);
+  }
+
+  @media (hover: hover) {
+    .action:hover {
+      background: var(--color-action);
+      color: var(--color-text-on-action);
+    }
+  }
+
+  /* press = a 1px settle. The design's press idiom, everywhere a thing
+     can be pressed. */
+  .action:active {
+    translate: 0 var(--stroke-hairline);
+  }
+
+  /* The second action is drawn but not urged: its outline is the page
+     ground, so the word carries it. */
+  .actionGhost {
+    border-color: var(--color-border-ghost);
+    color: var(--color-text-tertiary);
+  }
+
+  @media (hover: hover) {
+    .actionGhost:hover:not(:disabled) {
+      border-color: var(--color-border-tag);
+      color: var(--color-text);
+    }
+  }
+
+  .actionGhost:active:not(:disabled) {
+    translate: 0 var(--stroke-hairline);
+  }
+
+  .actionGhost:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  /* -------------------------------- results ------------------------------- */
 
   .resultsHead {
-    font-size: var(--text-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-2xl);
+    color: var(--color-text);
   }
 
+  /* a child of the heading: face, size and leading are inherited */
   .resultCount {
-    font-size: var(--text-xl);
+    color: var(--color-action);
+    white-space: nowrap;
+  }
+
+  /* A hairline between rows, with equal air above and below it: the 12px
+     list gap sits above the rule, the 12px padding below it. */
+  .list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .listItem:not(:first-child) {
+    border-top: var(--stroke-hairline) solid var(--color-rule);
+    padding-top: var(--space-3);
   }
 
   .listRow {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--space-2) var(--space-3);
-    align-items: baseline;
-    padding-block: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    min-height: var(--target-min);
+    border-radius: var(--radius-sm); /* the focus ring follows it */
+  }
+
+  /* A poem already visited reads as already read: the row's own color dims
+     and the title (which sets none of its own) inherits it. Only the link
+     itself is styled — the :visited privacy model allows color here. */
+  .listRow:visited {
+    color: var(--color-text-secondary);
   }
 
   .listNum {
-    grid-row: 1 / 3;
+    font-size: var(--text-md);
+    color: var(--color-text-index);
+    flex-shrink: 0;
+    transition: color var(--dur-quick) var(--ease-std);
   }
 
   .listTitle,
   .listBy {
-    white-space: normal;
+    flex: 0 1 auto;
+    min-width: 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-md);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-label);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--dur-quick) var(--ease-std);
+  }
+
+  /* the title is what yields when a row runs long — it can ellipsise and
+     still name the poem, where a half-drawn tag names nothing */
+  .listTitle {
+    font-weight: var(--weight-semibold);
+  }
+
+  .listBy {
+    font-weight: var(--weight-regular);
+    color: var(--color-text-tertiary);
+  }
+
+  @media (hover: hover) {
+    /* the row lights; the author warms without shouting */
+    .listRow:hover .listTitle,
+    .listRow:hover .listNum {
+      color: var(--color-action);
+    }
+
+    .listRow:hover .listBy {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .listRow:active .listTitle {
+    color: var(--color-action);
   }
 
   .listTags {
-    grid-column: 2;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .tag {
+    height: var(--tag-h);
+    border: var(--stroke-hairline) solid var(--color-border-tag);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    flex-shrink: 0;
+  }
+
+  /* ------------------------------ responsive ------------------------------ */
+
+  /* 960: the flanks are gone and the column is the page; the card loosens
+     its grip on the full three-up grid before values start to ellipsise. */
+  @media (max-width: 960px) {
+    .fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fields > :last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* 640: the dropdowns stack, the card insets drop (tokens.css), the
+     wordmark steps down one rung, and a result row stacks its tags under
+     its title rather than crushing them against it. */
+  @media (max-width: 640px) {
+    .fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fields > :last-child {
+      grid-column: auto;
+    }
+
+    .wordmark {
+      font-size: var(--text-3xl);
+    }
+
+    .resultsHead {
+      font-size: var(--text-xl);
+    }
+
+    .listRow {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-2) var(--space-3);
+      align-items: baseline;
+      padding-block: var(--space-1);
+    }
+
+    .listNum {
+      grid-row: 1 / 3;
+    }
+
+    .listTitle,
+    .listBy {
+      white-space: normal;
+    }
+
+    .listTags {
+      grid-column: 2;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
   }
 }

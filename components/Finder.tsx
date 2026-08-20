@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { label, type PoemMeta } from "@/lib/poems";
 import { Band, Row, shellColumn, shellPage } from "./PageShell";
 import styles from "./Finder.module.css";
+import shared from "./shared.module.css";
 
 /* ============================================================================
    The finder — two cards on a ruled page.
@@ -53,6 +54,100 @@ function valuesOf(index: PoemMeta[], pick: (p: PoemMeta) => string | string[]) {
     }
   }
   return [...n.keys()].sort((a, b) => (n.get(b) ?? 0) - (n.get(a) ?? 0));
+}
+
+/* -------------------------------- controls -------------------------------- */
+
+/** A facet that takes one value and reads as a dropdown. The wrapper draws
+ *  the caret in ink it controls, so the caret tracks the placeholder/filled
+ *  state the way the value itself does. */
+function Dropdown({
+  facet,
+  heading,
+  options,
+  current,
+  countOf,
+  onChange,
+}: {
+  facet: string;
+  heading: string;
+  options: string[];
+  current: string;
+  countOf: (v: string) => number;
+  onChange: (v: string | null) => void;
+}) {
+  return (
+    <div className={styles.field}>
+      <label className={styles.label} htmlFor={`f-${facet}`}>
+        {heading}:
+      </label>
+      <div
+        className={`${styles.selectWrap} ${
+          current ? styles.selectWrapFilled : ""
+        }`}
+      >
+        <select
+          id={`f-${facet}`}
+          className={`${styles.select} ${current ? styles.selectFilled : ""}`}
+          value={current}
+          onChange={(e) => onChange(e.target.value || null)}
+        >
+          <option value="">Any</option>
+          {options.map((v) => {
+            const n = countOf(v);
+            return (
+              <option key={v} value={v} disabled={n === 0 && v !== current}>
+                {label(v)} ({n})
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+/** A facet whose values read as chips: several visible at once, each carrying
+ *  its live count. */
+function ChipField({
+  heading,
+  options,
+  isOn,
+  onToggle,
+  countOf,
+}: {
+  heading: string;
+  options: string[];
+  isOn: (v: string) => boolean;
+  onToggle: (v: string) => void;
+  countOf: (v: string) => number;
+}) {
+  return (
+    <fieldset className={styles.field}>
+      <legend className={styles.label}>{heading}:</legend>
+      <div className={styles.chips}>
+        {options.map((v) => {
+          const on = isOn(v);
+          const n = countOf(v);
+          return (
+            <button
+              key={v}
+              type="button"
+              aria-pressed={on}
+              disabled={n === 0 && !on}
+              className={`${styles.chip} ${on ? styles.chipOn : ""}`}
+              onClick={() => onToggle(v)}
+            >
+              <span className={styles.chipText}>
+                {label(v)} ({n})
+              </span>
+              <span className={shared.srOnly}>poems</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
 }
 
 /* --------------------------------- screen -------------------------------- */
@@ -153,71 +248,6 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
 
   /* ------------------------------- rendering ----------------------------- */
 
-  const dropdown = (
-    facet: "form" | "meter" | "themes",
-    heading: string,
-    options: string[]
-  ) => {
-    const current =
-      facet === "themes" ? filters.themes[0] ?? "" : filters[facet] ?? "";
-    return (
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor={`f-${facet}`}>
-          {heading}:
-        </label>
-        <select
-          id={`f-${facet}`}
-          className={`${styles.select} ${current ? styles.selectFilled : ""}`}
-          value={current}
-          onChange={(e) => setParam(facet, e.target.value || null)}
-        >
-          <option value="">Any</option>
-          {options.map((v) => {
-            const n = countWith(facet, v);
-            return (
-              <option key={v} value={v} disabled={n === 0 && v !== current}>
-                {label(v)} ({n})
-              </option>
-            );
-          })}
-        </select>
-      </div>
-    );
-  };
-
-  const chipField = (
-    heading: string,
-    options: string[],
-    isOn: (v: string) => boolean,
-    onToggle: (v: string) => void,
-    facet: keyof Filters
-  ) => (
-    <fieldset className={styles.field}>
-      <legend className={styles.label}>{heading}:</legend>
-      <div className={styles.chips}>
-        {options.map((v) => {
-          const on = isOn(v);
-          const n = countWith(facet, v);
-          return (
-            <button
-              key={v}
-              type="button"
-              aria-pressed={on}
-              disabled={n === 0 && !on}
-              className={`${styles.chip} ${on ? styles.chipOn : ""}`}
-              onClick={() => onToggle(v)}
-            >
-              <span className={styles.chipText}>
-                {label(v)} ({n})
-              </span>
-              <span className={styles.srOnly}>poems</span>
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-
   return (
     <main className={shellPage}>
       <Band />
@@ -240,29 +270,50 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
             </p>
           </header>
 
-          <hr className={styles.rule} />
+          <hr className={shared.rule} />
 
           <div className={styles.fields}>
-            {dropdown("form", "Form", forms)}
-            {dropdown("meter", "Meter", meters)}
-            {dropdown("themes", "Theme", themes)}
+            <Dropdown
+              facet="form"
+              heading="Form"
+              options={forms}
+              current={filters.form ?? ""}
+              countOf={(v) => countWith("form", v)}
+              onChange={(v) => setParam("form", v)}
+            />
+            <Dropdown
+              facet="meter"
+              heading="Meter"
+              options={meters}
+              current={filters.meter ?? ""}
+              countOf={(v) => countWith("meter", v)}
+              onChange={(v) => setParam("meter", v)}
+            />
+            <Dropdown
+              facet="themes"
+              heading="Theme"
+              options={themes}
+              current={filters.themes[0] ?? ""}
+              countOf={(v) => countWith("themes", v)}
+              onChange={(v) => setParam("themes", v)}
+            />
           </div>
 
-          {chipField(
-            "Era",
-            eras,
-            (v) => filters.era === v,
-            (v) => toggleSingle("era", v),
-            "era"
-          )}
+          <ChipField
+            heading="Era"
+            options={eras}
+            isOn={(v) => filters.era === v}
+            onToggle={(v) => toggleSingle("era", v)}
+            countOf={(v) => countWith("era", v)}
+          />
 
-          {chipField(
-            "Device",
-            devices,
-            (v) => filters.devices.includes(v),
-            toggleDevice,
-            "devices"
-          )}
+          <ChipField
+            heading="Device"
+            options={devices}
+            isOn={(v) => filters.devices.includes(v)}
+            onToggle={toggleDevice}
+            countOf={(v) => countWith("devices", v)}
+          />
 
           <div className={styles.acts}>
             <button type="submit" className={styles.action}>

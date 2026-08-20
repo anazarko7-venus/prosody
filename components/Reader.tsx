@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FEET, label, type Device, type Poem, type ScanToken } from "@/lib/poems";
 import { Band, Row, shellColumn, shellPage } from "./PageShell";
 import styles from "./Reader.module.css";
+import shared from "./shared.module.css";
 
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
 const STRONG_PUNCT = /[;:.!?—]/;
@@ -74,8 +75,47 @@ function anaphoraSpans(devices: Device[]): Map<number, number> {
   return map;
 }
 
+/* The machinery's lifecycle. `on` and `off` are the two resting states;
+   `closing` holds the marks in the DOM just long enough for the exit to
+   play (Reader.module.css), then unmounts them. The budget for the whole
+   exit is --dur-slow, read from the tokens so no duration lives here. */
+type Phase = "on" | "closing" | "off";
+
 export default function Reader({ poem }: { poem: Poem }) {
-  const [machinery, setMachinery] = useState(false);
+  const [phase, setPhase] = useState<Phase>("off");
+  const closeTimer = useRef<number | null>(null);
+
+  const toggleMachinery = useCallback(() => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    if (phase !== "on") {
+      setPhase("on");
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setPhase("off");
+      return;
+    }
+    // computed custom properties serialize as "480ms" or ".48s" by browser
+    const raw = getComputedStyle(document.documentElement)
+      .getPropertyValue("--dur-slow")
+      .trim();
+    const budget = (parseFloat(raw) || 0) * (raw.endsWith("ms") ? 1 : 1000);
+    closeTimer.current = window.setTimeout(() => {
+      closeTimer.current = null;
+      setPhase("off");
+    }, budget);
+    setPhase("closing");
+  }, [phase]);
+
+  useEffect(
+    () => () => {
+      if (closeTimer.current !== null) window.clearTimeout(closeTimer.current);
+    },
+    []
+  );
 
   // The `m` shortcut is active only while reading — i.e. when no interactive
   // control holds focus (document body is the default focus for the page).
@@ -88,11 +128,14 @@ export default function Reader({ poem }: { poem: Poem }) {
       if (e.key.toLowerCase() !== "m" || e.metaKey || e.ctrlKey || e.altKey) return;
       const active = document.activeElement;
       if (active && active !== document.body) return;
-      setMachinery((v) => !v);
+      toggleMachinery();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [toggleMachinery]);
+
+  const machinery = phase === "on"; // the poem's annotations follow the intent
+  const mounted = phase !== "off"; // …but stay mounted while the exit plays
 
   const foot = FEET[poem.meter];
   const enjambed = useMemo(() => deviceLines(poem.devices, "enjambment"), [poem]);
@@ -111,7 +154,11 @@ export default function Reader({ poem }: { poem: Poem }) {
   let visIdx = 0; // stagger counter for non-blank lines
 
   return (
-    <main className={`${shellPage} ${machinery ? styles.on : ""}`}>
+    <main
+      className={`${shellPage} ${machinery ? styles.on : ""} ${
+        phase === "closing" ? styles.closing : ""
+      }`}
+    >
       <Band />
 
       <Row>
@@ -122,7 +169,7 @@ export default function Reader({ poem }: { poem: Poem }) {
           </Link>
           <button
             className={styles.toggle}
-            onClick={() => setMachinery((v) => !v)}
+            onClick={toggleMachinery}
             aria-pressed={machinery}
           >
             machinery
@@ -133,20 +180,22 @@ export default function Reader({ poem }: { poem: Poem }) {
           </button>
         </nav>
 
-        <hr className={styles.rule} />
+        <hr className={shared.rule} />
 
         <header className={styles.head}>
-          <h1 className={styles.title}>{poem.title}</h1>
-          <p className={styles.byline}>
-            {poem.author} · {label(poem.era)}
-          </p>
-          <p className={`${styles.meta} tag`}>
+          <hgroup className={styles.titles}>
+            <h1 className={styles.title}>{poem.title}</h1>
+            <p className={styles.byline}>
+              {poem.author} · {label(poem.era)}
+            </p>
+          </hgroup>
+          <p className={`${styles.finePrint} ${styles.meta}`}>
             {label(poem.form)} · {label(poem.meter)}
             {poem.meter !== "free_verse" && (
-              <span className={styles.fit}> · fit {poem.meter_confidence.toFixed(2)}</span>
+              <span> · fit {poem.meter_confidence.toFixed(2)}</span>
             )}
             {machinery && poem.rhyme_scheme.replace(/-/g, "").length > 0 && (
-              <span className={styles.scheme}>
+              <span>
                 {" "}
                 · {poem.rhyme_scheme.replace(/-/g, " ").slice(0, 28)}
               </span>
@@ -154,7 +203,7 @@ export default function Reader({ poem }: { poem: Poem }) {
           </p>
         </header>
 
-        <hr className={styles.rule} />
+        <hr className={shared.rule} />
 
         <div className={styles.body}>
           {poem.lines.map((line, i) => {
@@ -213,7 +262,7 @@ export default function Reader({ poem }: { poem: Poem }) {
                             key={j}
                             className={`${styles.w} ${underline ? styles.echo : ""}`}
                           >
-                            {machinery && (
+                            {mounted && (
                               <span className={styles.marks} aria-hidden>
                                 {marksForWord(seg.token, seg.startSyl, foot, devs).map(
                                   (mk, k) => (
@@ -234,7 +283,7 @@ export default function Reader({ poem }: { poem: Poem }) {
                     </span>
                   )}
                 </span>
-                {machinery && letter && letter !== "-" && (
+                {mounted && letter && letter !== "-" && (
                   <span
                     className={`${styles.rhyme} ${
                       letterCounts[letter] > 1 ? "" : styles.rhymeLone
@@ -249,11 +298,11 @@ export default function Reader({ poem }: { poem: Poem }) {
           })}
         </div>
 
-        {machinery && (
+        {mounted && (
           <>
-            <hr className={styles.rule} />
+            <hr className={`${shared.rule} ${styles.legendRule}`} />
             <footer className={styles.legend}>
-              <span className="tag">
+              <span className={styles.finePrint}>
                 / stressed&ensp;× unstressed&ensp;
                 <span className={styles.legendSoft}>
                   faint = read from the meter
@@ -264,7 +313,7 @@ export default function Reader({ poem }: { poem: Poem }) {
                 </span>
               </span>
               {poem.themes.length > 0 && (
-                <span className={`${styles.themes} tag`}>
+                <span className={`${styles.finePrint} ${styles.themes}`}>
                   themes: {poem.themes.join(", ")}
                 </span>
               )}
