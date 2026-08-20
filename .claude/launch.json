@@ -3,8 +3,11 @@
   "configurations": [
     {
       "name": "prosody",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": [
+        "-lc",
+        "cd /Users/amelionazarko/Documents/Claude-Workspace/projects/prosody && npm run dev"
+      ],
       "port": 3000,
       "autoPort": true,
       "cwd": "/Users/amelionazarko/Documents/Claude-Workspace/projects/prosody"

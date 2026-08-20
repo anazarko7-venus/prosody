@@ -4,16 +4,19 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { label, type PoemMeta } from "@/lib/poems";
+import { Band, Row, shellColumn, shellPage } from "./PageShell";
 import styles from "./Finder.module.css";
 
 /* ============================================================================
-   The finder — one card on a ruled page.
+   The finder — two cards on a ruled page.
 
-   Five facets, in the order the design puts them: three that take one value
-   each and read as dropdowns (form, meter, theme), two that read as chip
-   fields (era, device). Every value carries a live count: how many poems
-   would answer if you added it to what is already set. The counts are set in
-   Monofett, so they read as stamped marks rather than as more words.
+   The upper card asks: five facets, in the order the design puts them. Three
+   take one value each and read as dropdowns (form, meter, theme); two read as
+   chip fields (era, device). Every value carries a live count — how many poems
+   would answer if you added it to what is already set — set in Monofett so it
+   reads as a stamped mark rather than as more words.
+
+   The lower card answers. It appears on search and stays live afterwards.
 
    State lives in the URL, so a search is a link.
    ========================================================================= */
@@ -122,17 +125,6 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
     [index, filters]
   );
 
-  const corpusNumber = useMemo(() => {
-    const m = new Map<string, number>();
-    index.forEach((p, i) => m.set(p.id, i + 1));
-    return m;
-  }, [index]);
-
-  const active =
-    Boolean(filters.form || filters.meter || filters.era) ||
-    filters.devices.length > 0 ||
-    filters.themes.length > 0;
-
   /* ------------------------------ the search ----------------------------- */
 
   const [searched, setSearched] = useState(false);
@@ -221,106 +213,113 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
   );
 
   return (
-    <main className={styles.page}>
-      <div className={styles.gridTop} aria-hidden />
-      <div className={styles.gridLeft} aria-hidden />
-      <div className={styles.gridRight} aria-hidden />
-      <div className={styles.gridBottom} aria-hidden />
+    <main className={shellPage}>
+      <Band />
 
-      <form
-        className={styles.card}
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSearched(true);
-        }}
-      >
-        <header className={styles.head}>
-          <h1 className={styles.wordmark}>Prosody</h1>
-          <p className={styles.tagline}>Find a poem by how it&rsquo;s made&hellip;</p>
-        </header>
+      {/* ----------------------------- the asking --------------------------- */}
+      <Row>
+        <form
+          className={`${shellColumn} ${styles.card}`}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSearched(true);
+          }}
+        >
+          <header className={styles.head}>
+            <h1 className={styles.wordmark}>prosody</h1>
+            <p className={styles.tagline}>
+              Find a poem by how it&rsquo;s made&hellip;
+            </p>
+          </header>
 
-        <hr className={styles.rule} />
+          <hr className={styles.rule} />
 
-        <div className={styles.row}>
-          {dropdown("form", "Form", forms)}
-          {dropdown("meter", "Meter", meters)}
-          {dropdown("themes", "Theme", themes)}
-        </div>
+          <div className={styles.fields}>
+            {dropdown("form", "Form", forms)}
+            {dropdown("meter", "Meter", meters)}
+            {dropdown("themes", "Theme", themes)}
+          </div>
 
-        <hr className={styles.rule} />
+          <hr className={styles.rule} />
 
-        {chipField(
-          "Era",
-          eras,
-          (v) => filters.era === v,
-          (v) => toggleSingle("era", v),
-          "era"
-        )}
-
-        <hr className={styles.rule} />
-
-        {chipField(
-          "Device",
-          devices,
-          (v) => filters.devices.includes(v),
-          toggleDevice,
-          "devices"
-        )}
-
-        <hr className={styles.rule} />
-
-        <div className={styles.acts}>
-          <button type="submit" className={styles.action}>
-            Search
-          </button>
-          {active && (
-            <button type="button" className={styles.reset} onClick={reset}>
-              clear all
-            </button>
+          {chipField(
+            "Era",
+            eras,
+            (v) => filters.era === v,
+            (v) => toggleSingle("era", v),
+            "era"
           )}
-        </div>
 
-        {searched && (
-          <>
-            <hr className={styles.rule} />
-            <section className={styles.results} ref={resultsRef} aria-live="polite">
-              <h2 className={styles.label}>
-                {results.length === 1 ? "One poem answers" : "Poems that answer"}:
-                <span className={styles.resultCount} aria-hidden>
-                  {results.length}
-                </span>
-                <span className={styles.srOnly}>{results.length}</span>
-              </h2>
+          <hr className={styles.rule} />
 
-              {results.length === 0 ? (
-                <p className={styles.empty}>
-                  Nothing in the corpus is made that way. Drop a constraint and
-                  ask again.
-                </p>
-              ) : (
-                <ol className={styles.list}>
-                  {results.map((p) => (
-                    <li key={p.id}>
-                      <Link href={`/poem/${p.id}/`} className={styles.listRow}>
-                        <span className={styles.listNum}>
-                          {String(corpusNumber.get(p.id)).padStart(3, "0")}
-                        </span>
-                        <span className={styles.listMain}>
-                          <span className={styles.listTitle}>{p.title}</span>
-                          <span className={styles.listBy}>{p.author}</span>
-                        </span>
-                        <span className={styles.listMeta}>
-                          {label(p.form)} · {label(p.meter)}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-          </>
-        )}
-      </form>
+          {chipField(
+            "Device",
+            devices,
+            (v) => filters.devices.includes(v),
+            toggleDevice,
+            "devices"
+          )}
+
+          <hr className={styles.rule} />
+
+          <div className={styles.acts}>
+            <button type="submit" className={styles.action}>
+              search
+            </button>
+            <button type="button" className={styles.actionGhost} onClick={reset}>
+              clear
+            </button>
+          </div>
+        </form>
+      </Row>
+
+      {/* ---------------------------- the answering ------------------------- */}
+      {searched && (
+        <Row>
+          <section
+            className={`${shellColumn} ${styles.results}`}
+            ref={resultsRef}
+            aria-live="polite"
+          >
+            <h2 className={styles.resultsHead}>
+              <span>
+                {results.length === 1 ? "poem that answers:" : "poems that answer:"}
+              </span>
+              <span className={styles.resultCount} aria-hidden>
+                {results.length}
+              </span>
+              <span className={styles.srOnly}>{results.length}</span>
+            </h2>
+
+            {results.length === 0 ? (
+              <p className={styles.empty}>
+                Nothing in the corpus is made that way. Drop a constraint and ask
+                again.
+              </p>
+            ) : (
+              <ol className={styles.list}>
+                {results.map((p, i) => (
+                  <li key={p.id} className={styles.listItem}>
+                    <Link href={`/poem/${p.id}/`} className={styles.listRow}>
+                      <span className={styles.listNum} aria-hidden>
+                        {String(i + 1).padStart(3, "0")}
+                      </span>
+                      <span className={styles.listTitle}>{p.title}</span>
+                      <span className={styles.listBy}>{p.author}</span>
+                      <span className={styles.listTags}>
+                        <span className={styles.tag}>{label(p.form)}</span>
+                        <span className={styles.tag}>{label(p.meter)}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </Row>
+      )}
+
+      <Band />
     </main>
   );
 }

@@ -3,55 +3,18 @@
 
    The card, the grid and the rules are the finder's; what changes inside is
    only what the poem needs. Gulax speaks for the application (the wordmark
-   home link); Satoshi carries the poem and everything said about it. Inside
-   the verse body geometry is em-based (quarter-em multiples) so the
-   machinery rides with the type.
+   home link); EB Garamond speaks for the poem (title, byline, the verse);
+   Satoshi carries the machinery and the metadata about the poem. Inside the
+   verse body geometry is em-based (quarter-em multiples) so the machinery
+   rides with the type.
    ========================================================================= */
 
-.page {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, var(--column)) minmax(0, 1fr);
-  grid-template-rows: minmax(var(--band), 1fr) auto minmax(var(--band), 1fr);
-}
-
-.gridTop,
-.gridBottom {
-  grid-column: 2;
-  border-inline: var(--stroke-hairline) solid var(--color-grid);
-}
-
-.gridTop {
-  grid-row: 1;
-}
-
-.gridBottom {
-  grid-row: 3;
-}
-
-.gridLeft,
-.gridRight {
-  grid-row: 2;
-  border-block: var(--stroke-hairline) solid var(--color-grid);
-}
-
-.gridLeft {
-  grid-column: 1;
-}
-
-.gridRight {
-  grid-column: 3;
-}
+/* The ruled page around the card is PageShell's — see PageShell.module.css.
+   `.card` here only says what goes inside it. */
 
 .card {
-  grid-area: 2 / 2 / 3 / 3;
-  background: var(--color-surface);
-  border: var(--stroke-hairline) solid var(--color-grid);
-  padding: var(--card-pad);
-  display: flex;
-  flex-direction: column;
+  padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
   gap: var(--space-6);
-  min-width: 0;
 }
 
 .rule {
@@ -107,15 +70,14 @@
   height: var(--switch-h);
   border: var(--stroke-hairline) solid currentColor;
   border-radius: var(--radius-full);
-  position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--switch-inset);
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-.switch::after {
-  content: "";
-  position: absolute;
-  top: var(--switch-inset);
-  left: var(--switch-inset);
+.switchThumb {
   width: var(--switch-knob);
   height: var(--switch-knob);
   border-radius: var(--radius-full);
@@ -123,8 +85,8 @@
   transition: transform var(--dur-quick) var(--ease-out);
 }
 
-.toggle[aria-pressed="true"] .switch::after {
-  /* travel = inner width − knob − both insets */
+.toggle[aria-pressed="true"] .switchThumb {
+  /* travel = inner width − knob (padding already holds the inset) */
   transform: translateX(
     calc(
       var(--switch-w) - 2 * var(--stroke-hairline) - 2 * var(--switch-inset) -
@@ -152,16 +114,22 @@
   gap: var(--space-2);
 }
 
+/* The poem's own name and its author speak in the poetry face, matching the
+   result rows they were reached from. */
 .title {
+  font-family: var(--font-serif);
   font-size: clamp(var(--text-lg), 4.8vw, var(--text-2xl));
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-label);
 }
 
 .byline {
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
   line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-label);
   color: var(--color-text-secondary);
 }
 
@@ -178,6 +146,7 @@
 /* --------------------------------- body ---------------------------------- */
 
 .body {
+  font-family: var(--font-serif);
   font-size: var(--text-lg);
   font-weight: var(--weight-regular);
   line-height: var(--leading-verse);

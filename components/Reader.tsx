@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FEET, label, type Device, type Poem, type ScanToken } from "@/lib/poems";
+import { Band, Row, shellColumn, shellPage } from "./PageShell";
 import styles from "./Reader.module.css";
 
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
@@ -110,16 +111,14 @@ export default function Reader({ poem }: { poem: Poem }) {
   let visIdx = 0; // stagger counter for non-blank lines
 
   return (
-    <main className={`${styles.page} ${machinery ? styles.on : ""}`}>
-      <div className={styles.gridTop} aria-hidden />
-      <div className={styles.gridLeft} aria-hidden />
-      <div className={styles.gridRight} aria-hidden />
-      <div className={styles.gridBottom} aria-hidden />
+    <main className={`${shellPage} ${machinery ? styles.on : ""}`}>
+      <Band />
 
-      <article className={styles.card}>
+      <Row>
+        <article className={`${shellColumn} ${styles.card}`}>
         <nav className={styles.crumbs}>
           <Link href="/" className={styles.home}>
-            Prosody
+            prosody
           </Link>
           <button
             className={styles.toggle}
@@ -127,7 +126,9 @@ export default function Reader({ poem }: { poem: Poem }) {
             aria-pressed={machinery}
           >
             machinery
-            <span className={styles.switch} aria-hidden />
+            <span className={styles.switch} aria-hidden>
+              <span className={styles.switchThumb} />
+            </span>
             <kbd className={styles.kbd}>m</kbd>
           </button>
         </nav>
@@ -270,7 +271,10 @@ export default function Reader({ poem }: { poem: Poem }) {
             </footer>
           </>
         )}
-      </article>
+        </article>
+      </Row>
+
+      <Band />
     </main>
   );
 }
