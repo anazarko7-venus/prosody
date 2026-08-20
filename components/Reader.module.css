@@ -322,31 +322,30 @@
   }
 
   /* One syllable: a square cell at the fixed pitch, whatever the word under
-     it is doing. The stress hierarchy is carried by weight and ink — a
-     stressed beat is bold near-ink, a syllable read from the meter is
-     lighter and unbolded, a deviation is bold blue. --color-text-tertiary is
-     NOT licensed on this ground (4.47:1); see 02-tokens.md. */
+     it is doing. Every mark is bold at the same size; the stress hierarchy
+     is carried by ink alone — a stressed beat is near-ink, a syllable read
+     from the meter is secondary ink, a deviation is blue.
+     --color-text-tertiary is NOT licensed on this ground (4.47:1); see
+     02-tokens.md. */
   .beat {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: var(--beat-pitch);
     height: var(--beat-pitch);
-    font-size: var(--annot-md);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
   }
 
   .firm {
-    font-weight: var(--weight-bold);
     color: var(--color-text);
   }
 
   .soft {
-    font-weight: var(--weight-regular);
     color: var(--color-text-secondary);
   }
 
   .dev {
-    font-weight: var(--weight-bold);
     color: var(--color-action);
   }
 
@@ -524,10 +523,9 @@
   }
 
   /* 480: the rhyme rail has nowhere left to go, and the verse steps down a
-     rung — the hanging indent narrows with it so the measure survives, and
-     --beat-pitch steps down alongside (tokens.css). A band longer than the
-     measure wraps rather than clips: the pitch survives, the single row does
-     not. */
+     rung — the hanging indent narrows with it so the measure survives.
+     --beat-pitch stays fixed (tokens.css); a band longer than the measure
+     wraps rather than clips: the pitch survives, the single row does not. */
   @media (max-width: 480px) {
     .body {
       font-size: var(--text-md);
