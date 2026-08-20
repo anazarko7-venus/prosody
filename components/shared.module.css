@@ -23,6 +23,40 @@
     white-space: nowrap;
   }
 
+  /* A value wearing a small surface. The finder's result rows and the
+     reader's header draw the same pill, so it lives here rather than in two
+     copies. `.tagWide` is the one that has to hold a whole rhyme scheme: it
+     may wrap, so it takes the controls' radius instead of the stadium's. */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tag-h);
+    padding-inline: var(--space-3);
+    border: var(--stroke-hairline) solid var(--color-border-tag);
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .tagWide {
+    border-radius: var(--radius-md);
+    padding-block: var(--space-1);
+    white-space: normal;
+    flex-shrink: 1;
+  }
+
   /* The Gulax base — the application's voice. Weight is explicit so the
      fallback faces (which do carry other weights) render one weight during
      font swap, not two. Gulax itself is single-master. */

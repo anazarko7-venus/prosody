@@ -35,7 +35,9 @@
   /* 1 · PRIMITIVES                                                     */
   /* ------------------------------------------------------------------ */
 
-  /* palette — warm neutral greys on white, one blue that acts.
+  /* palette — warm neutral greys on white, one blue that acts, one mint that
+     annotates. Three hues, one job each: grey is the page, blue is the poem's
+     own turn, mint is the machine's ground.
      Ratios are measured; the licensing table is in
      docs/design-system/02-tokens.md and is the only place a new pair
      may be introduced. */
@@ -48,10 +50,14 @@
   --stone-900: #1c1917; /* 17.49:1 on white, 16.03:1 on stone-100 */
   --white: #ffffff; /* the card face */
   --blue-600: #0040ff; /* 6.61:1 on white, 6.06:1 on stone-100 */
+  --mint-100: #d9fff2; /* the machine's ground. The design's value (96:8637). */
+  --amber-500: #ffb200; /* the poem's turn. The design's value (96:8668). Both
+                           are argued in README and licensed in 02-tokens.md. */
 
   /* alpha primitives, keyed to black so tints stay neutral */
   --black-alpha-10: rgba(0, 0, 0, 0.1);
   --blue-alpha-08: rgba(0, 64, 255, 0.08);
+  --amber-alpha-10: rgba(255, 178, 0, 0.1); /* → #fff7e6 on the card */
 
   /* easing curves. --curve-out is the entrance: it arrives and stops.
      --curve-std is --curve-out with its exit softened to mirror its entry —
@@ -107,7 +113,11 @@
   --leading-solid: 1; /* stress marks */
   --leading-tight: 1.3; /* the design's own leading, all display sizes */
   --leading-ui: 1.5; /* ≤20px UI text */
-  --leading-verse: 1.75; /* the reader body */
+  /* --leading-verse (1.75) retired August 2026: the reader's rhythm is now
+     the --space-4 gap between line blocks (96:8668), not leading inside them,
+     so the verse sets at --leading-tight like every other display size. A
+     wrapped line then sits closer to its own continuation than to the next
+     line, which is the correct reading. */
 
   /* weight — only values a shipped face actually renders. Satoshi is a
      static-master family (Regular / Medium / Bold shipped; font-synthesis
@@ -144,9 +154,21 @@
   --color-focus: var(--blue-600);
   --color-selection: var(--blue-alpha-08);
 
+  /* the two annotation grounds. Mint is what the machine adds to the poem
+     (the scansion staff); amber is the poem's own turn (the volta). They are
+     different hues because they are different speakers — and neither may be
+     blue, which already means both "the app acts" and, in the staff, "against
+     the meter". */
+  --color-machinery-ground: var(--mint-100);
+  --color-volta-ground: var(--amber-alpha-10);
+  --color-volta-accent: var(--amber-500);
+
   /* stroke widths — the documented half-step class */
   --stroke-hairline: 1px;
   --stroke-strong: 2px; /* the action's outline */
+  --stroke-accent: 4px; /* the volta's bar — the one stroke that is a bar and
+                           not an outline, so it leaves the half-step class
+                           and lands on the base unit instead. */
 
   /* radii */
   --radius-sm: 4px;
@@ -204,7 +226,17 @@
   --caret-size: 1.5rem; /* 24px — the exported arrow_drop_down asset */
 
   /* reader */
-  --rhyme-rail: 2.5rem; /* 40px — the rhyme letters' outboard column */
+  --rhyme-cell: 2.75rem; /* 44px — the rhyme letter's tile at the right edge
+                            of the measure. 11 × 4; the design draws 45. It is
+                            no longer outboard: the tile is inside the 784
+                            measure and stretches to its line block's height. */
+  /* the scansion staff. One syllable gets one square cell, so pitch and
+     height are the same number: 20px, the verse's own em, and 5 × 4px.
+     (The design reads 19px against the 20px verse.) Not an em: the marks
+     inside the cell are set at --annot-md, and an em would then resolve
+     against the mark rather than the verse. */
+  --beat-pitch: 1.25rem; /* 20px */
+  --staff-inset: 0.25rem; /*  4px — the band's own inset */
   --switch-w: 44px; /* the machinery toggle: a filled track, */
   --switch-h: 24px; /* sized against the 16px text it sits beside */
   --switch-knob: 20px;
@@ -233,9 +265,17 @@
   }
 }
 
+/* 480: the verse steps down a rung (to --text-md), and the staff steps with
+   it — 12px to the syllable keeps a long line's band inside the measure. */
+@media (max-width: 480px) {
+  :root {
+    --beat-pitch: 0.75rem; /* 12px */
+  }
+}
+
 /* Breakpoints (CSS custom properties cannot drive @media; these are the
    system's constants, restated wherever used):
-   480px — reader rhyme rail hidden; the verse steps down a rung
+   480px — reader rhyme rail hidden; the verse and the staff step down a rung
    640px — compact layout: card inset drops to 24px, fields stack
    960px — the 912px column stops being a column and becomes the page
            (flex collapse needs no query for that; the query drops the

@@ -13,7 +13,7 @@ where they differ, the later frame wins.*
 |---|---|---|
 | **Primitives** | palette hexes, alpha primitives, raw easing curves | `tokens.css` only |
 | **Semantic** | the named bounded scales (`--space-*`, `--text-*`, `--dur-*`, `--radius-*`, `--stroke-*`, `--opacity-*`, tracking/leading/weights) and role tokens (`--color-*`, `--focus-ring`, `--shadow-control`, `--column`, `--band`, targets) | components |
-| **Component** | single-owner dimensions (`--card-pad`, `--control-h`, `--rhyme-rail`, …) | the owning component |
+| **Component** | single-owner dimensions (`--card-pad`, `--control-h`, `--rhyme-cell`, …) | the owning component |
 
 Interpretation note, stated rather than hidden: the named scales (`--space-4`,
 `--text-lg`) are the **semantic vocabulary** — the primitive beneath them is
@@ -52,9 +52,22 @@ the ring.
   count. Adding a second half-step needs an argument written here.
 - **Em contexts** (inside the verse body, where geometry must ride with the
   type): the unit is **0.25em**. All verse-relative offsets are quarter-em
-  multiples.
+  multiples. The scansion staff is the one thing inside the verse that is
+  *not* em-based — see below.
+- **The staff's two exceptions to that.** `--beat-pitch` (20px, 5 × 4) and
+  `--staff-inset` (4px) are rem, not em, even though they live inside the
+  verse. They have to be: a beat cell sets its own `font-size` to
+  `--annot-md`, so an `em` width would resolve against the mark rather than
+  against the verse line the mark describes, and the pitch would silently
+  shrink. 20px is the verse's own em at `--text-lg`; under 480px, where the
+  verse steps to `--text-md`, `--beat-pitch` steps to 12px (3 × 4) with it.
+  Both values are on the 4px unit, so the exception costs the system nothing.
 - **Stroke half-steps**: 1 / 1.5 / 2px borders and the 2px switch inset, as
   before. `--stroke-emphasis` (1.5px) was dropped when nothing used it.
+- **`--stroke-accent` (4px)** is not in that class. It is the volta box's left
+  bar, which is a *bar* — a mark you are meant to see — rather than an outline
+  describing an edge, so it leaves the half-step class and lands on the base
+  unit instead. It has exactly one use.
 
 ### The page
 
@@ -82,10 +95,12 @@ The asymmetry is the design's: the upper card opens with air above the
 wordmark and closes tight under the actions; the lower card mirrors it, tight
 under the heading and open at the floor.
 
-The two cards also breathe differently *inside*: the finder's section gap is
-`--space-10` (40px) because it is a sectioned form and its facets are
-chapters, while the reader's is `--space-6` (24px) because a poem's card is
-one continuous document. The divergence is deliberate, not drift.
+Both cards use `--space-10` (40px) between sections. The reader used to sit
+at `--space-6` on the argument that a poem's card is one continuous document;
+[`96:8637`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637)
+sets rule-to-head, head-to-rule and rule-to-verse all at 40, and the header
+gained a third element (the pill row) that wanted the air. The two cards now
+breathe the same.
 
 ## Type
 
@@ -170,9 +185,16 @@ for `--font-serif` only — asking Satoshi for 600 is a bug, and with
 | Token | Value | Bound to |
 |---|---|---|
 | `--leading-solid` | 1 | stress marks |
-| `--leading-tight` | 1.3 | the design's own leading — every display size and every control |
+| `--leading-tight` | 1.3 | the design's own leading — every display size, every control, and the verse |
 | `--leading-ui` | 1.5 | ≤20px running UI text |
-| `--leading-verse` | 1.75 | the reader body |
+
+`--leading-verse` (1.75) was retired in August 2026. The reader's rhythm is
+now the `--space-4` gap between line blocks ([`96:8668`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8668)):
+a block is its band plus its text at `--leading-tight`, and the poem is those
+blocks 16px apart — 20px band + 26px text + 16px gap = a 62px pitch against
+the design's 61. Leading now describes the *line*; the gap describes the
+*poem*. A wrapped line therefore sits closer to its own continuation than to
+the next line, which is the correct reading and was not true before.
 
 ## Color
 
@@ -194,12 +216,63 @@ table is not licensed.**
 | stone-400 `#a8a29e` | white | **2.52:1** | **exempt, decorative only** |
 | blue-600 | stone-100 | 6.06:1 | AA |
 | white | blue-600 (active chip, hovered action) | 6.61:1 | AA |
+| stone-900 | mint-100 `#d9fff2` (the staff) | 16.27:1 | AAA |
+| stone-600 | mint-100 | 7.10:1 | AAA |
+| stone-500 | mint-100 | **4.46:1** | **fails AA** |
+| blue-600 | mint-100 | 6.15:1 | AA |
+| stone-900 | volta ground `#fff7e6` (the turn) | 16.40:1 | AAA |
+| stone-600 | volta ground | 7.16:1 | AAA |
+| stone-500 | volta ground | **4.50:1** | **not licensed** — see below |
+| stone-900 | stone-100 (the rhyme tile) | 16.03:1 | AAA |
+| stone-600 | stone-100 (the rhyme tile) | 6.99:1 | AAA |
+| blue-600 | stone-100 (a linked rhyme tile) | 6.06:1 | AA |
 
 **The one restriction that follows:** `--color-text-tertiary` and
 `--color-text-placeholder` are stone-500 and are licensed **on white only**.
-Everything drawn on the stone-100 page ground uses `--color-text-secondary`.
-In practice this costs nothing, because all text in the product lives inside
-the white card.
+Everything drawn on the stone-100 page ground uses `--color-text-secondary`,
+and so does everything drawn on the two annotation grounds and the rhyme
+tile. stone-500 misses AA on stone-100 (4.40:1) and on mint (4.46:1), and
+clears it on the volta ground only by a hundredth (4.50:1) — a margin thin
+enough that rounding in either direction decides it, so it is **not licensed
+there either**. One rule, no exceptions to remember: stone-500 is white-only.
+
+This is why the staff's `.soft` beat (a syllable read from the meter rather
+than heard in the word) is stone-600 set at `--weight-regular` rather than
+stone-500 set at medium: on mint the hierarchy has to be carried by weight,
+because the ink it used to be carried by is not licensed there. The same
+applies to the rhyme tile's lone letter.
+
+### <a id="the-annotation-hues"></a>The two annotation hues
+
+The palette was warm grey plus one blue. The reader added two more, both the
+design's own values, and both earn a hue because — like the three faces —
+they name a **speaker**:
+
+| Hue | Role token | Who is speaking |
+|---|---|---|
+| warm grey | `--color-bg`, `--color-surface`, the rules, the rhyme tile | the page and its furniture |
+| blue-600 | `--color-action`, `--color-focus`, `--color-selection` | the app acting — and, in the staff, a syllable read *against* the meter |
+| mint-100 `#d9fff2` | `--color-machinery-ground` | the machine's reading, laid over the poem ([`96:8637`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637)) |
+| amber-500 `#ffb200` | `--color-volta-ground`, `--color-volta-accent` | the poem's own event — the turn ([`96:8668`](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8668)) |
+
+**Why the volta is not blue.** It was, briefly: `--blue-alpha-10` over the
+card. That put the turn in the same family as the action *and* as the staff's
+deviation marks, so one screen was using blue to mean three unrelated things
+at once — and the volta callout, which always contains a staff, sat a
+deviation mark on a tint of itself. Amber costs a hue and buys back the
+distinction. `--color-volta-ground` is `--amber-alpha-10`, amber at 10% on the
+card, compositing to `#fff7e6`; `--color-volta-accent` is the full amber, and
+it appears exactly once, as the `--stroke-accent` bar down the box's left
+edge.
+
+Both annotation grounds are non-text surfaces on white (mint 1.07:1, volta
+1.18:1) and the amber bar is 1.81:1. None identifies a control, so WCAG
+1.4.11 does not apply; each is read as a region, and each region's meaning is
+also carried by its text — the staff by its marks, the volta by the word
+*volta*.
+
+**There is no fifth.** Anything else that needs telling apart is told apart
+with weight, size or position.
 
 ### Non-text pairs
 
@@ -211,6 +284,10 @@ the white card.
 | `--color-border-tag` | stone-200 `#e7e5e4` | 1.26:1 | the result-row form/meter tags |
 | `--color-border-ghost` | stone-100 `#f5f5f4` | 1.09:1 | the `clear` action's outline |
 | `--color-surface-sunk` | stone-100 | 1.09:1 | chip ground |
+| `--color-machinery-ground` | mint-100 `#d9fff2` | 1.07:1 | the scansion staff's band |
+| `--color-volta-ground` | `--amber-alpha-10` over white → `#fff7e6` | 1.18:1 | the volta box |
+| `--color-volta-accent` | amber-500 `#ffb200` | 1.81:1 | the volta box's 4px left bar |
+| `--color-border-tag` on the rhyme tile | stone-200 over stone-100 | 1.16:1 | the tile's two vertical rules |
 
 **Open item — WCAG 1.4.11.** A control's boundary is supposed to reach 3:1
 against its surround. None of the four strokes above do. The dropdowns are

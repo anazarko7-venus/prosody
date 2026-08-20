@@ -4,14 +4,22 @@
    The card, the grid and the rules are the finder's; what changes inside is
    only what the poem needs. Gulax speaks for the application (the wordmark
    home link); EB Garamond speaks for the poem (title, byline, the verse);
-   Satoshi carries the machinery and the metadata about the poem. Inside the
-   verse body geometry is em-based (quarter-em multiples) so the machinery
-   rides with the type.
+   Satoshi carries the machinery and the metadata about the poem.
+
+   THE STAFF. Scansion no longer floats over the words. Each line carries a
+   band above it — mint, the machine's own ground — holding one square cell
+   per syllable at a fixed pitch. Because the pitch never varies, rhythm can
+   be read *down* the page: a common-meter poem alternates a long band and a
+   short one, 8 beats against 6. What the fixed pitch gives up is the tie
+   between a mark and the syllable under it, so the tie is restored on
+   demand: point at a word and its beats light with it (`.linked`,
+   Reader.tsx `useHoverLink`).
 
    The machinery has three phases (Reader.tsx): `on`, `closing`, `off`.
-   Entering is the signature moment — marks and rhyme letters stagger in,
-   line by line. Leaving is quick and quiet: everything fades together, the
-   lines close, and the whole exit spends at most --dur-slow.
+   Entering is the signature moment — each band opens and then sweeps in
+   left to right, line by line, like a machine reading the poem. Leaving is
+   quick and quiet: everything fades together, the bands close, and the whole
+   exit spends at most --dur-slow.
    ========================================================================= */
 
 /* composes only here — declarations live in the layer below */
@@ -19,17 +27,14 @@
   composes: display from "./shared.module.css";
 }
 
-.voltaWord {
-  composes: display from "./shared.module.css";
-}
-
 @layer screens {
   .card {
     padding: var(--card-pad-top) var(--card-pad) var(--card-pad-bottom);
-    /* 24px between sections: the reader is one continuous document, so it
-       breathes tighter than the finder's sectioned form. Deliberate — see
-       02-tokens.md. */
-    gap: var(--space-6);
+    /* 40px between sections, the design's own rhythm (96:8637: rule to head,
+       head to rule, rule to verse are all 40). The reader used to breathe
+       tighter than the finder at 24; the pill row is a third thing in the
+       header now and wants the air. */
+    gap: var(--space-10);
   }
 
   /* ------------------------------- crumbs -------------------------------- */
@@ -56,6 +61,7 @@
     }
   }
 
+  /* the switch leads, the word follows — the design's order */
   .toggle {
     display: inline-flex;
     align-items: center;
@@ -120,7 +126,7 @@
   .head {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-6);
   }
 
   /* the poem's own name and its author, held together tighter than the
@@ -128,7 +134,7 @@
   .titles {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-3);
   }
 
   /* The poem's own name and its author speak in the poetry face, matching
@@ -150,8 +156,27 @@
     color: var(--color-text-secondary);
   }
 
-  /* Fine print: metadata under a title, the reader legend. Apparatus, so
-     Satoshi — this is the app describing the poem, not the poem speaking. */
+  /* The rhyme scheme wears the same pill as form and meter, but it is the
+     only one that holds a sequence rather than a name: the letters are
+     separate so each can answer a pointer. It is machinery, so it comes and
+     goes with the rest. */
+  .scheme {
+    gap: var(--space-1);
+    letter-spacing: var(--tracking-label);
+    opacity: 0;
+    animation: marksIn var(--dur-base) var(--ease-out) forwards;
+  }
+
+  .schemeLetter {
+    transition: color var(--dur-quick) var(--ease-std);
+  }
+
+  .schemeMore {
+    color: var(--color-text-tertiary);
+  }
+
+  /* Fine print: the reader legend. Apparatus, so Satoshi — this is the app
+     describing the poem, not the poem speaking. */
   .finePrint {
     font-family: var(--font-sans);
     font-size: var(--text-md);
@@ -160,43 +185,53 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* after .finePrint so its color wins */
-  .meta {
-    color: var(--color-text-tertiary);
-  }
-
   .themes {
     color: var(--color-text-tertiary);
   }
 
   /* -------------------------------- body --------------------------------- */
 
+  /* The reader's rhythm is the gap between line blocks, not leading inside
+     them (96:8668). A line block is its band plus its text set solid at the
+     display leading; the poem is those blocks 16px apart. A wrapped line
+     therefore sits closer to its own continuation than to the next line,
+     which is what it should do. */
   .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
     font-family: var(--font-serif);
     font-size: var(--text-lg);
     font-weight: var(--weight-regular);
-    line-height: var(--leading-verse);
-    padding-right: var(--rhyme-rail);
+    line-height: var(--leading-tight);
   }
 
+  /* three line-gaps: the stanza reads as a stanza without a token of its own */
   .stanzaBreak {
-    height: 1.25em;
+    height: var(--space-4);
   }
 
+  /* A line is its block and its rhyme tile, side by side. `stretch` is what
+     makes the tile as tall as whatever it sits beside — a one-line block, a
+     wrapped one, or the volta's whole box. */
   .line {
-    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .lineMain {
+    flex: 1 1 auto;
+    min-width: 0;
     white-space: pre-wrap;
+  }
+
+  /* The hanging indent belongs to the verse, not to the line box: the band
+     has to start where the line's first character starts, not two ems in. */
+  .lineText {
+    display: block;
     padding-left: 2em;
     text-indent: -2em; /* hanging indent on wrapped long lines */
-    transition: padding-top var(--dur-gentle) var(--ease-out);
-  }
-
-  .on .line {
-    padding-top: 0.75em; /* the poem opens up to make room for the marks */
-  }
-
-  .lineText {
-    text-indent: 0;
   }
 
   .w {
@@ -205,29 +240,49 @@
     text-indent: 0;
   }
 
-  /* ------------------------------ the marks ------------------------------ */
+  /* ------------------------------ the staff ------------------------------ */
 
-  /* The machine annotating the poem, so the marks speak Satoshi — one
-     annotation rung up from before, with the stress hierarchy carried by
-     weight and ink: a stressed beat is bold near-ink, a meter-inferred
-     syllable stays faint, a deviation is bold blue. */
-  .marks {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: calc(100% - 0.25em);
+  /* An `fr` row is the one height that animates honestly: 0fr → 1fr resolves
+     against the content, so the line opens to exactly the band it is making
+     room for and no magic height is written down anywhere. `justify-items`
+     keeps the band shrink-wrapped to its beats — a grid item would otherwise
+     stretch, and the band's length is the point. */
+  .staffWrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    justify-items: start;
+    transition: grid-template-rows var(--dur-gentle) var(--ease-out);
+  }
+
+  .on .staffWrap {
+    grid-template-rows: 1fr;
+  }
+
+  .staff {
     display: flex;
-    justify-content: space-around;
+    min-height: 0;
+    overflow: hidden;
+    padding-inline: var(--staff-inset);
+    background: var(--color-machinery-ground);
     font-family: var(--font-sans);
-    font-size: var(--annot-md);
-    font-weight: var(--weight-medium);
     line-height: var(--leading-solid);
-    color: var(--color-text-secondary);
+    text-indent: 0;
     user-select: none;
-    pointer-events: none;
     opacity: 0;
-    animation: marksIn var(--dur-base) var(--ease-out) forwards;
+    animation: staffIn var(--dur-base) var(--ease-out) forwards;
     animation-delay: calc(var(--li, 0) * var(--stagger-xs));
+  }
+
+  /* the machine reading the line, left to right */
+  @keyframes staffIn {
+    from {
+      opacity: 0;
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0);
+    }
   }
 
   @keyframes marksIn {
@@ -242,24 +297,42 @@
   }
 
   /* Leaving: no stagger, no ceremony — everything fades together while the
-     lines close underneath. Enter with character, exit with efficiency. */
+     bands close underneath. Enter with character, exit with efficiency. */
   @keyframes marksOut {
     from {
       opacity: 1;
-      transform: translateY(0);
     }
     to {
       opacity: 0;
-      transform: translateY(var(--space-1));
     }
   }
 
-  .closing .marks,
+  .closing .staff,
   .closing .rhyme,
+  .closing .scheme,
   .closing .voltaNote,
   .closing .legend,
   .closing .legendRule {
     animation: marksOut var(--dur-base) var(--ease-std) forwards;
+  }
+
+  /* One word's beats, kept together so a pointer can find them. */
+  .beatGroup {
+    display: inline-flex;
+  }
+
+  /* One syllable: a square cell at the fixed pitch, whatever the word under
+     it is doing. The stress hierarchy is carried by weight and ink — a
+     stressed beat is bold near-ink, a syllable read from the meter is
+     lighter and unbolded, a deviation is bold blue. --color-text-tertiary is
+     NOT licensed on this ground (4.47:1); see 02-tokens.md. */
+  .beat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--beat-pitch);
+    height: var(--beat-pitch);
+    font-size: var(--annot-md);
   }
 
   .firm {
@@ -268,11 +341,34 @@
   }
 
   .soft {
-    color: var(--color-text-tertiary);
+    font-weight: var(--weight-regular);
+    color: var(--color-text-secondary);
   }
 
   .dev {
     font-weight: var(--weight-bold);
+    color: var(--color-action);
+  }
+
+  /* The tie the fixed pitch gave up, handed back on hover: one rule under a
+     word and the same rule under its beats. An inset shadow rather than a
+     border, so nothing reflows under the pointer. Declared after .echo so it
+     wins the bottom edge of a word that is also an echo. */
+  .linked {
+    box-shadow: inset 0 calc(-1 * var(--stroke-strong)) 0 var(--color-text);
+  }
+
+  .schemeLetter.linked {
+    box-shadow: none;
+    color: var(--color-action);
+  }
+
+  .rhymeCell.linked {
+    box-shadow: none;
+    background: var(--color-surface-sunk-strong);
+  }
+
+  .rhymeCell.linked .rhyme {
     color: var(--color-action);
   }
 
@@ -295,65 +391,108 @@
     user-select: none;
   }
 
-  /* Bottom-anchored so it rides the line-opening for free (padding grows at
-     the top), and on a wrapped line it sits beside the last visual line —
-     where the rhyme actually sounds. 1.25em reproduces the letter's resting
-     place beside a single line. It enters on the same stagger as the marks. */
+  /* The rhyme letter is a tile at the right edge of the measure, not a mark
+     floating outboard of it. Vertical rules only: the column reads as one
+     ruled edge that the 16px line gaps cut into tiles. The slot is always
+     there; only the fill and the letter come and go with the machinery, so
+     the verse never re-wraps on a toggle. */
+  .rhymeCell {
+    flex: 0 0 var(--rhyme-cell);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-inline: var(--stroke-hairline) solid transparent;
+    transition: background var(--dur-quick) var(--ease-std),
+      border-color var(--dur-quick) var(--ease-std);
+  }
+
+  .rhymeFilled {
+    background: var(--color-surface-sunk);
+    border-inline-color: var(--color-border-tag);
+  }
+
   .rhyme {
-    position: absolute;
-    right: calc(-1 * var(--rhyme-rail));
-    bottom: 1.25em;
-    font-size: var(--annot-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     line-height: var(--leading-solid);
-    color: var(--color-text-secondary);
+    color: var(--color-text);
     text-indent: 0;
     opacity: 0;
     animation: marksIn var(--dur-base) var(--ease-out) forwards;
     animation-delay: calc(var(--li, 0) * var(--stagger-xs));
+    transition: color var(--dur-quick) var(--ease-std);
   }
 
+  /* a letter that never recurs is not a rhyme yet — stone-600, because
+     stone-500 misses AA on the tile's stone-100 ground (4.40:1) */
   .rhymeLone {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
   }
 
   /* -------------------------------- volta --------------------------------- */
 
-  .voltaLine::before {
-    content: "";
-    position: absolute;
-    left: -1.25em;
-    top: 0.25em;
-    bottom: 0.25em;
-    border-left: var(--stroke-strong) solid transparent;
-    transition: border-color var(--dur-gentle) var(--ease-std);
+  /* The turn is the only device that gets a box, and it is the SAME box as
+     the line — the note is simply one more thing inside the line's block, so
+     the rhyme tile beside it stretches to the whole thing for free.
+
+     Amber, not blue. Blue already means two things in this screen (the app
+     acting, and a syllable read against the meter); the turn is neither of
+     those, and it is the poem's own event rather than the machine's, so it
+     leaves the mint alone too. */
+  .volta {
+    border-left: var(--stroke-accent) solid transparent;
+    transition: background var(--dur-gentle) var(--ease-std),
+      border-color var(--dur-gentle) var(--ease-std),
+      padding var(--dur-gentle) var(--ease-out);
   }
 
-  .on .voltaLine::before {
-    border-color: var(--color-action);
+  /* `.on` only, not `.closing`: the box starts collapsing the moment the exit
+     begins, so it lands inside --dur-slow with everything else rather than
+     trailing --dur-gentle behind it. */
+  .on .volta {
+    background: var(--color-volta-ground);
+    border-left-color: var(--color-volta-accent);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .voltaNoteWrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--dur-gentle) var(--ease-out);
+  }
+
+  .on .voltaNoteWrap {
+    grid-template-rows: 1fr;
   }
 
   .voltaNote {
-    display: none;
-    font-size: var(--annot-lg);
-    font-weight: var(--weight-medium);
+    overflow: hidden;
+    min-height: 0;
+    padding-bottom: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
     line-height: var(--leading-ui);
-    color: var(--color-action);
-    text-indent: 0;
+    white-space: normal;
   }
 
-  .on .voltaNote,
-  .closing .voltaNote {
+  .voltaLabel {
     display: block;
-    margin: 0.25em 0 1em; /* clear the stress marks of the line below */
-    max-width: 34em;
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-3);
   }
 
-  .voltaWord {
-    font-size: var(--annot-lg);
+  /* stored lowercase because the device names read as prose elsewhere; the
+     label raises the first letter rather than the data carrying two spellings
+     (the finder's chips do the same) */
+  .voltaLabel::first-letter {
     text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    margin-right: 0.5em;
+  }
+
+  .voltaWhy {
+    color: var(--color-text-secondary);
+    max-width: 60ch;
   }
 
   /* ------------------------------- legend --------------------------------- */
@@ -385,20 +524,36 @@
   }
 
   /* 480: the rhyme rail has nowhere left to go, and the verse steps down a
-     rung — the hanging indent narrows with it so the measure survives. */
+     rung — the hanging indent narrows with it so the measure survives, and
+     --beat-pitch steps down alongside (tokens.css). A band longer than the
+     measure wraps rather than clips: the pitch survives, the single row does
+     not. */
   @media (max-width: 480px) {
     .body {
       font-size: var(--text-md);
-      padding-right: 0;
     }
 
-    .line {
+    .lineText {
       padding-left: 1.5em;
       text-indent: -1.5em;
     }
 
-    .rhyme {
+    .staff {
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    /* the tile gives its slot back to the measure, gap and all */
+    .rhymeCell {
       display: none;
+    }
+
+    .line {
+      gap: 0;
+    }
+
+    .on .volta {
+      padding: var(--space-3) var(--space-4);
     }
   }
 }

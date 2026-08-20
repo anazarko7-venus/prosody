@@ -365,8 +365,8 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
                       <span className={styles.listTitle}>{p.title}</span>
                       <span className={styles.listBy}>{p.author}</span>
                       <span className={styles.listTags}>
-                        <span className={styles.tag}>{label(p.form)}</span>
-                        <span className={styles.tag}>{label(p.meter)}</span>
+                        <span className={shared.tag}>{label(p.form)}</span>
+                        <span className={shared.tag}>{label(p.meter)}</span>
                       </span>
                     </Link>
                   </li>

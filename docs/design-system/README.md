@@ -9,8 +9,10 @@ The system is the one drawn in Figma, file `GbaOppKpsNi6ZL4VrVCVOO`
 
 - [`85:7138` — Prosody](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=85-7138), the finder at rest
 - [`86:7476` — Prosody List](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=86-7476), the finder after search
+- [`96:8637` — Prosody Poem](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8637), the reader with the machinery on
+- [`96:8668` — the reader's verse](https://www.figma.com/design/GbaOppKpsNi6ZL4VrVCVOO/Portfolio?node-id=96-8668), which supersedes `96:8637` for everything below the second rule: the line gap, the rhyme tile, and the volta in amber
 
-Where the two disagree, the later frame wins: `86:7476` moved the field
+Where the two finder frames disagree, the later frame wins: `86:7476` moved the field
 labels, the tagline and the titles from Gulax and Satoshi to EB Garamond,
 lowercased the wordmark and the actions, added the `clear` action, and split
 the results into their own card. Where this document and Figma disagree, Figma
@@ -42,7 +44,7 @@ Each face has a job, and the jobs are about *who is speaking*.
 
 | Face | Token | What it is allowed to say |
 |---|---|---|
-| **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else. One weight — do not ask for a second. Set lowercase, as the design sets it. |
+| **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else — the reader's `volta` label used to be the exception and was moved to Satoshi in August 2026, where a machine's label belongs. One weight — do not ask for a second. Set lowercase, as the design sets it. |
 | **EB Garamond** | `--font-serif` | The poetry speaking: the verse itself, and everything that names a property of a poem — field labels (`Form:`, `Era:`), poem titles, authors. Self-hosted variable, 400–800. |
 | **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem — and the stress marks, which are the machine annotating the verse. Three shipped masters {400, 500, 700}; `font-synthesis` is off, so those three are all there is. |
 
@@ -56,6 +58,69 @@ The line to hold: **Garamond labels the material, Satoshi labels the machine.**
 "Form:" is Garamond because it names something the poem has. "rhymed stanzas"
 on a result-row tag is Satoshi because it is the index reporting. When you add
 a string, ask which of the two it is.
+
+## <a id="the-four-hues"></a>The four hues
+
+The palette answers the same question the faces do — *who is speaking* — with
+one hue each.
+
+| Hue | Role tokens | Speaks for |
+|---|---|---|
+| warm grey (stone) | `--color-bg`, `--color-surface`, `--color-rule`, `--color-grid`, the rhyme tile, the text ramp | the page and its furniture |
+| blue-600 | `--color-action`, `--color-focus`, `--color-selection` | the app acting — and, in the staff, a syllable read *against* the meter |
+| mint-100 | `--color-machinery-ground` | the machine's reading, laid over the poem: the scansion staff's band |
+| amber-500 | `--color-volta-ground`, `--color-volta-accent` | the poem's own event: the turn |
+
+The system had two hues until the reader arrived in August 2026. Mint and
+amber are both the design's own values, and both are argued rather than
+assumed, because each names a speaker the reader has to be able to tell apart
+at a glance: what the machine says about the poem, and what the poem does on
+its own.
+
+The volta was briefly blue — that is what `96:8637` drew — and `96:8668` moved
+it to amber. It had to move: blue already meant *the app is acting* and *this
+syllable goes against the meter*, and a volta box always contains a staff, so
+a blue box was sitting a blue deviation mark on a tint of itself. Full
+derivations, both composites and every licensed ink are in
+[`02-tokens.md`](02-tokens.md#the-annotation-hues).
+
+There is no fifth. If something needs to be told apart from these four, tell
+it apart with weight, size or position first.
+
+## The reader's staff
+
+Scansion does not float over the words. Each verse line carries a band above
+it holding **one square cell per syllable at a fixed pitch** — so a
+common-meter poem alternates a long band and a short one, eight beats against
+six, and rhythm can be read *down* the page rather than word by word.
+
+What the fixed pitch gives up is the tie between a mark and the syllable
+under it. The tie is handed back on demand: a word and its beats carry the
+same `data-w` inside their line, and one delegated pointer handler
+(`useHoverLink`, `Reader.tsx`) lights both. It is imperative on purpose — the
+poem must not re-render on a pointer move — and it is decoration over a
+display that is already complete, so it adds no tab stops and the staff stays
+`aria-hidden`.
+
+The band opens on an `0fr → 1fr` grid row, which is the one height that
+animates without a magic number in it: the row resolves against the content,
+so the line opens to exactly the band it is making room for. The band and the
+volta's note stay in the DOM while the machinery is off, empty and
+zero-height, because a row can only animate from a value it already had.
+
+**A line is a flex row: the block, then the tile.** The rhyme letter is not a
+mark floating outboard of the measure any more — it is a stone-100 tile at
+the measure's right edge, ruled on its two vertical edges so the column reads
+as one ruled strip that the line gaps cut into tiles. The tile is a flex
+sibling with `align-items: stretch`, which is what makes it exactly as tall
+as whatever it sits beside: a one-line block, a wrapped one, or the volta's
+whole box. Its slot is reserved whether or not it holds a letter, so toggling
+the machinery never re-wraps the verse.
+
+**The volta is the same box as its line**, not a wrapper around it — the note
+is one more thing inside the line's block. That is why the tile beside it
+stretches to the whole callout for free, and why there is no second layout to
+keep in step with the first.
 
 ## The page
 
@@ -88,7 +153,9 @@ or reintroduce motion, by construction. New global rules go inside
 `@layer base`; new module files wrap their rules in `@layer screens`.
 
 Fragments both screens draw — the section rule, the sr-only clip, the Gulax
-base — live once, in `components/shared.module.css`.
+base, the `.tag` pill and its row — live once, in
+`components/shared.module.css`. `.tag` moved there in August 2026 when the
+reader's header started drawing the same pill the finder's result rows do.
 
 ## The rules
 
@@ -111,7 +178,12 @@ base — live once, in `components/shared.module.css`.
 5. **Color licensing.** Text may only use tokens proven ≥4.5:1 on every
    background they sit on. `--color-text-tertiary` (stone-500) is licensed on
    `--color-surface` (white, 4.80:1) and **not** on `--color-bg` (stone-100,
-   4.40:1) — use `--color-text-secondary` there. `--color-grid`,
+   4.40:1) and **not** on `--color-machinery-ground` (mint, 4.46:1). It clears
+   AA on `--color-volta-ground` by a hundredth (4.50:1), which is not a margin
+   worth remembering an exception for, so the rule is simply: **stone-500 is
+   white-only.** This is why the staff's faint beat and the rhyme tile's lone
+   letter are stone-600 unbolded rather than stone-500 — off white the
+   hierarchy is carried by weight. `--color-grid`,
    `--color-rule`, `--color-border-tag` and `--color-border-ghost` are
    structurally non-text. `--color-text-index` (stone-400, 2.52:1 on white) is
    the one text token below the floor: it sets the result-row ordinal, which is
