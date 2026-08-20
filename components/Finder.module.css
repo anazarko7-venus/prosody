@@ -193,6 +193,16 @@
 
   /* -------------------------------- chips --------------------------------- */
 
+  /* chip fields want a touch more air above the chips than the dropdown's
+     label-to-control gap gives, since the chips carry more visual weight */
+  fieldset.field {
+    gap: var(--space-4);
+  }
+
+  fieldset.field > .label {
+    padding-bottom: var(--space-2-5);
+  }
+
   .chips {
     display: flex;
     flex-wrap: wrap;
