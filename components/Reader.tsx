@@ -117,23 +117,6 @@ export default function Reader({ poem }: { poem: Poem }) {
     []
   );
 
-  // The `m` shortcut is active only while reading — i.e. when no interactive
-  // control holds focus (document body is the default focus for the page).
-  // The moment a link, button, or field is focused it goes inactive, so it can
-  // never intercept a keystroke meant for a control. This "active only on
-  // focus" scoping (to the reading context) is the WCAG 2.1.4 escape hatch;
-  // the visible toggle is the always-available, fully-operable path.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() !== "m" || e.metaKey || e.ctrlKey || e.altKey) return;
-      const active = document.activeElement;
-      if (active && active !== document.body) return;
-      toggleMachinery();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [toggleMachinery]);
-
   const machinery = phase === "on"; // the poem's annotations follow the intent
   const mounted = phase !== "off"; // …but stay mounted while the exit plays
 
@@ -176,7 +159,6 @@ export default function Reader({ poem }: { poem: Poem }) {
             <span className={styles.switch} aria-hidden>
               <span className={styles.switchThumb} />
             </span>
-            <kbd className={styles.kbd}>m</kbd>
           </button>
         </nav>
 

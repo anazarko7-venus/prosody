@@ -80,14 +80,19 @@
   .switch {
     width: var(--switch-w);
     height: var(--switch-h);
-    border: var(--stroke-hairline) solid currentColor;
+    background: var(--color-border-input);
     border-radius: var(--radius-full);
     display: inline-flex;
     align-items: center;
     padding: var(--switch-inset);
     box-sizing: border-box;
     flex-shrink: 0;
-    transition: translate var(--dur-fast) var(--ease-std);
+    transition: background var(--dur-quick) var(--ease-std),
+      translate var(--dur-fast) var(--ease-std);
+  }
+
+  .toggle[aria-pressed="true"] .switch {
+    background: var(--color-text);
   }
 
   /* press = the design's 1px settle */
@@ -99,29 +104,15 @@
     width: var(--switch-knob);
     height: var(--switch-knob);
     border-radius: var(--radius-full);
-    background: currentColor;
+    background: var(--color-surface);
     transition: transform var(--dur-quick) var(--ease-out);
   }
 
   .toggle[aria-pressed="true"] .switchThumb {
     /* travel = inner width − knob (padding already holds the inset) */
     transform: translateX(
-      calc(
-        var(--switch-w) - 2 * var(--stroke-hairline) - 2 * var(--switch-inset) -
-          var(--switch-knob)
-      )
+      calc(var(--switch-w) - 2 * var(--switch-inset) - var(--switch-knob))
     );
-  }
-
-  .kbd {
-    font-family: var(--font-sans);
-    font-size: var(--text-md);
-    font-weight: var(--weight-medium);
-    border: var(--stroke-hairline) solid var(--color-rule);
-    border-radius: var(--radius-sm);
-    padding: 0 var(--space-1);
-    color: var(--color-text-tertiary);
-    line-height: var(--leading-tight);
   }
 
   /* -------------------------------- head --------------------------------- */
