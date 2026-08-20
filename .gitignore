@@ -8,3 +8,5 @@ out/
 
 # local env (the app has no environment variables at present)
 .env*.local
+.vercel
+.env*
