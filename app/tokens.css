@@ -1,3 +1,10 @@
+/* Cascade order, declared once, first thing the app loads: `base` is the
+   reset and element defaults (globals.css), `screens` is every component
+   module. Later layers beat earlier ones regardless of link order — and the
+   two unlayered invariants in globals.css (:focus-visible, reduced motion)
+   beat both, so no module rule can ever swallow the focus ring again. */
+@layer base, screens;
+
 /* ============================================================================
    Prosody design tokens — three layers.
 
@@ -40,19 +47,18 @@
   --stone-600: #57534e; /* 7.63:1 on white, 6.99:1 on stone-100 */
   --stone-900: #1c1917; /* 17.49:1 on white, 16.03:1 on stone-100 */
   --white: #ffffff; /* the card face */
-  --neutral-200: #e5e5e5; /* control hairline (see note in 02-tokens.md) */
   --blue-600: #0040ff; /* 6.61:1 on white, 6.06:1 on stone-100 */
 
   /* alpha primitives, keyed to black so tints stay neutral */
   --black-alpha-10: rgba(0, 0, 0, 0.1);
   --blue-alpha-08: rgba(0, 64, 255, 0.08);
 
-  /* base unit: 4px */
-  --unit: 0.25rem;
-
-  /* easing curves */
+  /* easing curves. --curve-out is the entrance: it arrives and stops.
+     --curve-std is --curve-out with its exit softened to mirror its entry —
+     kin by construction — for reversible state changes (hover, press,
+     tints), which must read well run in either direction. */
   --curve-out: cubic-bezier(0.2, 0, 0, 1);
-  --curve-std: ease;
+  --curve-std: cubic-bezier(0.2, 0, 0.2, 1);
 
   /* ------------------------------------------------------------------ */
   /* 2 · SEMANTIC — spatial scale (n × 4px, bounded)                    */
@@ -62,11 +68,9 @@
   --space-2-5: 0.625rem; /* 10px — the one half-step: control inset */
   --space-3: 0.75rem; /* 12px */
   --space-4: 1rem; /* 16px */
-  --space-5: 1.25rem; /* 20px */
   --space-6: 1.5rem; /* 24px */
   --space-8: 2rem; /* 32px */
   --space-10: 2.5rem; /* 40px */
-  --space-12: 3rem; /* 48px */
   --space-16: 4rem; /* 64px */
   --space-20: 5rem; /* 80px */
 
@@ -77,9 +81,9 @@
                         remainder, not a measure: it is the minmax() floor of
                         a 1fr track, so it sets nothing else's rhythm. */
 
-  /* interactive target minimums */
+  /* interactive target minimum. (The WCAG 2.2 AA floor of 24px is recorded
+     in docs/design-system/README.md; nothing in the design sits near it.) */
   --target-min: 2.5rem; /* 40px — every control in the design */
-  --target-dense: 24px; /* WCAG 2.2 AA floor; nothing may go below it */
 
   /* type scale — 16px base × 1.25, rounded to whole px.
      raw: 16 · 20 · 25 · 31.25 · 39.06 · 48.83 */
@@ -90,7 +94,7 @@
   --text-lg: 1.25rem; /* 20px — field labels, verse, list titles */
   --text-xl: 1.5625rem; /* 25px — the action */
   --text-2xl: 1.9375rem; /* 31px — reader title */
-  --text-3xl: 2.4375rem; /* 39px — reader title, wide */
+  --text-3xl: 2.4375rem; /* 39px — the wordmark, compact viewports */
   --text-4xl: 3.0625rem; /* 49px — the wordmark */
 
   /* annotation sizes: negative powers of the ratio, em-relative to the
@@ -105,16 +109,15 @@
   --leading-ui: 1.5; /* ≤20px UI text */
   --leading-verse: 1.75; /* the reader body */
 
-  /* weight — Satoshi is a five-master family, not a variable font.
-     Only these five values exist; anything else is synthesised, and
-     font-synthesis is off. */
-  --weight-light: 300;
+  /* weight — only values a shipped face actually renders. Satoshi is a
+     static-master family (Regular / Medium / Bold shipped; font-synthesis
+     is off, so an unlisted weight would silently clamp). EB Garamond is
+     variable 400–800; Gulax has one weight. */
   --weight-regular: 400;
   --weight-medium: 500; /* the design's default for everything sans */
   --weight-semibold: 600; /* EB Garamond only — the variable serif reaches it;
                              the result-row title is set here. */
-  --weight-bold: 700;
-  --weight-black: 900;
+  --weight-bold: 700; /* Satoshi Bold: the stressed beat in the machinery */
 
   /* tracking — the design tracks its 20px labels +0.16px = 0.008em */
   --tracking-label: 0.008em;
@@ -134,7 +137,7 @@
   --color-action: var(--blue-600);
   --color-rule: var(--stone-300); /* section rules inside the card */
   --color-grid: var(--stone-300); /* the page grid, decorative */
-  --color-border-input: var(--neutral-200);
+  --color-border-input: var(--stone-200);
   --color-border-hover: var(--stone-500);
   --color-border-tag: var(--stone-200); /* result-row form/meter tags */
   --color-border-ghost: var(--stone-100); /* the clear action's outline */
@@ -154,12 +157,14 @@
      the ground by the grid, not by a shadow. */
   --shadow-control: 0 1px 2px var(--black-alpha-10);
 
-  /* motion: durations (bounded set), staggers (n × 20ms), easings */
-  --dur-fast: 120ms;
-  --dur-quick: 160ms;
-  --dur-base: 240ms;
-  --dur-gentle: 320ms;
-  --dur-slow: 480ms;
+  /* motion: durations (bounded set, each with a job), staggers (n × 20ms),
+     easings */
+  --dur-fast: 120ms; /* press feedback: the 1px settle */
+  --dur-quick: 160ms; /* color, border and background state changes */
+  --dur-base: 240ms; /* entrances and exits: marks, the results card */
+  --dur-gentle: 320ms; /* the poem opening and closing; the volta rule */
+  --dur-slow: 480ms; /* the machinery exit's total budget (Reader.tsx
+                        reads this for its unmount timer) */
   --stagger-xs: 20ms;
   --ease-out: var(--curve-out);
   --ease-std: var(--curve-std);
@@ -206,6 +211,14 @@
   --switch-inset: 2px; /* stroke-level inset (half-step class) */
 }
 
+/* mid viewports: the flanks have collapsed and the column is the page, so
+   the card loosens its 64px desktop insets a step before things tighten. */
+@media (max-width: 960px) {
+  :root {
+    --card-pad: var(--space-10);
+  }
+}
+
 /* compact viewports: the card runs edge to edge, so the page gutter becomes
    the card's own inset, and the grid band shrinks to a header-height strip. */
 @media (max-width: 640px) {
@@ -222,7 +235,9 @@
 
 /* Breakpoints (CSS custom properties cannot drive @media; these are the
    system's constants, restated wherever used):
-   480px — reader rhyme rail hidden
+   480px — reader rhyme rail hidden; the verse steps down a rung
    640px — compact layout: card inset drops to 24px, fields stack
    960px — the 912px column stops being a column and becomes the page
+           (flex collapse needs no query for that; the query drops the
+           finder's field grid to two-up before values start to ellipsise)
    All are ÷4. Do not introduce others. */

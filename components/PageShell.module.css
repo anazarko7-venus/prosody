@@ -13,54 +13,56 @@
    needed — and the column becomes the page.
    ========================================================================= */
 
-.page {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+@layer screens {
+  .page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* An empty band of ruled ground. Grows to fill the viewport when the content
-   is short, floors at --band when it is not. */
-.band {
-  flex: 1 1 auto;
-  min-height: var(--band);
-  display: flex;
-}
+  /* An empty band of ruled ground. Grows to fill the viewport when the
+     content is short, floors at --band when it is not. */
+  .band {
+    flex: 1 1 auto;
+    min-height: var(--band);
+    display: flex;
+  }
 
-.row {
-  display: flex;
-  align-items: stretch;
-}
+  .row {
+    display: flex;
+    align-items: stretch;
+  }
 
-.flank {
-  flex: 1 1 0;
-  min-width: 0;
-}
+  .flank {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 
-.flankRule {
-  border-left: var(--stroke-hairline) solid var(--color-grid);
-}
+  .flankRule {
+    border-left: var(--stroke-hairline) solid var(--color-grid);
+  }
 
-/* the horizontals that run out from a card's top and bottom edges */
-.flankBlock {
-  border-block: var(--stroke-hairline) solid var(--color-grid);
-}
+  /* the horizontals that run out from a card's top and bottom edges */
+  .flankBlock {
+    border-block: var(--stroke-hairline) solid var(--color-grid);
+  }
 
-.bandColumn {
-  flex: 0 1 var(--column);
-  width: var(--column);
-  min-width: 0;
-  border-inline: var(--stroke-hairline) solid var(--color-grid);
-}
+  .bandColumn {
+    flex: 0 1 var(--column);
+    width: var(--column);
+    min-width: 0;
+    border-inline: var(--stroke-hairline) solid var(--color-grid);
+  }
 
-/* Any card in the column: the white face and its box. What goes inside is the
-   screen's business, not the shell's. */
-.column {
-  flex: 0 1 var(--column);
-  width: var(--column);
-  min-width: 0;
-  background: var(--color-surface);
-  border: var(--stroke-hairline) solid var(--color-grid);
-  display: flex;
-  flex-direction: column;
+  /* Any card in the column: the white face and its box. What goes inside is
+     the screen's business, not the shell's. */
+  .column {
+    flex: 0 1 var(--column);
+    width: var(--column);
+    min-width: 0;
+    background: var(--color-surface);
+    border: var(--stroke-hairline) solid var(--color-grid);
+    display: flex;
+    flex-direction: column;
+  }
 }

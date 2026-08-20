@@ -7,9 +7,9 @@
    else. It has one weight. Do not ask it for a second.
 
    SATOSHI — Indian Type Foundry. A neo-grotesque with a tall x-height and
-   near-closed apertures; it holds at 16px in a control. Five masters, no
-   variable axis, so the weight token set is exactly {300, 400, 500, 700, 900}
-   and font-synthesis is off.
+   near-closed apertures; it holds at 16px in a control. Static masters, no
+   variable axis: the shipped set is exactly {400, 500, 700} — only weights
+   something on a screen actually speaks — and font-synthesis is off.
 
    EB GARAMOND — Georg Duffner / Octavio Pardo (SIL OFL), self-hosted variable.
    The voice of the poetry: the verse itself, and everything that names a
@@ -26,13 +26,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Satoshi";
-  src: url("/fonts/Satoshi-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
 @font-face {
   font-family: "Satoshi";
   src: url("/fonts/Satoshi-Regular.woff2") format("woff2");
@@ -54,14 +47,6 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Satoshi";
-  src: url("/fonts/Satoshi-Black.woff2") format("woff2");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @font-face {
   font-family: "EB Garamond";
   src: url("/fonts/EBGaramond-Variable-ext.woff2") format("woff2");
@@ -104,6 +89,11 @@
 }
 
 /* ------------------------------------------------------------------------ */
+
+/* Everything below sits in the `base` layer (order declared in tokens.css):
+   element defaults every screen builds on. Component modules live in the
+   `screens` layer and beat this by layer order, never by link order. */
+@layer base {
 
 :root {
   color-scheme: light;
@@ -161,40 +151,18 @@ button {
   background: var(--color-selection);
 }
 
+} /* @layer base */
+
+/* ------------------------------------------------------------------------ */
+/* Accessibility invariants — deliberately UNLAYERED, so they outrank every
+   layered rule regardless of specificity or stylesheet order. No component
+   may contest these.                                                       */
+
+/* The ring rides each element's own border-radius (box-shadow follows it),
+   so no radius is imposed here. */
 :focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-/* The field label. Set in the poetry face, sentence case, and always
-   followed by its colon in the markup — never faked with a pseudo-element. */
-.label {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text);
-}
-
-/* Fine print: metadata under a title, the reader legend. Apparatus, so
-   Satoshi — this is the app describing the poem, not the poem speaking. */
-.tag {
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,34 @@
+/* ============================================================================
+   Shared fragments — the pieces both screens draw.
+
+   Kept deliberately small: a class earns a place here only when two modules
+   would otherwise carry identical copies. Everything else stays with its
+   screen.
+   ========================================================================= */
+
+@layer screens {
+  /* A hairline section rule inside a card. */
+  .rule {
+    border: 0;
+    border-top: var(--stroke-hairline) solid var(--color-rule);
+  }
+
+  /* Visually hidden, still read by assistive tech. */
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* The Gulax base — the application's voice. Weight is explicit so the
+     fallback faces (which do carry other weights) render one weight during
+     font swap, not two. Gulax itself is single-master. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-tight);
+  }
+}

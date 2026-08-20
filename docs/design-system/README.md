@@ -30,8 +30,11 @@ is right and this document is stale — fix it here.
   horizontal inset of a control, taken from the design.
 - **Type ratio: 1.25** from a 16px base, rounded to whole pixels:
   **16 · 20 · 25 · 31 · 39 · 49**.
-- **Breakpoints: 480 / 640** — the only raw px values allowed in components,
-  because CSS can't tokenize `@media`.
+- **Breakpoints: 480 / 640 / 960** — the only raw px values allowed in
+  components, because CSS can't tokenize `@media`. 480 hides the rhyme rail
+  and steps the verse down; 640 is the compact layout; 960 (≈ the 912px
+  column plus its hairlines) loosens the finder's field grid to two-up and
+  drops the card insets a step.
 
 ## <a id="the-faces"></a>The three faces
 
@@ -41,7 +44,7 @@ Each face has a job, and the jobs are about *who is speaking*.
 |---|---|---|
 | **Gulax** | `--font-display` | The application speaking: the wordmark, the two actions, the results heading, the reader's home link. Nothing else. One weight — do not ask for a second. Set lowercase, as the design sets it. |
 | **EB Garamond** | `--font-serif` | The poetry speaking: the verse itself, and everything that names a property of a poem — field labels (`Form:`, `Era:`), poem titles, authors. Self-hosted variable, 400–800. |
-| **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem. Five masters {300, 400, 500, 700, 900}; `font-synthesis` is off, so those five are all there is. |
+| **Satoshi** | `--font-sans` | The apparatus: control values, chips, result-row tags, metadata *about* a poem — and the stress marks, which are the machine annotating the verse. Three shipped masters {400, 500, 700}; `font-synthesis` is off, so those three are all there is. |
 
 Monofett was a fourth face, setting counts as stamped slabs. It lost its last
 job when the chip count moved inline (`Victorian (72)`, one Satoshi run) and
@@ -73,14 +76,28 @@ an element the card. Each hairline is drawn exactly once — only the inner cell
 of each flank pair rules, because the column's own border draws the boundary
 beside it — and that invariant only survives if there is one copy of it.
 
+## The cascade
+
+Two named layers, declared once at the top of `tokens.css`: `base` (the reset
+and element defaults, in `globals.css`) and `screens` (every component
+module). Later beats earlier by declaration, so no rule's fate depends on
+stylesheet link order. Two invariants stay **unlayered** in `globals.css` —
+`:focus-visible` and the `prefers-reduced-motion` block — because unlayered
+styles beat every layered one: no component rule can swallow the focus ring
+or reintroduce motion, by construction. New global rules go inside
+`@layer base`; new module files wrap their rules in `@layer screens`.
+
+Fragments both screens draw — the section rule, the sr-only clip, the Gulax
+base — live once, in `components/shared.module.css`.
+
 ## The rules
 
 1. **No magic numbers in components.** Every value in a `*.module.css` or
    component file is a `var(--…)` from the semantic or component layer.
    No hex, no raw px/rem/ms/deg, no raw `cubic-bezier`.
-2. **Never reference primitives** (`--stone-900`, `--blue-600`, `--unit`,
-   `--curve-*`) outside `tokens.css`. If a role you need doesn't exist,
-   that's a token-layer change, reviewed as one.
+2. **Never reference primitives** (`--stone-900`, `--blue-600`, `--curve-*`)
+   outside `tokens.css`. If a role you need doesn't exist, that's a
+   token-layer change, reviewed as one.
 3. **No new tokens without a derivation.** A spatial token must be n × 4px;
    a type size must be a rounded power of 1.25; a duration must come from the
    five-step set. If your value doesn't derive, the value is wrong — or the
@@ -102,18 +119,19 @@ beside it — and that invariant only survives if there is one copy of it.
    rather than licensed. It may not be used for anything a reader must read. Adding a color pair means adding
    its computed ratio to [`02-tokens.md`](02-tokens.md).
 6. **Accessibility is load-bearing.** Every interactive element keeps the
-   `--focus-ring`; every control is `--target-min` (40px) tall and separated
+   `--focus-ring` (enforced structurally: the ring is unlayered, see *The
+   cascade*); every control is `--target-min` (40px) tall and separated
    from its neighbours by at least `--space-2`, so nothing goes near the
-   `--target-dense` (24px) WCAG 2.2 floor; `prefers-reduced-motion` zeroes
-   durations *and delays*; semantic HTML before ARIA — the three dropdowns are
-   native `<select>`s and the chip fields are `<fieldset>`s of `aria-pressed`
+   24px WCAG 2.2 AA floor; `prefers-reduced-motion` zeroes durations *and
+   delays*; semantic HTML before ARIA — the three dropdowns are native
+   `<select>`s and the chip fields are `<fieldset>`s of `aria-pressed`
    buttons.
 7. **State lives in the URL.** A search is a link. Anything a filter changes
    goes through `setParam`, never into component state.
 
 ## Known, deliberately open items
 
-- **Control borders are below 3:1.** `--color-border-input` is `#e5e5e5`
+- **Control borders are below 3:1.** `--color-border-input` is stone-200
   (1.26:1 on white), `--color-grid` is stone-300 (1.49:1), `--color-border-tag`
   is stone-200 (1.26:1), and `--color-border-ghost` — the `clear` action's
   outline — is stone-100 (1.09:1), effectively invisible. All four are the
@@ -121,6 +139,6 @@ beside it — and that invariant only survives if there is one copy of it.
   control, so the dropdowns rely on their shadow, radius and caret, and the
   ghost action relies on its word. Raising `--color-border-input` and
   `--color-border-ghost` to about `#949494` would clear 3:1 and is a two-token
-  change; it visibly hardens the design, so it is the designer's call, not a
-  silent fix.
+  change; it visibly hardens the design. **Decided August 2026: the borders
+  stay soft.** The item stays recorded so the trade-off stays a decision.
 - Light scheme only; a dark palette would need its own contrast table.
