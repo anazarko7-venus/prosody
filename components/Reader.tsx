@@ -10,7 +10,7 @@ import shared from "./shared.module.css";
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
 const STRONG_PUNCT = /[;:.!?—]/;
 
-type Mark = { ch: string; cls: "firm" | "soft" | "dev" };
+type Mark = { ch: string };
 
 type WordSeg = {
   kind: "word";
@@ -26,18 +26,16 @@ type Segment = { kind: "text"; text: string } | WordSeg;
 function marksForWord(
   token: ScanToken,
   startSyl: number,
-  foot: string | undefined,
-  deviations: Set<number>
+  foot: string | undefined
 ): Mark[] {
   return token.s.split("").map((s, k) => {
     const syl = startSyl + k;
     const templ = foot ? (foot[syl % foot.length] === "1" ? "/" : "×") : null;
     if (s === "1" || s === "0") {
-      const ch = s === "1" ? "/" : "×";
-      return { ch, cls: deviations.has(syl) ? "dev" : "firm" } as Mark;
+      return { ch: s === "1" ? "/" : "×" };
     }
     // flexible syllable: read it the way the meter asks
-    return { ch: templ ?? "·", cls: "soft" } as Mark;
+    return { ch: templ ?? "·" };
   });
 }
 
@@ -259,7 +257,6 @@ export default function Reader({ poem }: { poem: Poem }) {
             if (!line.trim()) return <div key={i} className={styles.stanzaBreak} />;
             const n = i + 1;
             const segments = segmentLine(line, poem.scansion[i] ?? []);
-            const devs = new Set(poem.deviations[i] ?? []);
             const anaphSpan = anaphora.get(n);
             const stagger = Math.min(visIdx++, 24); // steps of --stagger-xs (tokens.css)
             const letter = poem.rhyme_scheme[i];
@@ -300,12 +297,9 @@ export default function Reader({ poem }: { poem: Poem }) {
                           className={styles.beatGroup}
                           data-w={seg.wordNo}
                         >
-                          {marksForWord(seg.token, seg.startSyl, foot, devs).map(
+                          {marksForWord(seg.token, seg.startSyl, foot).map(
                             (mk, k) => (
-                              <span
-                                key={k}
-                                className={`${styles.beat} ${styles[mk.cls]}`}
-                              >
+                              <span key={k} className={styles.beat}>
                                 {mk.ch}
                               </span>
                             )
@@ -395,16 +389,7 @@ export default function Reader({ poem }: { poem: Poem }) {
           <>
             <hr className={`${shared.rule} ${styles.legendRule}`} />
             <footer className={styles.legend}>
-              <span className={styles.finePrint}>
-                / stressed&ensp;× unstressed&ensp;
-                <span className={styles.legendSoft}>
-                  faint = read from the meter
-                </span>
-                &ensp;
-                <span className={styles.legendDev}>
-                  marked = against the meter
-                </span>
-              </span>
+              <span className={styles.finePrint}>/ stressed&ensp;× unstressed</span>
               <span className={styles.finePrint}>
                 <span className={styles.legendSoft}>
                   Point at a word and its beats light with it; point at a letter

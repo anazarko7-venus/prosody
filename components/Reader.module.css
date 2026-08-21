@@ -303,11 +303,8 @@
   }
 
   /* One syllable: a square cell at the fixed pitch, whatever the word under
-     it is doing. Every mark is bold at the same size; the stress hierarchy
-     is carried by ink alone — a stressed beat is near-ink, a syllable read
-     from the meter is secondary ink, a deviation is blue.
-     --color-text-tertiary is NOT licensed on this ground (4.47:1); see
-     02-tokens.md. */
+     it is doing. Every mark is bold, the same size, and the same ink —
+     stressed and unstressed read apart by glyph (/ vs ×) alone, not color. */
   .beat {
     display: inline-flex;
     align-items: center;
@@ -316,18 +313,7 @@
     height: var(--beat-pitch);
     font-size: var(--text-md);
     font-weight: var(--weight-bold);
-  }
-
-  .firm {
     color: var(--color-text);
-  }
-
-  .soft {
-    color: var(--color-text-secondary);
-  }
-
-  .dev {
-    color: var(--color-action);
   }
 
   /* The tie the fixed pitch gave up, handed back on hover: one rule under a
@@ -480,10 +466,6 @@
 
   .legendSoft {
     color: var(--color-text-tertiary);
-  }
-
-  .legendDev {
-    color: var(--color-action);
   }
 
   /* ------------------------------ responsive ------------------------------ */
