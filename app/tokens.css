@@ -55,6 +55,7 @@
                            are argued in README and licensed in 02-tokens.md. */
 
   /* alpha primitives, keyed to black so tints stay neutral */
+  --black-alpha-05: rgba(0, 0, 0, 0.05);
   --black-alpha-10: rgba(0, 0, 0, 0.1);
   --blue-alpha-08: rgba(0, 64, 255, 0.08);
   --amber-alpha-10: rgba(255, 178, 0, 0.1); /* → #fff7e6 on the card */

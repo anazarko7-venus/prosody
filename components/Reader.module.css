@@ -156,19 +156,34 @@
     color: var(--color-text-secondary);
   }
 
-  /* The rhyme scheme wears the same pill as form and meter, but it is the
-     only one that holds a sequence rather than a name: the letters are
-     separate so each can answer a pointer. It is machinery, so it comes and
-     goes with the rest. */
+  /* The rhyme scheme reads as a strip of joined tiles, not the same pill as
+     form and meter: it is the only one holding a sequence rather than a
+     name, and the tile is the rail's own vocabulary (.rhymeCell) brought up
+     to the header so the two answer each other at a glance (96:8658). It is
+     machinery, so it comes and goes with the rest. */
   .scheme {
+    display: inline-flex;
+    flex-wrap: wrap;
     gap: var(--space-1);
-    letter-spacing: var(--tracking-label);
     opacity: 0;
     animation: marksIn var(--dur-base) var(--ease-out) forwards;
   }
 
   .schemeLetter {
-    transition: color var(--dur-quick) var(--ease-std);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tag-h);
+    height: var(--tag-h);
+    background: var(--color-surface-sunk);
+    border-inline: var(--stroke-hairline) solid var(--color-border-tag);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.12em; /* 1.68px at 14px (96:8658) */
+    color: var(--color-text);
+    transition: color var(--dur-quick) var(--ease-std),
+      background var(--dur-quick) var(--ease-std);
   }
 
   .schemeMore {
@@ -264,6 +279,7 @@
     overflow: hidden;
     padding-inline: var(--staff-inset);
     background: var(--color-machinery-ground);
+    border-block: var(--stroke-hairline) solid var(--black-alpha-05);
     font-family: var(--font-sans);
     line-height: var(--leading-solid);
     text-indent: 0;
@@ -359,6 +375,7 @@
 
   .schemeLetter.linked {
     box-shadow: none;
+    background: var(--color-surface-sunk-strong);
     color: var(--color-action);
   }
 
