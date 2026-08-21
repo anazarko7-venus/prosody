@@ -9,11 +9,8 @@ import shared from "./shared.module.css";
 
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
 const STRONG_PUNCT = /[;:.!?—]/;
-/** The rhyme pill is an overview, not a transcript: past this the rail carries
- *  the rest. The corpus runs to 113 letters (The Raven). */
-const SCHEME_MAX = 32;
 
-type Mark = { ch: string; cls: "firm" | "soft" | "dev" };
+type Mark = { ch: string };
 
 type WordSeg = {
   kind: "word";
@@ -29,18 +26,16 @@ type Segment = { kind: "text"; text: string } | WordSeg;
 function marksForWord(
   token: ScanToken,
   startSyl: number,
-  foot: string | undefined,
-  deviations: Set<number>
+  foot: string | undefined
 ): Mark[] {
   return token.s.split("").map((s, k) => {
     const syl = startSyl + k;
     const templ = foot ? (foot[syl % foot.length] === "1" ? "/" : "×") : null;
     if (s === "1" || s === "0") {
-      const ch = s === "1" ? "/" : "×";
-      return { ch, cls: deviations.has(syl) ? "dev" : "firm" } as Mark;
+      return { ch: s === "1" ? "/" : "×" };
     }
     // flexible syllable: read it the way the meter asks
-    return { ch: templ ?? "·", cls: "soft" } as Mark;
+    return { ch: templ ?? "·" };
   });
 }
 
@@ -99,7 +94,7 @@ function anaphoraSpans(devices: Device[]): Map<number, number> {
 type Phase = "on" | "closing" | "off";
 
 /** The correspondence between a beat and the syllable it describes, and
- *  between a rhyme letter in the header pill and the lines that share it.
+ *  between a rhyme letter in the rail and the other lines that share it.
  *  Both are hover-only decoration over an already-complete display, so this
  *  runs imperatively: the poem never re-renders on a pointer move. */
 function useHoverLink(root: React.RefObject<HTMLElement | null>) {
@@ -231,7 +226,7 @@ export default function Reader({ poem }: { poem: Poem }) {
             <span className={styles.switch} aria-hidden>
               <span className={styles.switchThumb} />
             </span>
-            machinery
+            Machinery
           </button>
         </nav>
 
@@ -254,28 +249,6 @@ export default function Reader({ poem }: { poem: Poem }) {
                 fit {poem.meter_confidence.toFixed(2)}
               </span>
             )}
-            {mounted && scheme.length > 0 && (
-              <span
-                className={styles.scheme}
-                aria-label={`rhyme scheme ${scheme.join("")}`}
-              >
-                {scheme.slice(0, SCHEME_MAX).map((c, k) => (
-                  <span
-                    key={k}
-                    className={styles.schemeLetter}
-                    data-rhyme={c}
-                    aria-hidden
-                  >
-                    {c}
-                  </span>
-                ))}
-                {scheme.length > SCHEME_MAX && (
-                  <span className={styles.schemeMore} aria-hidden>
-                    …
-                  </span>
-                )}
-              </span>
-            )}
           </div>
         </header>
 
@@ -284,7 +257,6 @@ export default function Reader({ poem }: { poem: Poem }) {
             if (!line.trim()) return <div key={i} className={styles.stanzaBreak} />;
             const n = i + 1;
             const segments = segmentLine(line, poem.scansion[i] ?? []);
-            const devs = new Set(poem.deviations[i] ?? []);
             const anaphSpan = anaphora.get(n);
             const stagger = Math.min(visIdx++, 24); // steps of --stagger-xs (tokens.css)
             const letter = poem.rhyme_scheme[i];
@@ -325,12 +297,9 @@ export default function Reader({ poem }: { poem: Poem }) {
                           className={styles.beatGroup}
                           data-w={seg.wordNo}
                         >
-                          {marksForWord(seg.token, seg.startSyl, foot, devs).map(
+                          {marksForWord(seg.token, seg.startSyl, foot).map(
                             (mk, k) => (
-                              <span
-                                key={k}
-                                className={`${styles.beat} ${styles[mk.cls]}`}
-                              >
+                              <span key={k} className={styles.beat}>
                                 {mk.ch}
                               </span>
                             )
@@ -420,16 +389,7 @@ export default function Reader({ poem }: { poem: Poem }) {
           <>
             <hr className={`${shared.rule} ${styles.legendRule}`} />
             <footer className={styles.legend}>
-              <span className={styles.finePrint}>
-                / stressed&ensp;× unstressed&ensp;
-                <span className={styles.legendSoft}>
-                  faint = read from the meter
-                </span>
-                &ensp;
-                <span className={styles.legendDev}>
-                  marked = against the meter
-                </span>
-              </span>
+              <span className={styles.finePrint}>/ stressed&ensp;× unstressed</span>
               <span className={styles.finePrint}>
                 <span className={styles.legendSoft}>
                   Point at a word and its beats light with it; point at a letter
