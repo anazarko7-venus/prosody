@@ -80,7 +80,7 @@
   }
 
   .toggle[aria-pressed="true"] {
-    color: var(--color-action);
+    color: var(--color-text);
   }
 
   .switch {
@@ -98,7 +98,7 @@
   }
 
   .toggle[aria-pressed="true"] .switch {
-    background: var(--color-text);
+    background: var(--color-action);
   }
 
   /* press = the design's 1px settle */
@@ -376,7 +376,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-inline: var(--stroke-strong) solid transparent;
+    border-inline: var(--stroke-hairline) solid transparent;
     transition: background var(--dur-quick) var(--ease-std),
       border-color var(--dur-quick) var(--ease-std);
   }

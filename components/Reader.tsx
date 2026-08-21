@@ -228,7 +228,7 @@ export default function Reader({ poem }: { poem: Poem }) {
             <span className={styles.switch} aria-hidden>
               <span className={styles.switchThumb} />
             </span>
-            machinery
+            Machinery
           </button>
         </nav>
 
