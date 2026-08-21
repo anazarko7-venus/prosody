@@ -28,6 +28,14 @@
     display: flex;
   }
 
+  /* The band as pure remainder: it takes whatever the viewport has spare and
+     nothing at all when it has none. A screen that should stand in exactly one
+     viewport asks for this; a screen that scrolls wants the floor above. */
+  .bandFill {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
   .row {
     display: flex;
     align-items: stretch;

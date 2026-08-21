@@ -21,10 +21,12 @@ function Flanks({ block }: { block?: boolean }) {
   );
 }
 
-/** Empty ruled ground above and below the cards. */
-export function Band() {
+/** Empty ruled ground above and below the cards. `fill` drops the band's
+ *  floor, so a screen whose card fits can stand in exactly one viewport. */
+export function Band({ fill }: { fill?: boolean }) {
+  const cls = fill ? `${styles.band} ${styles.bandFill}` : styles.band;
   return (
-    <div className={styles.band}>
+    <div className={cls}>
       <Flanks />
       <div className={styles.bandColumn} aria-hidden />
       <Flanks />
