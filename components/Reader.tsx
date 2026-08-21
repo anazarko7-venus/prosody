@@ -9,9 +9,6 @@ import shared from "./shared.module.css";
 
 const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
 const STRONG_PUNCT = /[;:.!?—]/;
-/** The rhyme pill is an overview, not a transcript: past this the rail carries
- *  the rest. The corpus runs to 113 letters (The Raven). */
-const SCHEME_MAX = 32;
 
 type Mark = { ch: string; cls: "firm" | "soft" | "dev" };
 
@@ -99,7 +96,7 @@ function anaphoraSpans(devices: Device[]): Map<number, number> {
 type Phase = "on" | "closing" | "off";
 
 /** The correspondence between a beat and the syllable it describes, and
- *  between a rhyme letter in the header pill and the lines that share it.
+ *  between a rhyme letter in the rail and the other lines that share it.
  *  Both are hover-only decoration over an already-complete display, so this
  *  runs imperatively: the poem never re-renders on a pointer move. */
 function useHoverLink(root: React.RefObject<HTMLElement | null>) {
@@ -252,28 +249,6 @@ export default function Reader({ poem }: { poem: Poem }) {
             {poem.meter !== "free_verse" && (
               <span className={shared.tag}>
                 fit {poem.meter_confidence.toFixed(2)}
-              </span>
-            )}
-            {mounted && scheme.length > 0 && (
-              <span
-                className={styles.scheme}
-                aria-label={`rhyme scheme ${scheme.join("")}`}
-              >
-                {scheme.slice(0, SCHEME_MAX).map((c, k) => (
-                  <span
-                    key={k}
-                    className={styles.schemeLetter}
-                    data-rhyme={c}
-                    aria-hidden
-                  >
-                    {c}
-                  </span>
-                ))}
-                {scheme.length > SCHEME_MAX && (
-                  <span className={styles.schemeMore} aria-hidden>
-                    …
-                  </span>
-                )}
               </span>
             )}
           </div>

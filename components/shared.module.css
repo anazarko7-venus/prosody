@@ -25,8 +25,7 @@
 
   /* A value wearing a small surface. The finder's result rows and the
      reader's header draw the same pill, so it lives here rather than in two
-     copies. `.tagWide` is the one that has to hold a whole rhyme scheme: it
-     may wrap, so it takes the controls' radius instead of the stadium's. */
+     copies. */
   .tag {
     display: inline-flex;
     align-items: center;
@@ -48,13 +47,6 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2);
-  }
-
-  .tagWide {
-    border-radius: var(--radius-md);
-    padding-block: var(--space-1);
-    white-space: normal;
-    flex-shrink: 1;
   }
 
   /* The Gulax base — the application's voice. Weight is explicit so the
