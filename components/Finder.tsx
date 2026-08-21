@@ -250,7 +250,7 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
 
   return (
     <main className={shellPage}>
-      <Band />
+      <Band fill={!searched} />
 
       {/* ----------------------------- the asking --------------------------- */}
       <Row>
@@ -377,7 +377,7 @@ export default function Finder({ index }: { index: PoemMeta[] }) {
         </Row>
       )}
 
-      <Band />
+      <Band fill={!searched} />
     </main>
   );
 }
