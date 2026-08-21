@@ -256,7 +256,7 @@ export default function Reader({ poem }: { poem: Poem }) {
             )}
             {mounted && scheme.length > 0 && (
               <span
-                className={`${shared.tag} ${shared.tagWide} ${styles.scheme}`}
+                className={styles.scheme}
                 aria-label={`rhyme scheme ${scheme.join("")}`}
               >
                 {scheme.slice(0, SCHEME_MAX).map((c, k) => (
